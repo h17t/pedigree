@@ -8,6 +8,7 @@ import { HISTORY } from '@/timeline/history';
 import { color } from '@/design/tokens';
 import { cardText } from '@/render/geometry';
 import { useRouter } from '../router';
+import { openPrint } from '../print/printStore';
 
 const ROW = 30;
 const LABEL_W = 180;
@@ -61,6 +62,9 @@ export function TimelineView() {
             {t('timeline.zoomIn')}
           </button>
         </div>
+        <button type="button" className="btn" onClick={() => openPrint({ defaultContent: 'timeline' })}>
+          {t('print.open')}
+        </button>
         <div className="radio-row">
           <input id="timeline-history" type="checkbox" checked={history} onChange={(e) => setHistory(e.target.checked)} aria-describedby="timeline-history-note" />
           <span>

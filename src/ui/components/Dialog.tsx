@@ -6,7 +6,7 @@ import { useT } from '@/i18n';
  * Modal dialog on the native <dialog> element: focus trapping, Escape and the backdrop come
  * for free and are announced correctly by screen readers.
  */
-export function Dialog({ open, title, onClose, children, describedBy }: { open: boolean; title: string; onClose: () => void; children: ReactNode; describedBy?: string }) {
+export function Dialog({ open, title, onClose, children, describedBy, wide = false }: { open: boolean; title: string; onClose: () => void; children: ReactNode; describedBy?: string; wide?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   const { t } = useT();
   useEffect(() => {
@@ -16,7 +16,7 @@ export function Dialog({ open, title, onClose, children, describedBy }: { open: 
     if (!open && el.open) el.close();
   }, [open]);
   return (
-    <dialog ref={ref} className="dialog" onClose={onClose} aria-labelledby="dialog-title" aria-describedby={describedBy}>
+    <dialog ref={ref} className={`dialog${wide ? ' dialog-wide' : ''}`} onClose={onClose} aria-labelledby="dialog-title" aria-describedby={describedBy}>
       <div className="dialog-inner">
         <div className="dialog-head">
           <h2 id="dialog-title">{title}</h2>

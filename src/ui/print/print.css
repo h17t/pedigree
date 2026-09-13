@@ -1,0 +1,15 @@
+.print-dialog { display: grid; gap: var(--sp-4); }
+@media (min-width: 1024px) { .print-dialog { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.print-options { display: grid; gap: var(--sp-3); align-content: start; }
+.print-preview { display: grid; gap: var(--sp-3); align-content: start; }
+.print-sheet { width: 100%; max-width: 480px; background: var(--paper); border: 1px solid var(--rule); box-shadow: var(--shadow-menu); }
+.print-sheet svg { width: 100%; height: 100%; display: block; }
+.dialog.dialog-wide { max-width: min(96vw, 1100px); }
+#print-root { display: none; }
+@media print {
+  body > *:not(#print-root) { display: none !important; }
+  #print-root { display: block !important; position: static; }
+  .print-page { page-break-after: always; break-after: page; width: 100%; height: 100%; }
+  .print-page:last-child { page-break-after: auto; break-after: auto; }
+  .print-page svg { width: 100%; height: 100%; display: block; }
+}

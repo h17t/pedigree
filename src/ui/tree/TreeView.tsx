@@ -24,6 +24,7 @@ import { useRouter } from '../router';
 import { DetailsHost } from '../edit/DetailsHost';
 import { AddMenu } from '../edit/AddMenu';
 import { closeEditor, openEditor, useEditor } from '../edit/editorStore';
+import { openPrint } from '../print/printStore';
 
 /**
  * Tree mode: toolbar (search, legend, fit, zoom, card detail, add person), the canvas, the
@@ -300,6 +301,9 @@ export function TreeView() {
         </div>
         <button type="button" className="btn btn-layout" aria-expanded={layoutOpen} onClick={() => setLayoutOpen((v) => !v)}>
           {t('layout.panel')}
+        </button>
+        <button type="button" className="btn btn-print" onClick={() => openPrint({ selection: multiLive.size > 1 ? [...multiLive] : ui.selectedPersonId ? [ui.selectedPersonId] : [], filtered: ui.filter ? [...visible] : null, clusters: frames.map((f) => ({ index: f.index, personIds: f.personIds })), defaultContent: 'tree' })}>
+          {t('print.open')}
         </button>
         {!readOnly && isDesktop && (
           <button type="button" className="btn btn-primary btn-add" onClick={addNewPerson}>

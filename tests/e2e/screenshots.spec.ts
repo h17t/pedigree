@@ -22,6 +22,10 @@ test('stage screenshots', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Fit' }).click();
   await page.waitForTimeout(300);
   await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-tree-fit.png`, fullPage: false });
+  await page.getByRole('button', { name: 'Print & export' }).click();
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-print.png`, fullPage: false });
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
   await page.getByLabel('Type a name to jump to a person').fill('karl');
   await page.getByRole('button', { name: /Karl Weber, 1878/ }).first().click();
   await page.waitForTimeout(300);

@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/store';
 import { computeStatistics } from '@/timeline/statistics';
 import { color } from '@/design/tokens';
 import { BarChart, GroupedBars, RankedBars } from './charts';
+import { openPrint } from '../print/printStore';
 
 /** Statistics mode. Every metric states its base population. */
 export function StatisticsView() {
@@ -22,6 +23,11 @@ export function StatisticsView() {
       <div className="stack-tight">
         <h2>{t('stats.title')}</h2>
         <p className="muted">{t('stats.intro')}</p>
+        <div className="btn-row">
+          <button type="button" className="btn" onClick={() => openPrint({ defaultContent: 'statistics' })}>
+            {t('print.open')}
+          </button>
+        </div>
       </div>
       <dl className="stat-tiles">
         <div className="stat-tile">

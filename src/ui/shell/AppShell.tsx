@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useT } from '@/i18n';
+import type { TKey } from '@/i18n';
 import { useAppStore } from '@/store/store';
 import { useRouter } from '../router';
 import type { Mode } from '../router';
@@ -8,6 +9,10 @@ import { StatusMessages } from '../components/StatusMessages';
 import { UndoRedo } from '../edit/UndoRedo';
 import { EditorDialogs } from '../edit/EditorDialogs';
 import { openEditor } from '../edit/editorStore';
+import { Suspense, lazy } from 'react';
+import { usePrint } from '../print/printStore';
+
+const PrintDialog = lazy(() => import('../print/PrintDialog').then((m) => ({ default: m.PrintDialog })));
 
 const NAV: { mode: Mode; key: 'nav.tree' | 'nav.list' | 'nav.timeline' | 'nav.statistics' | 'nav.data' }[] = [
   { mode: 'tree', key: 'nav.tree' },
@@ -29,6 +34,7 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
   const name = useAppStore((s) => s.project?.name ?? '');
   const lockState = useAppStore((s) => s.lockState);
   const warnings = useAppStore((s) => s.warnings.length);
+  const printOpen = usePrint((s) => s.open);
 
   const nav = (
     <nav aria-label={t('nav.mainNavigation')} className="mode-nav">
@@ -37,14 +43,20 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
           <li key={n.mode}>
             <button type="button" className={`mode-btn${mode === n.mode ? ' mode-btn-active' : ''}`} aria-current={mode === n.mode ? 'page' : undefined} onClick={() => go(n.mode)}>
               <NavIcon mode={n.mode} />
-              <span>{t(n.key)}</span>
+              <span className="nav-long">{t(n.key)}</span>
+              <span className="nav-short" aria-hidden="true">
+                {t(`nav.short.${n.mode}` as TKey)}
+              </span>
             </button>
           </li>
         ))}
         <li>
           <button type="button" className={`mode-btn${mode === 'projects' ? ' mode-btn-active' : ''}`} aria-current={mode === 'projects' ? 'page' : undefined} onClick={() => go('projects')}>
             <NavIcon mode="projects" />
-            <span>{t('nav.projects')}</span>
+            <span className="nav-long">{t('nav.projects')}</span>
+            <span className="nav-short" aria-hidden="true">
+              {t('nav.short.projects')}
+            </span>
           </button>
         </li>
       </ul>
@@ -78,6 +90,11 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
         <UndoRedo compact />
       </header>
       <EditorDialogs />
+      {printOpen && (
+        <Suspense fallback={null}>
+          <PrintDialog />
+        </Suspense>
+      )}
       <div className="shell-body">
         <div className="shell-nav">{nav}</div>
         <main id="main" className={`shell-main${mode === 'tree' ? ' shell-main-tree' : ''}`} tabIndex={-1}>

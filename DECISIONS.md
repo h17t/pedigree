@@ -153,3 +153,14 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 108 | The three-series chart uses a validated trio (#178A5C, #2456C4, #B3741A with a hatch): the design's muted green and ink failed the chroma checks of the palette validator when used as series colours. | Series colours must be distinguishable for colour-blind readers; labels and the pattern carry identity as well. | decided |
 | 109 | The historical layer is drawn as pale bands with small labels above the year axis, in the active language. | Recessive background, never competing with the bars. | decided |
 
+## Stage (g) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 110 | Print output is a nested `<svg>` with a `viewBox` mapped onto the printable area; the page margin in `@page` is 0 and the margins are drawn by the app. | Keeps the sheet geometry identical in the preview, on paper and in the exported file, without CSS transforms. | decided |
+| 111 | The SVG file in tiling mode contains the whole drawing at 100 % as one sheet whose size follows the drawing. | Tiling is a home-printer workaround; a print shop wants the whole poster in one file. | decided |
+| 112 | The PNG export renders the currently previewed sheet at the chosen dpi. | One image per sheet keeps the cap meaningful; for large posters the SVG route is recommended. | decided |
+| 113 | The timeline and statistics sheets are always fit-to-one-page. | Their layout is a list, not a poster; tiling would cut rows. | decided |
+| 114 | Fonts embedded in SVG exports are the Fontsource WOFF2 chunks (Latin, Latin Extended) for the weights used, selected by scanning the exported text. | Decision 42: chunk-level subsetting without a font compiler; OFL 1.1 permits embedding. | decided |
+| 115 | Sheet 1 of a tiled print carries a small assembly plan in the top-left corner of the drawing area. | The brief asks for an assembly diagram; the corner keeps it away from the crop marks. | decided |
+

@@ -3,9 +3,9 @@
 A fully client-side family tree editor for the browser. Create, edit, print and export a family
 tree without a server, an account or any network traffic. **All data stays on the device.**
 
-Status: **stage (f) of (j) complete** — data model, storage, the tree canvas with auto-layout,
-the outline list view, the project list, full editing, GEDCOM import/export, the timeline and the
-statistics work; printing, onboarding and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
+Status: **stage (g) of (j) complete** — data model, storage, the tree canvas with auto-layout,
+the outline list view, the project list, full editing, GEDCOM import/export, timeline, statistics,
+printing and export work; onboarding and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
 every design and technical decision.
 
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `docs/screenshots/`.
@@ -24,6 +24,10 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 - **Timeline** shows one lifespan bar per person, zoomable, with an optional layer of a few
   historical events (off by default). **Statistics** shows counts, ages and most common names, and
   every figure says how many people it is based on.
+- **Print & export** (in the Tree, Timeline and Statistics views) opens a dialog with paper size,
+  orientation, margins, "fit on one page" or "spread across several sheets", detail level, title
+  and legend, a to-scale preview, and buttons to print, to save an SVG file (fonts embedded) or a
+  PNG image. See "Printing large trees" below.
 - **Data → GEDCOM files** imports a `.ged` file (GEDCOM 5.5.1; UTF-8, UTF-16, ANSEL and
   Windows-1252 are recognised) as a new tree or into the open tree, shows an import report, and
   exports the tree as GEDCOM 5.5.1 for other programs. GEDCOM 7 files are refused with an explanation.
@@ -81,18 +85,37 @@ the PWA manifest's `start_url`/`scope` and the service-worker registration path 
 ## Bundle budget
 
 Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Measured by
-`npm run budget` after the stage (f) build:
+`npm run budget` after the stage (g) build:
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 130.1 KB | 250.0 KB |
-| Initial CSS | 5.0 KB | — |
+| Initial JS (entry + static imports) | 133.1 KB | 250.0 KB |
+| Initial CSS | 5.3 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 159.9 KB | 500.0 KB |
+| **Initial payload** | 163.1 KB | 500.0 KB |
 
-The sample family, the GEDCOM module and the timeline/statistics views load lazily and do not
-count. The print/export module will be a lazy chunk as well.
+The sample family, the GEDCOM module, the timeline/statistics views and the print dialog load
+lazily and do not count.
+
+## Printing large trees
+
+A home printer handles A4 and often A3. For anything larger, the browser's print dialog only offers
+the sizes the installed printer driver knows, so A2 and A1 rarely work at home. The reliable route
+for a large family tree is:
+
+1. Open **Print & export**, choose the paper size you want at the print shop (A2, A1) and
+   **Save an SVG file**. The file keeps the text selectable and the fonts are embedded, so it looks
+   the same on any machine.
+2. Take the SVG file to a print shop (or a plotter). Ask for "actual size".
+
+Alternatively, choose **Spread across several sheets** to print a large tree at a readable size on
+your own A4 or A3 sheets, with crop marks, sheet numbers and an assembly plan on the first sheet.
+
+For a PDF, choose "Save as PDF" as the printer in the browser's print dialog. In that dialog, pick
+the same paper size and orientation as in the app and "Actual size" or "100 %" rather than "Fit to
+page". Some browsers ignore the paper size the app requests; the in-app preview shows the correct
+proportions in any case.
 
 ## Privacy
 

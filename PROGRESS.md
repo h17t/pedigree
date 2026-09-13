@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (f) complete; stage (g) (printing and export) is next.**
+Current status (2026-09-13): **stage (g) complete; stage (h) (onboarding, wizard, help) is next.**
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -68,6 +68,18 @@ occupations and places), every metric with its base population, charts as lean S
 labels and a data table behind a disclosure. Both views are a lazily loaded chunk.
 173 unit tests and 48 Playwright tests pass.
 
+Stage (g) delivered: the in-app print dialog (paper A5–A1, orientation, margin, fit-to-one-page
+or tiling with a chosen scale and overlap, detail level, scope: whole tree / selection / current
+filter / one family, title, subtitle, date, legend, black-and-white; content: tree, timeline or
+statistics sheet), a to-scale preview with margins and a sheet-by-sheet view in tiling mode with
+crop marks and an assembly plan on sheet 1, the legibility warning below 6 pt with alternatives in
+the briefed order, the large-format advice for A3 and up, printing through the browser with a
+matching @page rule and plain instructions for the system dialog and for "Save as PDF", SVG export
+with the fonts embedded as base64 WOFF2 chunks (only the chunks the text uses), PNG export at
+150/300/600 dpi capped at 8 000 px with the oversized combinations disabled and explained, and
+unit tests for the scaling, tiling, cap and font-chunk maths. 181 unit tests and 53 Playwright
+tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -83,7 +95,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(d)** auto-layout with generations and clusters, null-position placement, re-arrange selection, snap-to-grid, alignment guides, jump-to-cluster — screenshots in `docs/screenshots/stage-d/`
 - [x] **(e)** GEDCOM import (new / merge) and export, encodings, import report, raw preservation toggle — screenshots in `docs/screenshots/stage-e/`
 - [x] **(f)** timeline and statistics with base populations, charts with data tables, historical layer — screenshots in `docs/screenshots/stage-f/`
-- [ ] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions
+- [x] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions — screenshots in `docs/screenshots/stage-g/`
 - [ ] **(h)** first-run screen, wizard, inline hints, help page, printable quick start
 - [ ] **(i)** manifest, service worker, update banner, install entry, offline verification
 - [ ] **(j)** final accessibility audit, 500-person performance pass, README numbers, network-tab verification

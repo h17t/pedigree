@@ -23,8 +23,12 @@
 .shell-nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paper); border-top: 1px solid var(--rule); z-index: 20; padding-bottom: env(safe-area-inset-bottom); }
 .mode-nav ul { list-style: none; margin: 0; padding: 0; display: flex; }
 .mode-nav li { flex: 1 1 0; min-width: 0; }
-.mode-btn { width: 100%; min-height: var(--touch-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 0; background: transparent; color: var(--ink); font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; cursor: pointer; padding: var(--sp-1) var(--sp-2); }
+.mode-btn { position: relative; width: 100%; min-height: var(--touch-primary); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 0; background: transparent; color: var(--ink); font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; cursor: pointer; padding: var(--sp-1) 2px; }
 .mode-btn svg { flex: 0 0 auto; }
+/* Phones show the short label (the full name stays for assistive technology); the icon is decorative. */
+.nav-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.nav-short { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+@media (min-width: 768px) { .nav-long { position: static; width: auto; height: auto; clip: auto; overflow: visible; } .nav-short { display: none; } }
 .mode-btn-active { color: var(--line); box-shadow: inset 0 3px 0 var(--line); }
 .mode-btn:hover { background: var(--ground); }
 
