@@ -196,3 +196,12 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 130 | Performance is measured end to end by Playwright with the CPU throttled 4× through the DevTools protocol; the README quotes those numbers and the test asserts generous ceilings. | Reproducible in CI, includes the UI round trip, and catches regressions without certifying a particular device. | decided |
 | 131 | The final audit lives in its own spec (`audit.spec.ts`) rather than being spread over the feature specs. | One place to see which states are covered; the feature specs keep their own targeted checks. | decided |
 | 132 | Screen-reader support is not claimed until a person has run the checklist in `docs/SCREEN_READER_CHECKLIST.md`. | The brief forbids claiming what has not been verified. | decided |
+
+## After first use (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 133 | No relationship state is assumed: a new partnership and a completed parent pair are "not recorded" (drawn as a single line) until the user sets the kind; the guided start asks for the parents' relationship with "not recorded" preselected and for each person's living / deceased / not known. | The first user reported that the guided start married the parents and made everyone living. The app must show what was entered, never a guess. | decided |
+| 134 | Existing people are linked through one dialog (partner, child, parent, sibling) that lists impossible candidates with the reason instead of hiding them. | Users search by name and need to see why a name does not appear as a choice; the guards (same person, duplicate, ancestor loop, two parents) protect the model. | decided |
+| 135 | Removing a person from a partnership or a family is a separate, undoable action that never deletes the person; the union survives as a "Parents unknown" group while it still has children. | Unlinking and deleting are different intents; the brief forbids destructive surprises. | decided |
+| 136 | A person may have any number of partnerships; each is its own union, drawn as its own line, with its own status and dates. | Remarriage and successive partnerships are ordinary in family history. | decided |

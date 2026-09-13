@@ -40,7 +40,12 @@ test('the guided start creates the family as one undo step and lands on the canv
 
   await expect(page.getByRole('heading', { name: 'Your parents' })).toBeVisible();
   await fillPerson(page, 'Father', 'Peter', 'Muster', '1955');
+  await page.getByRole('group', { name: 'Father' }).getByLabel('Living or deceased').selectOption('deceased');
+  await page.getByRole('group', { name: 'Father' }).getByLabel('Year of death').fill('2010');
   await fillPerson(page, 'Mother', 'Maria', 'Muster', '1958');
+  // Nothing is assumed about the parents' relationship; here it is stated.
+  await expect(page.getByLabel("Your parents' relationship")).toHaveValue('unknown');
+  await page.getByLabel("Your parents' relationship").selectOption('divorced');
   await expectNoViolations(page, 'wizard step 2');
   await page.getByRole('button', { name: 'Next' }).click();
 
@@ -59,7 +64,14 @@ test('the guided start creates the family as one undo step and lands on the canv
   await expect(page.getByRole('note', { name: 'Tip' })).toContainText('Next: add grandparents');
   // The wizard result is laid out (no provisional outlines) and "you" is selected.
   await expect(page.getByRole('button', { name: /Anna Muster/ }).first()).toBeVisible();
-  await expect(page.getByRole('button', { name: /Peter Muster/ }).first()).toBeVisible();
+  // The father is deceased with his year, the mother's status is not known, the parents are divorced.
+  await expect(page.getByRole('button', { name: /Peter Muster, 1955 – † 2010/ }).first()).toBeVisible();
+  await page.getByRole('button', { name: 'List', exact: true }).click();
+  await page.getByRole('button', { name: /Peter Muster/ }).first().click();
+  await expect(page.getByText(/divorced/).first()).toBeVisible();
+  if ((page.viewportSize()?.width ?? 0) < 1024) await page.getByRole('button', { name: 'Back' }).click();
+  await page.getByRole('button', { name: 'Tree', exact: true }).click();
+  await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
 
   // One undo step removes everyone; redo brings them back.
   await page.getByRole('button', { name: 'Undo' }).click();

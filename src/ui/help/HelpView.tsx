@@ -8,7 +8,7 @@ import { useRouter } from '../router';
 import './help.css';
 
 const SECTIONS: { id: 'people' | 'lines' | 'dates' | 'backup' | 'print' | 'install' | 'keys'; paragraphs: number }[] = [
-  { id: 'people', paragraphs: 4 },
+  { id: 'people', paragraphs: 5 },
   { id: 'lines', paragraphs: 3 },
   { id: 'dates', paragraphs: 3 },
   { id: 'backup', paragraphs: 4 },

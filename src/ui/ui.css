@@ -222,3 +222,10 @@
 .btn-help { display: inline-flex; align-items: center; gap: var(--sp-1); padding: 0 var(--sp-2); }
 .btn-help-active { background: var(--line-bg); }
 @media (max-width: 479px) { .btn-help-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+
+/* Relationship editing */
+.h-small { font-size: var(--fs-md); line-height: var(--lh-md); margin: 0; }
+.link-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+.link-row > span:first-child { flex: 1 1 140px; font-weight: 500; }
+.link-menu { margin-top: var(--sp-2); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

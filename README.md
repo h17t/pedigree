@@ -25,6 +25,12 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 - **List** shows every family as an indented outline; choose a person to see their details.
 - Choose a person, then **Edit**, **Add** (partner, child, father, mother, sibling) or **Delete**.
   Deleting explains exactly what else changes; **Undo** and **Redo** are always in the header.
+- **Link an existing person** (under Add) connects two people who are already in the tree as
+  partners, child, parent or sibling; people who cannot take the role are listed with the reason.
+  A person can have any number of partnerships. Nothing about a relationship is assumed: a new
+  partnership, and the parents of a person, are "not recorded" until you set the kind in the
+  partnership editor, which also lists the children (with adopted, step or foster) and lets you
+  remove a person from a partnership or a family without deleting them.
 - **Timeline** shows one lifespan bar per person, zoomable, with an optional layer of a few
   historical events (off by default). **Statistics** shows counts, ages and most common names, and
   every figure says how many people it is based on.
@@ -98,11 +104,11 @@ Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Mea
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 143.8 KB | 250.0 KB |
+| Initial JS (entry + static imports) | 147.2 KB | 250.0 KB |
 | Initial CSS | 5.6 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 174.2 KB | 500.0 KB |
+| **Initial payload** | 177.6 KB | 500.0 KB |
 
 The sample family, the GEDCOM module, the timeline/statistics views, the guided start, the help
 page and the print dialog load lazily and do not count.

@@ -121,6 +121,17 @@ verification (no request leaves the origin after load; the service worker serves
 own files); the manual screen-reader checklist in `docs/SCREEN_READER_CHECKLIST.md`; and the
 deployment note below. 191 unit tests and 82 Playwright tests pass.
 
+After the first use (2026-09-13), two reports led to a relationship-states pass: the guided start
+no longer marks everyone as living or the parents as married (each person has living / deceased
+with year / not known, and the parents' relationship is a visible choice that defaults to "not
+recorded"); "Add partner" and a second parent no longer assume a marriage; "Link an existing
+person" (as partner, child, parent or sibling) connects people already in the tree, refusing
+impossible links with the reason (same person, already linked, would create an ancestor loop, two
+parents already); the partnership editor lists partners and children, lets the relation of a child
+be set (biological, adopted, step, foster) and removes a person from a partnership or a family
+without deleting them; the details column removes the link to a person's parents. A person can
+have any number of partnerships, past or present. 195 unit tests and 90 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist

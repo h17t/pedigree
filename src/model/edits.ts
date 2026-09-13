@@ -5,8 +5,9 @@
  * new person appears where the user is looking; stage (d) can re-arrange later.
  */
 import type { Draft } from 'immer';
-import type { Person, Project, RelationType, Sex, Union } from './types';
+import type { Person, Project, RelationType, Sex, Union, UnionStatus, UnionType } from './types';
 import { createChildLink, createPerson, createUnion } from './types';
+import { ancestorsOf } from './graph';
 import { card, layout } from '@/design/tokens';
 
 type P = Draft<Project>;
@@ -39,7 +40,8 @@ export function parentUnionsOf(d: Pick<Project, 'unions' | 'childLinks'>, person
 export function addPartner(d: P, personId: string, partial: Partial<Person> = {}): { person: Person; union: Union } {
   const anchor = d.persons[personId];
   const person = addPerson(d, { position: near(anchor, card.width + layout.columnGap, 0), ...partial });
-  const union = createUnion({ partnerIds: [personId, person.id], type: 'marriage', status: 'married' });
+  // The kind of relationship is not assumed: it stays "not recorded" until the user sets it.
+  const union = createUnion({ partnerIds: [personId, person.id], type: 'unknown', status: 'unknown' });
   d.unions[union.id] = union;
   return { person, union };
 }
@@ -77,9 +79,8 @@ export function addParent(d: P, childId: string, sex: Sex, partial: Partial<Pers
   let union = parentUnions.find((u) => u.partnerIds.length < 2);
   const person = addPerson(d, { sex, position: near(anchor, sex === 'female' ? card.width + layout.columnGap : 0, -(card.height.standard + layout.generationGap)), ...partial });
   if (union) {
+    // Two parents are not assumed to be married: the status stays as recorded.
     union.partnerIds.push(person.id);
-    if (union.partnerIds.length === 2 && union.type === 'unknown') union.type = 'marriage';
-    if (union.partnerIds.length === 2 && union.status === 'unknown') union.status = 'married';
   } else {
     union = createUnion({ partnerIds: [person.id], type: 'unknown', status: 'unknown' });
     d.unions[union.id] = union;
@@ -125,16 +126,89 @@ export function makeSiblings(d: P, aId: string, bId: string): Union {
   return union;
 }
 
-/** Link two existing people as partners (new union). */
-export function linkPartners(d: P, aId: string, bId: string): Union {
-  const union = createUnion({ partnerIds: [aId, bId], type: 'marriage', status: 'married' });
+// ---- Linking people who already exist ------------------------------------------------------
+
+/** Why a link between existing people is refused. */
+export type LinkProblem = 'self' | 'exists' | 'cycle' | 'alreadyChild' | 'full';
+
+/** A relationship status maps to a union type the same way everywhere. */
+export function typeForStatus(status: UnionStatus): UnionType {
+  return status === 'partnership' ? 'partnership' : status === 'unknown' ? 'unknown' : 'marriage';
+}
+
+export function canLinkPartner(d: Pick<Project, 'unions'>, aId: string, bId: string): LinkProblem | null {
+  if (aId === bId) return 'self';
+  if (Object.values(d.unions).some((u) => u.partnerIds.includes(aId) && u.partnerIds.includes(bId))) return 'exists';
+  return null;
+}
+
+/**
+ * Link two existing people as partners: a new union (a person may have any number of them,
+ * past or present). The status is what the user chose; nothing is assumed.
+ */
+export function linkPartners(d: P, aId: string, bId: string, status: UnionStatus = 'unknown'): Union {
+  const union = createUnion({ partnerIds: [aId, bId], type: typeForStatus(status), status });
   d.unions[union.id] = union;
   return union;
 }
 
-/** Link an existing person as child of a union. */
+/** A child may not be a partner of the union or an ancestor of one of its partners. */
+export function canLinkChild(d: Project, unionId: string, childId: string): LinkProblem | null {
+  const u = d.unions[unionId];
+  if (!u) return 'exists';
+  if (u.partnerIds.includes(childId)) return 'self';
+  if (Object.values(d.childLinks).some((l) => l.unionId === unionId && l.childId === childId)) return 'alreadyChild';
+  for (const p of u.partnerIds) if (ancestorsOf(d, p).has(childId)) return 'cycle';
+  return null;
+}
+
+/** Link an existing person as child of a union (the caller checks canLinkChild first). */
 export function linkChild(d: P, unionId: string, childId: string, relationType: RelationType = 'biological'): void {
   if (Object.values(d.childLinks).some((l) => l.unionId === unionId && l.childId === childId)) return;
   const link = createChildLink(unionId, childId, relationType);
   d.childLinks[link.id] = link;
+}
+
+/** A parent may not be the child itself, a descendant of the child, or already a parent. */
+export function canLinkParent(d: Project, childId: string, parentId: string): LinkProblem | null {
+  if (childId === parentId) return 'self';
+  const parentUnions = parentUnionsOf(d, childId);
+  if (parentUnions.some((u) => u.partnerIds.includes(parentId))) return 'exists';
+  if (ancestorsOf(d, parentId).has(childId)) return 'cycle';
+  if (parentUnions.length > 0 && parentUnions.every((u) => u.partnerIds.length >= 2)) return 'full';
+  return null;
+}
+
+/**
+ * Link an existing person as a parent: joins the child's parent union when it has a free
+ * slot (a single parent or a "Parents unknown" group), otherwise creates a new one.
+ */
+export function linkParent(d: P, childId: string, parentId: string): Union {
+  let union = parentUnionsOf(d, childId).find((u) => u.partnerIds.length < 2);
+  if (union) {
+    union.partnerIds.push(parentId);
+  } else {
+    union = createUnion({ partnerIds: [parentId], type: 'unknown', status: 'unknown' });
+    d.unions[union.id] = union;
+    const link = createChildLink(union.id, childId, 'biological');
+    d.childLinks[link.id] = link;
+  }
+  return union;
+}
+
+/** Change how a child is related to the parents of a union (biological, adopted, ...). */
+export function setChildRelation(d: P, linkId: string, relationType: RelationType): void {
+  const l = d.childLinks[linkId];
+  if (l) l.relationType = relationType;
+}
+
+/**
+ * Take a person out of a partnership; they stay in the tree. A union left with no partner
+ * and no children disappears; with children it becomes a "Parents unknown" group.
+ */
+export function unlinkPartner(d: P, unionId: string, personId: string): void {
+  const u = d.unions[unionId];
+  if (!u) return;
+  u.partnerIds = u.partnerIds.filter((p) => p !== personId);
+  if (u.partnerIds.length === 0 && !Object.values(d.childLinks).some((l) => l.unionId === unionId)) delete d.unions[unionId];
 }

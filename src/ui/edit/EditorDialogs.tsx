@@ -2,6 +2,7 @@ import { useEditor } from './editorStore';
 import { DeleteManyDialog, DeletePersonDialog, DeleteUnionDialog } from '../dialogs/DeleteDialogs';
 import { MergeDialog } from '../dialogs/MergeDialog';
 import { WarningsDialog } from '../dialogs/WarningsDialog';
+import { LinkDialog } from '../dialogs/LinkDialog';
 import { useAppStore } from '@/store/store';
 
 /** Modal dialogs opened through the editor store; mounted once in the shell. */
@@ -18,6 +19,8 @@ export function EditorDialogs({ onDeletedMany }: { onDeletedMany?: () => void })
       return <DeleteManyDialog ids={state.ids} onDone={() => onDeletedMany?.()} />;
     case 'merge':
       return <MergeDialog aId={state.aId} bId={state.bId} />;
+    case 'link':
+      return <LinkDialog key={`${state.personId}-${state.role}`} personId={state.personId} role={state.role} unionId={state.unionId} />;
     case 'warnings':
       return <WarningsDialog />;
     default:

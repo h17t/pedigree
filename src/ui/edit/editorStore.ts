@@ -12,6 +12,7 @@ export type EditorState =
   | { kind: 'deleteUnion'; id: string }
   | { kind: 'deleteMany'; ids: string[] }
   | { kind: 'merge'; aId: string; bId: string | null }
+  | { kind: 'link'; personId: string; role: 'partner' | 'child' | 'parent' | 'sibling'; unionId?: string }
   | { kind: 'warnings' };
 
 interface Store {

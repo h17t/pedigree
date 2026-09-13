@@ -4,8 +4,8 @@
  * kept in localStorage while the wizard is open so leaving mid-way loses nothing.
  */
 import type { Draft } from 'immer';
-import type { Project, Sex, UnionStatus } from '@/model/types';
-import { addChild, addParent, addPartner, addPerson } from '@/model/edits';
+import type { LifeStatus, Project, Sex, UnionStatus } from '@/model/types';
+import { addChild, addParent, addPartner, addPerson, typeForStatus } from '@/model/edits';
 import { KEY_WIZARD_DRAFT } from './keys';
 
 export interface WizardPerson {
@@ -14,6 +14,10 @@ export interface WizardPerson {
   /** Year alone is enough; empty means unknown. */
   birthYear: string;
   sex: Sex;
+  /** Nothing is assumed: "unknown" unless the user says living or deceased. */
+  life: LifeStatus;
+  /** Only used when life is "deceased"; empty means the year is not known. */
+  deathYear: string;
 }
 
 export interface WizardDraft {
@@ -24,13 +28,16 @@ export interface WizardDraft {
   father: WizardPerson | null;
   mother: WizardPerson | null;
   partner: (WizardPerson & { marriageYear: string; status: UnionStatus }) | null;
+  /** The parents' relationship; "unknown" (not recorded) unless the user says otherwise. */
+  parentsStatus: UnionStatus;
   children: WizardPerson[];
 }
 
-export const emptyPerson = (sex: Sex = 'unknown'): WizardPerson => ({ givenNames: '', surname: '', birthYear: '', sex });
+export const emptyPerson = (sex: Sex = 'unknown', life: LifeStatus = 'unknown'): WizardPerson => ({ givenNames: '', surname: '', birthYear: '', sex, life, deathYear: '' });
 
 export function emptyDraft(projectId?: string): WizardDraft {
-  const d: WizardDraft = { step: 0, self: emptyPerson(), father: null, mother: null, partner: null, children: [] };
+  // "You" are living; everyone else is not assumed to be either.
+  const d: WizardDraft = { step: 0, self: emptyPerson('unknown', 'living'), father: null, mother: null, partner: null, parentsStatus: 'unknown', children: [] };
   if (projectId) d.projectId = projectId;
   return d;
 }
@@ -75,18 +82,25 @@ export function applyWizard(d: Draft<Project>, w: WizardDraft): { selfId: string
     surname: p.surname.trim(),
     sex: p.sex,
     birth: { date: yearOrNull(p.birthYear), qualifier: 'exact' as const, place: '', note: '' },
-    lifeStatus: 'living' as const,
+    death: { date: p.life === 'deceased' ? yearOrNull(p.deathYear) : null, qualifier: 'exact' as const, place: '', note: '', cause: '' },
+    lifeStatus: p.life,
   });
   const self = addPerson(d, { ...fields(w.self), position: { x: 0, y: 0 } });
-  if (hasName(w.father)) addParent(d, self.id, 'male', { ...fields(w.father), sex: 'male' });
-  if (hasName(w.mother)) addParent(d, self.id, 'female', { ...fields(w.mother), sex: 'female' });
+  let parentUnion: string | null = null;
+  if (hasName(w.father)) parentUnion = addParent(d, self.id, 'male', { ...fields(w.father), sex: 'male' }).union.id;
+  if (hasName(w.mother)) parentUnion = addParent(d, self.id, 'female', { ...fields(w.mother), sex: 'female' }).union.id;
+  if (parentUnion) {
+    const pu = d.unions[parentUnion]!;
+    pu.status = w.parentsStatus;
+    pu.type = typeForStatus(w.parentsStatus);
+  }
   let unionId: string | null = null;
   if (hasName(w.partner)) {
     const r = addPartner(d, self.id, fields(w.partner));
     unionId = r.union.id;
     const u = d.unions[unionId]!;
     u.status = w.partner.status;
-    u.type = w.partner.status === 'partnership' ? 'partnership' : w.partner.status === 'unknown' ? 'unknown' : 'marriage';
+    u.type = typeForStatus(w.partner.status);
     u.marriageDate = yearOrNull(w.partner.marriageYear);
   }
   for (const c of w.children.filter(hasName)) addChild(d, self.id, unionId, fields(c));
@@ -100,7 +114,12 @@ export function loadDraft(): WizardDraft | null {
     const raw = localStorage.getItem(KEY_WIZARD_DRAFT);
     if (!raw) return null;
     const v = JSON.parse(raw) as WizardDraft;
-    return v && typeof v === 'object' && v.self ? { ...emptyDraft(), ...v } : null;
+    if (!v || typeof v !== 'object' || !v.self) return null;
+    // Drafts saved before the life-status fields existed get the same defaults as a new draft.
+    const fill = (p: WizardPerson | null, life: LifeStatus): WizardPerson | null => (p ? { ...emptyPerson(p.sex, life), ...p } : null);
+    const d: WizardDraft = { ...emptyDraft(), ...v, self: fill(v.self, 'living')!, father: fill(v.father, 'unknown'), mother: fill(v.mother, 'unknown'), children: (v.children ?? []).map((c) => fill(c, 'unknown')!) };
+    if (v.partner) d.partner = { ...fill(v.partner, 'unknown')!, marriageYear: v.partner.marriageYear ?? '', status: v.partner.status ?? 'married' };
+    return d;
   } catch {
     return null;
   }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { produce } from 'immer';
 import { build, born } from './fixtures';
-import { addChild, addParent, addPartner, addSibling, makeSiblings, unionsOf, parentUnionsOf } from '@/model/edits';
+import { addChild, addParent, addPartner, addSibling, makeSiblings, unionsOf, parentUnionsOf, canLinkChild, canLinkParent, canLinkPartner, linkChild, linkParent, linkPartners, setChildRelation, unlinkPartner } from '@/model/edits';
 import { deletePerson, deleteUnion, previewDeletePerson, unlinkChild } from '@/model/delete';
 import { conflictingFields, mergePersons } from '@/model/merge';
 import { findDuplicates, editDistance } from '@/model/duplicates';
@@ -9,7 +9,7 @@ import { connectedComponents } from '@/model/graph';
 import type { Project } from '@/model/types';
 
 describe('add relatives', () => {
-  it('addPartner creates a marriage union with both', () => {
+  it('addPartner creates a union with both whose kind is not assumed', () => {
     const b = build();
     const a = b.person('A');
     let created = '';
@@ -17,6 +17,7 @@ describe('add relatives', () => {
       created = addPartner(d, a.id, { givenNames: 'B' }).union.id;
     });
     expect(next.unions[created]!.partnerIds).toHaveLength(2);
+    expect(next.unions[created]).toMatchObject({ type: 'unknown', status: 'unknown' });
     expect(Object.keys(next.persons)).toHaveLength(2);
   });
 
@@ -45,7 +46,8 @@ describe('add relatives', () => {
     expect(pu[0]!.partnerIds).toHaveLength(1);
     const withMother = produce(withFather, (d) => void addParent(d, k.id, 'female', { givenNames: 'Mum' }));
     expect(parentUnionsOf(withMother, k.id)[0]!.partnerIds).toHaveLength(2);
-    expect(parentUnionsOf(withMother, k.id)[0]!.type).toBe('marriage');
+    // Two parents are not assumed to be married.
+    expect(parentUnionsOf(withMother, k.id)[0]!).toMatchObject({ type: 'unknown', status: 'unknown' });
     const withSib = produce(withMother, (d) => void addSibling(d, k.id, { givenNames: 'Sis' }));
     expect(Object.values(withSib.childLinks).filter((l) => l.unionId === parentUnionsOf(withSib, k.id)[0]!.id)).toHaveLength(2);
     // sibling without parents
@@ -64,6 +66,73 @@ describe('add relatives', () => {
     const s = produce(b.project, (d) => void makeSiblings(d, x.id, y.id));
     expect(connectedComponents(s)).toHaveLength(1);
     expect(Object.values(s.unions)[0]!.partnerIds).toEqual([]);
+  });
+});
+
+describe('linking existing people', () => {
+  it('a person can have several partnerships; the same pair is refused twice; self is refused', () => {
+    const b = build();
+    const a = b.person('A');
+    const x = b.person('X');
+    const y = b.person('Y');
+    expect(canLinkPartner(b.project, a.id, a.id)).toBe('self');
+    const p1 = produce(b.project, (d) => void linkPartners(d, a.id, x.id, 'divorced'));
+    expect(unionsOf(p1, a.id)).toHaveLength(1);
+    expect(unionsOf(p1, a.id)[0]).toMatchObject({ status: 'divorced', type: 'marriage' });
+    expect(canLinkPartner(p1, a.id, x.id)).toBe('exists');
+    expect(canLinkPartner(p1, a.id, y.id)).toBeNull();
+    const p2 = produce(p1, (d) => void linkPartners(d, a.id, y.id, 'married'));
+    expect(unionsOf(p2, a.id)).toHaveLength(2);
+  });
+
+  it('linkParent joins a free slot or creates a union; refuses self, duplicates, a full pair and cycles', () => {
+    const b = build();
+    const kid = b.person('Kid');
+    const dad = b.person('Dad');
+    const mum = b.person('Mum');
+    const other = b.person('Other');
+    expect(canLinkParent(b.project, kid.id, kid.id)).toBe('self');
+    const p1 = produce(b.project, (d) => void linkParent(d, kid.id, dad.id));
+    expect(parentUnionsOf(p1, kid.id)[0]!.partnerIds).toEqual([dad.id]);
+    expect(canLinkParent(p1, kid.id, dad.id)).toBe('exists');
+    const p2 = produce(p1, (d) => void linkParent(d, kid.id, mum.id));
+    expect(parentUnionsOf(p2, kid.id)).toHaveLength(1);
+    expect(parentUnionsOf(p2, kid.id)[0]!.partnerIds).toEqual([dad.id, mum.id]);
+    expect(parentUnionsOf(p2, kid.id)[0]).toMatchObject({ status: 'unknown' });
+    expect(canLinkParent(p2, kid.id, other.id)).toBe('full');
+    // Kid's child cannot become Kid's parent.
+    const p3 = produce(p2, (d) => void addChild(d, kid.id, null, { givenNames: 'Grandkid' }));
+    const grandkid = Object.values(p3.persons).find((p) => p.givenNames === 'Grandkid')!;
+    expect(canLinkParent(p3, dad.id, grandkid.id)).toBe('cycle');
+    expect(canLinkParent(p3, dad.id, other.id)).toBeNull();
+  });
+
+  it('linkChild refuses partners, duplicates and ancestors; relation can be changed; unlinkPartner keeps the person', () => {
+    const b = build();
+    const a = b.person('A');
+    const x = b.person('X');
+    const c = b.person('C');
+    const p1 = produce(b.project, (d) => void linkPartners(d, a.id, x.id));
+    const u = unionsOf(p1, a.id)[0]!;
+    expect(canLinkChild(p1, u.id, a.id)).toBe('self');
+    expect(canLinkChild(p1, u.id, c.id)).toBeNull();
+    const p2 = produce(p1, (d) => void linkChild(d, u.id, c.id, 'adopted'));
+    const link = Object.values(p2.childLinks)[0]!;
+    expect(link).toMatchObject({ unionId: u.id, childId: c.id, relationType: 'adopted' });
+    expect(canLinkChild(p2, u.id, c.id)).toBe('alreadyChild');
+    // C's own partnership cannot take A (C's parent) as a child.
+    const p3 = produce(p2, (d) => void addPartner(d, c.id, { givenNames: 'D' }));
+    const cu = unionsOf(p3, c.id)[0]!;
+    expect(canLinkChild(p3, cu.id, a.id)).toBe('cycle');
+    const p4 = produce(p3, (d) => setChildRelation(d, link.id, 'step'));
+    expect(p4.childLinks[link.id]!.relationType).toBe('step');
+    const p5 = produce(p4, (d) => unlinkPartner(d, u.id, x.id));
+    expect(p5.persons[x.id]).toBeDefined();
+    expect(p5.unions[u.id]!.partnerIds).toEqual([a.id]);
+    // An empty union with no children disappears when the last partner leaves.
+    const p6 = produce(p5, (d) => unlinkPartner(d, cu.id, c.id));
+    const p7 = produce(p6, (d) => unlinkPartner(d, cu.id, Object.values(p6.unions[cu.id]!.partnerIds)[0]!));
+    expect(p7.unions[cu.id]).toBeUndefined();
   });
 });
 

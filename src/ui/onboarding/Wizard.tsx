@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { current } from 'immer';
 import { useT } from '@/i18n';
 import type { TKey } from '@/i18n';
-import type { Sex, UnionStatus } from '@/model/types';
+import type { LifeStatus, Sex, UnionStatus } from '@/model/types';
 import { useAppStore, transact, updateUi } from '@/store/store';
 import { layoutAll } from '@/render/layout';
 import { WIZARD_STEPS, applyWizard, clearDraft, emptyDraft, emptyPerson, hasName, loadDraft, saveDraft, summarize, yearValid } from '@/onboarding/wizard';
@@ -13,6 +13,8 @@ import { useRouter } from '../router';
 
 const SEXES: Sex[] = ['unknown', 'female', 'male', 'diverse'];
 const STATUSES: UnionStatus[] = ['married', 'partnership', 'divorced', 'widowed', 'separated', 'unknown'];
+const PARENT_STATUSES: UnionStatus[] = ['unknown', 'married', 'partnership', 'divorced', 'widowed', 'separated'];
+const LIFE: LifeStatus[] = ['unknown', 'living', 'deceased'];
 const STEP_KEYS = ['self', 'parents', 'partner', 'children'] as const;
 
 /**
@@ -50,7 +52,7 @@ export function Wizard() {
 
   if (!project) return null;
 
-  const validYears = (p: WizardPerson | null) => !p || yearValid(p.birthYear);
+  const validYears = (p: WizardPerson | null) => !p || (yearValid(p.birthYear) && (p.life !== 'deceased' || yearValid(p.deathYear)));
   const next = () => {
     if (draft.step === 0 && !hasName(draft.self)) {
       setError(t('wizard.selfRequired'));
@@ -136,6 +138,24 @@ export function Wizard() {
           </div>
         )}
       </div>
+      <div className="field-row">
+        <div className="field">
+          <label htmlFor={`${prefix}-life`}>{t('wizard.life')}</label>
+          <select id={`${prefix}-life`} className="select" value={p.life} onChange={(e) => onChange({ ...p, life: e.target.value as LifeStatus })}>
+            {LIFE.map((l) => (
+              <option key={l} value={l}>
+                {t(`wizard.lifeValue.${l}` as TKey)}
+              </option>
+            ))}
+          </select>
+        </div>
+        {p.life === 'deceased' && (
+          <div className="field">
+            <label htmlFor={`${prefix}-death`}>{t('wizard.deathYear')}</label>
+            <input id={`${prefix}-death`} className="input input-year" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={p.deathYear} onChange={(e) => onChange({ ...p, deathYear: e.target.value })} autoComplete="off" />
+          </div>
+        )}
+      </div>
     </fieldset>
   );
 
@@ -175,6 +195,19 @@ export function Wizard() {
           <>
             {personFields(`${baseId}-father`, draft.father ?? emptyPerson('male'), (father) => setDraft({ ...draft, father }), { fixedSex: true, legend: t('wizard.father') })}
             {personFields(`${baseId}-mother`, draft.mother ?? emptyPerson('female'), (mother) => setDraft({ ...draft, mother }), { fixedSex: true, legend: t('wizard.mother') })}
+            <div className="field">
+              <label htmlFor={`${baseId}-parents-status`}>{t('wizard.parentsStatus')}</label>
+              <select id={`${baseId}-parents-status`} className="select" value={draft.parentsStatus} onChange={(e) => setDraft({ ...draft, parentsStatus: e.target.value as UnionStatus })} aria-describedby={`${baseId}-parents-hint`}>
+                {PARENT_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {s === 'unknown' ? t('wizard.statusNotRecorded') : t(`union.status.${s}` as TKey)}
+                  </option>
+                ))}
+              </select>
+              <p className="hint" id={`${baseId}-parents-hint`}>
+                {t('wizard.parentsStatusHint')}
+              </p>
+            </div>
           </>
         )}
 
@@ -192,7 +225,7 @@ export function Wizard() {
                 >
                   {STATUSES.map((s) => (
                     <option key={s} value={s}>
-                      {t(`union.status.${s}` as TKey)}
+                      {s === 'unknown' ? t('wizard.statusNotRecorded') : t(`union.status.${s}` as TKey)}
                     </option>
                   ))}
                 </select>
