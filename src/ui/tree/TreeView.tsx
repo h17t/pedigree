@@ -174,6 +174,7 @@ export function TreeView() {
     });
     announce(t('layout.autoDone'));
     updateUi({ viewport: null });
+    setLayoutOpen(false);
   };
   const arrangeSelection = () => {
     const ids = [...multiLive];
@@ -185,6 +186,7 @@ export function TreeView() {
       }
     });
     announce(t('layout.selectionDone'));
+    setLayoutOpen(false);
   };
   const showFamily = (f: ClusterFrame) => {
     setViewport(fitTo(f.box, size.w, size.h));
