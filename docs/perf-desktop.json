@@ -1,0 +1,16 @@
+{
+  "people": 500,
+  "cpuThrottle": 4,
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "open500ms": 606,
+  "arrangeMs": 704,
+  "fitMs": 369,
+  "zoomStepAvgMs": 265,
+  "zoomStepMaxMs": 321,
+  "listMs": 1099,
+  "timelineMs": 1007,
+  "statisticsMs": 826
+}

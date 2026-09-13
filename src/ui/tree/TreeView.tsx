@@ -131,6 +131,14 @@ export function TreeView() {
     else openEditor({ kind: 'deleteMany', ids });
   }, [multiLive, ui.selectedPersonId]);
 
+  const openDetails = useCallback(
+    (id: string) => {
+      updateUi({ selectedPersonId: id });
+      if (isDesktop) openEditor({ kind: 'person', id, isNew: false });
+      else setSheetOpen(true);
+    },
+    [isDesktop],
+  );
   const frameLabel = useCallback((f: ClusterFrame) => t('layout.frameLabel', { index: f.index, people: t('common.people', { count: f.personIds.length }) }), [t]);
 
   const total = project ? Object.keys(project.persons).length : 0;
@@ -150,11 +158,6 @@ export function TreeView() {
   const selected = ui.selectedPersonId ? project.persons[ui.selectedPersonId] : undefined;
   const hidden = total - visible.size;
 
-  const openDetails = (id: string) => {
-    updateUi({ selectedPersonId: id });
-    if (isDesktop) openEditor({ kind: 'person', id, isNew: false });
-    else setSheetOpen(true);
-  };
   const jumpTo = (id: string) => {
     const p = placement.positions.get(id);
     if (!p) return;

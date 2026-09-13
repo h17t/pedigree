@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (i) complete; stage (j) (final audit, performance pass, handover) is next.**
+Current status (2026-09-13): **all stages (a)–(j) complete.** Two items remain with the user: the manual screen-reader run and the first deployment (see below).
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -106,6 +106,21 @@ store and Playwright tests that read the manifest, reload the app offline (inclu
 and check that an update pass leaves every `pedigree:*` key in localStorage untouched. 191 unit
 tests and 72 Playwright tests pass.
 
+Stage (j) delivered: the final accessibility audit as a Playwright spec (axe over the tree with a
+selection, the add menu, the legend, the layout panel, an active filter, the multi-select bar, the
+partnership form, the warnings dialog, the wizard summary step, the project list with a resumable
+draft, and the German tree, wizard and help; a keyboard-only path through skip link, search,
+cards, canvas zoom and pan, and the undo shortcut; a check that no English strings leak into the
+German wizard), which found one real defect (the legend heading skipped a level) that is fixed;
+the 500-person performance pass under 4× CPU throttling with numbers in the README, which led to
+three changes: the card pointer handler is identity-stable so pan and zoom no longer re-render
+every card, large trees (above 150 visible cards) render only the cards in the window, and below
+40 % zoom large trees draw only name and years per card (zoom steps went from about 950 ms to
+about 230 ms throttled on a laptop window and to about 140 ms on a phone window); the network
+verification (no request leaves the origin after load; the service worker serves only the app's
+own files); the manual screen-reader checklist in `docs/SCREEN_READER_CHECKLIST.md`; and the
+deployment note below. 191 unit tests and 82 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -124,14 +139,14 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions — screenshots in `docs/screenshots/stage-g/`
 - [x] **(h)** first-run screen, guided start (resumable, one undo step), contextual tips, help page with printable quick start — screenshots in `docs/screenshots/stage-h/`
 - [x] **(i)** manifest, service worker with prompt-style updates, update and offline notices, install entry with iOS instructions, offline verification — screenshots in `docs/screenshots/stage-i/`
-- [ ] **(j)** final accessibility audit, 500-person performance pass, README numbers, network-tab verification
+- [x] **(j)** final accessibility audit, 500-person performance pass (with three rendering optimisations), README numbers, network verification, screen-reader checklist, deployment note — screenshots in `docs/screenshots/stage-j/`
 
 ## Known open points after stage (b)
 
 - The layout engine reduces crossings with barycentre sweeps but does not eliminate them; marriages between two documented families still cross, which is inherent to a single-plane drawing.
 - Black-and-white rendering of the branch stripes is implemented as SVG patterns and used by print in stage (g).
 
-- The Pages deployment has not run yet: the workflow triggers on push to `main`, and all work so far is on the feature branch. Once merged, set **Pages → Source: GitHub Actions** in the repository settings and check the published URL.
+- The Pages deployment has not run yet: the workflow triggers on push to `main`, and the repository currently has only the feature branch (`claude/family-tree-plan-9llfvw` is also its default branch; no `main` exists). To deploy: create `main` from this branch (or merge into it), set **Pages → Source: GitHub Actions** in the repository settings, push, and open `https://h17t.github.io/pedigree/`. The workflow runs the full check chain first, so a red check blocks a broken deployment.
 - The storage capacity is measured lazily the first time the Data view opens (a short probe write); until then the meter assumes 5 MB.
 
 ## Pending items that need the user
@@ -140,7 +155,8 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] Design plan approved (typeface, card geometry, light-only theme)
 - [x] Historical-context list confirmed (the eight proposed entries, no additions)
 - [x] Copyright holder for the MIT `LICENSE`: h17t
-- [ ] Manual screen-reader checklist (VoiceOver macOS/iOS, NVDA) — **pending**, will be written in stage (j) and handed over; screen-reader support is not claimed until it has been run
+- [ ] Manual screen-reader run (VoiceOver macOS/iOS, NVDA) — **pending**: the checklist is written in `docs/SCREEN_READER_CHECKLIST.md`; screen-reader support is not claimed until it has been run
+- [ ] First deployment — **pending**: needs a `main` branch and **Pages → Source: GitHub Actions** (see above)
 
 ## Screenshots
 

@@ -185,3 +185,14 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 124 | The service worker is registered from the entry module (`injectRegister: null`) rather than an extra script tag. | Keeps the registration and the store together and one request fewer at startup. | decided |
 | 125 | Icons are rendered from the SVG mark by a script using the bundled Chromium; the maskable icon is the mark at 62 % on a solid green square. | No image library in the toolchain; the safe zone of maskable icons is the inner 80 % circle. | decided |
 | 126 | Playwright verifies offline use by reloading the app with the context offline after the worker has taken control, and verifies data safety by comparing every `pedigree:*` key before and after an update pass. | The brief asks for an "offline session" test and an "update keeps data" test; a real version switch is not possible in one build, but the invariant (the worker never touches localStorage) holds by construction. | decided |
+
+## Stage (j) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 127 | The canvas culls off-screen cards and simplifies zoomed-out text only above 150 visible cards; smaller trees keep every card in the DOM. | For small trees complete markup is better for keyboard and screen-reader users and for tests; for large trees rendering only what is visible is what keeps pan and zoom fluid. | decided |
+| 128 | Below 40 % zoom a large tree draws only name and years per card, keeping the card box. | At that scale secondary text is under 5 px and unreadable; drawing it costs paint time for nothing. | decided |
+| 129 | The card pointer handler reads the live viewport, positions and selection through a ref so its identity never changes. | A new handler per pan or zoom step defeated the card memoisation and re-rendered all cards on every frame. | decided |
+| 130 | Performance is measured end to end by Playwright with the CPU throttled 4× through the DevTools protocol; the README quotes those numbers and the test asserts generous ceilings. | Reproducible in CI, includes the UI round trip, and catches regressions without certifying a particular device. | decided |
+| 131 | The final audit lives in its own spec (`audit.spec.ts`) rather than being spread over the feature specs. | One place to see which states are covered; the feature specs keep their own targeted checks. | decided |
+| 132 | Screen-reader support is not claimed until a person has run the checklist in `docs/SCREEN_READER_CHECKLIST.md`. | The brief forbids claiming what has not been verified. | decided |

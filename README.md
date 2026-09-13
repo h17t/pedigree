@@ -94,18 +94,50 @@ derive from it.
 ## Bundle budget
 
 Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Measured by
-`npm run budget` after the stage (g) build:
+`npm run budget` after the final build:
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 143.5 KB | 250.0 KB |
+| Initial JS (entry + static imports) | 143.8 KB | 250.0 KB |
 | Initial CSS | 5.6 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 173.9 KB | 500.0 KB |
+| **Initial payload** | 174.2 KB | 500.0 KB |
 
-The sample family, the GEDCOM module, the timeline/statistics views and the print dialog load
-lazily and do not count.
+The sample family, the GEDCOM module, the timeline/statistics views, the guided start, the help
+page and the print dialog load lazily and do not count.
+
+## Performance with 500 people
+
+Measured by `tests/e2e/perf.spec.ts` on the 500-person fixture with the CPU throttled 4× through
+the DevTools protocol (an approximation of a mid-range phone), Chromium, in the CI container.
+Wall-clock milliseconds, including the UI round trip:
+
+| Step | 1440×900 | 360×640 |
+|---|---|---|
+| Restore the 500-person backup and draw the tree | 600–2 700 | 400–500 |
+| Arrange the whole tree (layout + one undo step + redraw) | 700 | 500 |
+| Fit to the window | 370 | 270 |
+| One wheel-zoom step, average of ten (time to next frame) | 230–270 | 140–160 |
+| List view of all families | 1 100 | 1 050 |
+| Timeline of all dated people | 1 000 | 1 000 |
+
+The first row varies between runs (it includes reading the file and the first paint of the
+whole tree); the others were stable within about 10 % over four runs. The raw numbers of the last
+run are in `docs/perf-desktop.json` and `docs/perf-phone.json`.
+
+Above 150 visible cards the canvas renders only the cards that intersect the window (plus a
+margin) and, below 40 % zoom, draws only name and years on each card; smaller trees keep every
+card in the DOM so keyboard and screen-reader users can reach all of them. The layout itself
+takes well under a second for 500 people without throttling (unit test).
+
+## Accessibility
+
+Every view and dialog state is checked with axe-core (WCAG 2.1 A and AA plus best practices) in
+the Playwright suite, together with keyboard-only paths (skip link, header, navigation, canvas
+cards, undo shortcuts) in both languages. The manual screen-reader run (VoiceOver on macOS and
+iOS, NVDA) is written up in `docs/SCREEN_READER_CHECKLIST.md` and has **not been performed yet**;
+until it is, this README does not claim screen-reader support.
 
 ## Printing large trees
 

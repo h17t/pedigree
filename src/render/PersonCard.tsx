@@ -18,6 +18,8 @@ export interface PersonCardProps {
   hasWarning: boolean;
   print?: boolean;
   blackAndWhite?: boolean;
+  /** Zoomed far out: keep the box, draw only name and years. */
+  sparse?: boolean;
   /** Accessible name for the card ("Name, years"). */
   ariaLabel: string;
   labels: { née: string; living: string; unknownDate: string; warning: string };
@@ -31,10 +33,11 @@ export interface PersonCardProps {
  * Deceased: † plus a slate border. Sex: square/circle/diamond marker. Branch tag: stripe +
  * label. Rendered identically on screen and in print (only the detail level differs).
  */
-export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
+export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
   const h = cardHeight(level, print);
   const w = card.width;
-  const text = useMemo(() => cardText(person, level, locale, print, labels), [person, level, locale, print, labels]);
+  const textLevel: DetailLevel = sparse ? 'minimal' : level;
+  const text = useMemo(() => cardText(person, textLevel, locale, print, labels), [person, textLevel, locale, print, labels]);
   const border = text.deceased ? color.slate : color.ink;
   const stripe = person.tag ? (blackAndWhite ? `url(#pat-${tagPattern[person.tag.color]})` : tagColor[person.tag.color]) : null;
   const left = card.padding.left + card.stripeWidth;

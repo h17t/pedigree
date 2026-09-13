@@ -24,7 +24,7 @@ export function Legend({ onClose }: { onClose: () => void }) {
   return (
     <section className="legend panel" aria-labelledby="legend-title">
       <div className="legend-head">
-        <h3 id="legend-title">{t('tree.legend')}</h3>
+        <h2 id="legend-title" className="legend-title">{t('tree.legend')}</h2>
         <button type="button" className="btn btn-quiet" onClick={onClose}>
           {t('common.close')}
         </button>

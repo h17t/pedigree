@@ -59,6 +59,9 @@ const DRAG_THRESHOLD = 4;
  * mouse or pen. Touch never drags cards (positions are edited on pointer devices). Every card
  * is a focusable button, and the list view is the keyboard-navigable equivalent of this canvas.
  */
+/** Above this many visible cards the canvas culls off-screen cards and simplifies zoomed-out text. */
+export const LARGE_TREE = 150;
+
 export function Canvas(props: CanvasProps) {
   const { project, positions, visible, level, locale, viewport, selectedId, multiSelected, warningIds, readOnly, snapToGrid, provisional, frames, frameLabel, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onMoveMany, onMultiSelect, onDeleteKey, onSize } = props;
   const [guides, setGuides] = useState<{ x: number[]; y: number[] }>({ x: [], y: [] });
@@ -68,11 +71,14 @@ export function Canvas(props: CanvasProps) {
   const [band, setBand] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const spaceDown = useRef(false);
 
+  const [size, setSize] = useState({ w: 0, h: 0 });
   useLayoutEffect(() => {
     const el = svgRef.current;
-    if (!el || !onSize) return;
+    if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
-      if (entry) onSize(entry.contentRect.width, entry.contentRect.height);
+      if (!entry) return;
+      setSize({ w: entry.contentRect.width, h: entry.contentRect.height });
+      onSize?.(entry.contentRect.width, entry.contentRect.height);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -104,6 +110,23 @@ export function Canvas(props: CanvasProps) {
 
   const unions = useMemo(() => routeUnions({ project, boxes, visible }), [project, boxes, visible]);
 
+  // Large trees only (above LARGE_TREE people): cards outside the visible area (plus a margin
+  // of one card) are not rendered, and below 40 % zoom cards draw only their name and years
+  // (same box, less text) because the rest is unreadable at that size anyway. Small trees keep
+  // every card in the DOM so keyboard and screen-reader users can reach all of them.
+  const large = boxes.size > LARGE_TREE;
+  const world = useMemo(() => {
+    if (!large || size.w === 0 || size.h === 0) return null;
+    const a = toWorld(viewport, 0, 0), b = toWorld(viewport, size.w, size.h);
+    const m = card.width;
+    return { x1: a.x - m, y1: a.y - m, x2: b.x + m, y2: b.y + m };
+  }, [large, viewport, size]);
+  const inView = useMemo(() => {
+    if (!world) return [...boxes.entries()];
+    return [...boxes.entries()].filter(([, b]) => b.x + b.w >= world.x1 && b.x <= world.x2 && b.y + b.h >= world.y1 && b.y <= world.y2);
+  }, [boxes, world]);
+  const sparse = large && viewport.zoom < 0.4;
+
   const localPoint = (e: { clientX: number; clientY: number }) => {
     const r = svgRef.current?.getBoundingClientRect();
     return { x: e.clientX - (r?.left ?? 0), y: e.clientY - (r?.top ?? 0) };
@@ -133,35 +156,40 @@ export function Canvas(props: CanvasProps) {
     svgRef.current?.setPointerCapture(e.pointerId);
   };
 
-  const onCardPointerDown = useCallback(
-    (e: ReactPointerEvent<SVGGElement>, id: string) => {
-      const g = gestureRef.current;
-      if (g.kind !== 'none') return;
-      if (e.button !== 0) return;
-      const p = localPoint(e);
-      if (e.shiftKey && e.pointerType !== 'touch') {
-        e.stopPropagation();
-        onMultiSelect([id], 'toggle');
-        return;
-      }
-      const canDrag = !readOnly && e.pointerType !== 'touch' && !spaceDown.current;
-      if (canDrag) {
-        e.stopPropagation();
-        // Dragging one of several selected cards moves the whole group.
-        const group = multiSelected.has(id) && multiSelected.size > 1 ? [...multiSelected] : [id];
-        const origins = new Map<string, Position>();
-        for (const gid of group) origins.set(gid, positions.get(gid) ?? { x: 0, y: 0 });
-        gestureRef.current = { kind: 'drag', pointerId: e.pointerId, id, startX: p.x, startY: p.y, origins, moved: false };
-        svgRef.current?.setPointerCapture(e.pointerId);
-      } else {
-        // Touch or read-only: a tap selects, a drag pans.
-        e.stopPropagation();
-        gestureRef.current = { kind: 'pan', pointerId: e.pointerId, startX: p.x, startY: p.y, vx: viewport.x, vy: viewport.y, moved: false, tapTarget: id };
-        svgRef.current?.setPointerCapture(e.pointerId);
-      }
-    },
-    [positions, readOnly, viewport, multiSelected, onMultiSelect],
-  );
+  // The card handler reads the latest viewport, positions and selection through a ref so that
+  // its identity is stable: otherwise every pan or zoom step would re-render all (memoised)
+  // cards, which is what makes a 500-person tree feel slow.
+  const latest = useRef({ positions, readOnly, viewport, multiSelected, onMultiSelect });
+  useLayoutEffect(() => {
+    latest.current = { positions, readOnly, viewport, multiSelected, onMultiSelect };
+  });
+  const onCardPointerDown = useCallback((e: ReactPointerEvent<SVGGElement>, id: string) => {
+    const { positions, readOnly, viewport, multiSelected, onMultiSelect } = latest.current;
+    const g = gestureRef.current;
+    if (g.kind !== 'none') return;
+    if (e.button !== 0) return;
+    const p = localPoint(e);
+    if (e.shiftKey && e.pointerType !== 'touch') {
+      e.stopPropagation();
+      onMultiSelect([id], 'toggle');
+      return;
+    }
+    const canDrag = !readOnly && e.pointerType !== 'touch' && !spaceDown.current;
+    if (canDrag) {
+      e.stopPropagation();
+      // Dragging one of several selected cards moves the whole group.
+      const group = multiSelected.has(id) && multiSelected.size > 1 ? [...multiSelected] : [id];
+      const origins = new Map<string, Position>();
+      for (const gid of group) origins.set(gid, positions.get(gid) ?? { x: 0, y: 0 });
+      gestureRef.current = { kind: 'drag', pointerId: e.pointerId, id, startX: p.x, startY: p.y, origins, moved: false };
+      svgRef.current?.setPointerCapture(e.pointerId);
+    } else {
+      // Touch or read-only: a tap selects, a drag pans.
+      e.stopPropagation();
+      gestureRef.current = { kind: 'pan', pointerId: e.pointerId, startX: p.x, startY: p.y, vx: viewport.x, vy: viewport.y, moved: false, tapTarget: id };
+      svgRef.current?.setPointerCapture(e.pointerId);
+    }
+  }, []);
 
   const onPointerMove = (e: ReactPointerEvent<SVGSVGElement>) => {
     const g = gestureRef.current;
@@ -293,9 +321,6 @@ export function Canvas(props: CanvasProps) {
   };
 
   const cardLabels = useMemo(() => ({ née: labels.née, living: labels.living, unknownDate: labels.unknownDate, warning: labels.warning }), [labels]);
-  const world = toWorld(viewport, 0, 0);
-  void world;
-
   return (
     <svg
       ref={svgRef}
@@ -332,7 +357,7 @@ export function Canvas(props: CanvasProps) {
         {unions.map((u) => (
           <UnionNode key={u.unionId} cx={u.cx} cy={u.cy} unknownParents={u.unknownParents} label={labels.unknownParents} />
         ))}
-        {[...boxes.entries()].map(([id, b]) => {
+        {inView.map(([id, b]) => {
           const person = project.persons[id];
           if (!person) return null;
           return (
@@ -342,6 +367,7 @@ export function Canvas(props: CanvasProps) {
               x={b.x}
               y={b.y}
               level={level}
+              sparse={sparse}
               locale={locale}
               selected={id === selectedId || multiSelected.has(id)}
               provisional={provisional.has(id)}
