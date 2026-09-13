@@ -48,7 +48,7 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 
 ## Development
 
-Requirements: Node 20 LTS (≥ 20.19) and npm.
+Requirements: Node 22 LTS (≥ 22.19) and npm. (jsdom 30, used by the unit tests, needs undici 8, which needs Node 22.19.)
 
 ```
 npm ci            # install

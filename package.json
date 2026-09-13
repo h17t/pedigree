@@ -6,7 +6,7 @@
   "description": "A fully client-side family tree editor. All data stays on the device.",
   "license": "MIT",
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "dev": "vite",
