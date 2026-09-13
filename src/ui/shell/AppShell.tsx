@@ -69,7 +69,7 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
       </header>
       <div className="shell-body">
         <div className="shell-nav">{nav}</div>
-        <main id="main" className="shell-main" tabIndex={-1}>
+        <main id="main" className={`shell-main${mode === 'tree' ? ' shell-main-tree' : ''}`} tabIndex={-1}>
           <Banners />
           <StatusMessages />
           {children}

@@ -28,8 +28,11 @@ test('zoom buttons, fit and 100 % change the zoom level', async ({ page }) => {
   await page.getByRole('button', { name: 'Zoom in' }).click();
   const after = await zoomGroup.getAttribute('aria-label');
   expect(after).not.toBe(before);
-  await page.getByRole('button', { name: '100 %' }).click();
-  await expect(page.getByRole('group', { name: 'Zoom: 100 %' })).toBeVisible();
+  if ((page.viewportSize()?.width ?? 0) >= 768) {
+    // The 100 % reset button is shown from tablet width up; phones use Fit and pinch.
+    await page.getByRole('button', { name: '100 %' }).click();
+    await expect(page.getByRole('group', { name: 'Zoom: 100 %' })).toBeVisible();
+  }
   await page.getByRole('button', { name: 'Fit' }).click();
   await expect(page.getByRole('group', { name: 'Zoom: 100 %' })).toHaveCount(0);
 });

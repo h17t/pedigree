@@ -178,6 +178,9 @@ export function TreeView() {
             </ul>
           )}
         </div>
+        <button type="button" className="btn btn-legend" aria-pressed={ui.legendOpen} onClick={() => updateUi({ legendOpen: !ui.legendOpen })}>
+          {t('tree.legend')}
+        </button>
         <div className="btn-row tree-zoom" role="group" aria-label={t('tree.zoomLevel', { percent: formatNumber(locale, Math.round(viewport.zoom * 100)) })}>
           <button type="button" className="btn" onClick={fit}>
             {t('tree.fit')}
@@ -185,14 +188,14 @@ export function TreeView() {
           <button type="button" className="btn" onClick={() => zoomBy(1 / 1.25)} aria-label={t('tree.zoomOut')}>
             {/* i18n-ignore */}−
           </button>
-          <button type="button" className="btn" onClick={() => setViewport({ ...viewport, zoom: 1 })} aria-label={t('tree.zoom100')}>
+          <button type="button" className="btn zoom-reset" onClick={() => setViewport({ ...viewport, zoom: 1 })} aria-label={t('tree.zoom100')}>
             <span className="tnum">{formatNumber(locale, Math.round(viewport.zoom * 100))} %</span>
           </button>
           <button type="button" className="btn" onClick={() => zoomBy(1.25)} aria-label={t('tree.zoomIn')}>
             {/* i18n-ignore */}+
           </button>
         </div>
-        <div className="btn-row tree-options">
+        <div className="tree-detail">
           <label className="visually-hidden" htmlFor="detail-level">
             {t('tree.detail')}
           </label>
@@ -201,9 +204,6 @@ export function TreeView() {
             <option value="standard">{t('tree.detailLevel.standard')}</option>
             <option value="full">{t('tree.detailLevel.full')}</option>
           </select>
-          <button type="button" className="btn" aria-pressed={ui.legendOpen} onClick={() => updateUi({ legendOpen: !ui.legendOpen })}>
-            {t('tree.legend')}
-          </button>
         </div>
       </div>
 
@@ -272,16 +272,16 @@ export function TreeView() {
           <div className="selection-bar-text">
             <span className="selection-name">{personName(selected) || t('person.unnamed')}</span>
             <span className="muted small tnum">{cardText(selected, 'minimal', locale).lines[0]}</span>
+            <button type="button" className="btn btn-quiet" onClick={() => select(null)}>
+              {t('tree.deselect')}
+            </button>
           </div>
-          <div className="btn-row">
+          <div className="btn-row selection-actions">
             <button type="button" className="btn btn-primary" onClick={() => setSheetOpen(true)}>
               {t('tree.details')}
             </button>
             <button type="button" className="btn" aria-expanded={filterMenu} onClick={() => setFilterMenu((v) => !v)}>
               {t('tree.filter')}
-            </button>
-            <button type="button" className="btn btn-quiet" onClick={() => select(null)}>
-              {t('tree.deselect')}
             </button>
           </div>
           {filterMenu && <div className="selection-menu">{filterButtons}</div>}
