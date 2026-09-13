@@ -30,9 +30,13 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npx vite preview --port ${port} --strictPort`,
+    // Bind explicitly to 127.0.0.1: on GitHub runners "localhost" resolves to ::1 first, and
+    // Playwright polls the IPv4 address, so the server would never be seen as ready.
+    command: `npx vite preview --host 127.0.0.1 --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}${base}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    timeout: 120_000,
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 });
