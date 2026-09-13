@@ -1,12 +1,16 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { useAppStore, openProject, updateUi } from '@/store/store';
 import { useSettings } from '@/store/settings';
 import { useRouter } from './ui/router';
+import type { Mode } from './ui/router';
 import { AppShell } from './ui/shell/AppShell';
 import { ProjectsView } from './ui/ProjectsView';
 import { RecoveryView } from './ui/RecoveryView';
 import { ListView } from './ui/list/ListView';
 import { TreeView } from './ui/tree/TreeView';
+
+const TimelineView = lazy(() => import('./ui/timeline/TimelineView').then((m) => ({ default: m.TimelineView })));
+const StatisticsView = lazy(() => import('./ui/timeline/StatisticsView').then((m) => ({ default: m.StatisticsView })));
 import { DataView } from './ui/data/DataView';
 import { StatusMessages } from './ui/components/StatusMessages';
 import { listProjects } from './store/projects';
@@ -31,8 +35,8 @@ export default function App() {
     const target = lastOpen && projects.some((p) => p.id === lastOpen) ? lastOpen : null;
     if (target) {
       const r = openProject(target);
-      if (r === 'ready' && mode === 'projects') go((useAppStore.getState().ui.mode as 'tree' | 'list' | 'data') || 'tree');
-      if (r === 'ready' && location.hash === '') go((useAppStore.getState().ui.mode as 'tree' | 'list' | 'data') || 'tree');
+      if (r === 'ready' && mode === 'projects') go((useAppStore.getState().ui.mode as Mode) || 'tree');
+      if (r === 'ready' && location.hash === '') go((useAppStore.getState().ui.mode as Mode) || 'tree');
     } else if (mode !== 'projects') {
       go('projects');
     }
@@ -68,5 +72,17 @@ export default function App() {
       </div>
     );
   }
-  return <AppShell>{mode === 'data' ? <DataView /> : mode === 'list' ? <ListView /> : <TreeView />}</AppShell>;
+  return (
+    <AppShell>
+      {mode === 'data' ? (
+        <DataView />
+      ) : mode === 'list' ? (
+        <ListView />
+      ) : mode === 'timeline' || mode === 'statistics' ? (
+        <Suspense fallback={<p className="page muted">{t('app.loading')}</p>}>{mode === 'timeline' ? <TimelineView /> : <StatisticsView />}</Suspense>
+      ) : (
+        <TreeView />
+      )}
+    </AppShell>
+  );
 }

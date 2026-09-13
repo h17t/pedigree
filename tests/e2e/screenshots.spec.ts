@@ -42,6 +42,14 @@ test('stage screenshots', async ({ page }, testInfo) => {
     await page.getByRole('button', { name: 'Back' }).click();
     await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-list.png`, fullPage: false });
   }
+  await page.getByRole('button', { name: 'Timeline', exact: true }).click();
+  await page.waitForTimeout(400);
+  await expectNoHorizontalScroll(page);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-timeline.png`, fullPage: false });
+  await page.getByRole('button', { name: 'Statistics', exact: true }).click();
+  await page.waitForTimeout(400);
+  await expectNoHorizontalScroll(page);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-statistics.png`, fullPage: true });
   await page.getByRole('button', { name: 'Data', exact: true }).click();
   await page.waitForTimeout(300);
   await expectNoHorizontalScroll(page);

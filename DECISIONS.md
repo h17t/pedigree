@@ -141,3 +141,15 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 101 | Import as a new tree runs the full layout and stores positions; merge-import places only the newcomers. | Imported people have `position: null` and must be placed; existing positions are never moved by an import. | decided |
 | 102 | Exported partnerships are `MARR` with `TYPE partnership`; unmarried unions carry `_STAT unmarried`; same-sex couples are written as HUSB/WIFE with a note in the report. | GEDCOM 5.5.1 has no better representation. | decided |
 
+## Stage (f) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 103 | The timeline draws people without a year of birth not at all and says how many there are. | A bar without a start would be a guess. | decided |
+| 104 | "Unknown" life status without a death date is drawn as a short (10-year) faded, dashed bar. | Visibly distinct from both "living" (open to today) and "deceased" without pretending to know a lifespan. | decided |
+| 105 | Age at death and life expectancy use only people with both a year of birth and a year of death; ages outside 0–120 are excluded. | Never infer death from a missing date; implausible spans would distort averages. | decided |
+| 106 | Age at marriage counts each person's first dated marriage only. | "Age at marriage" for a person is one number; later marriages would double count. | decided |
+| 107 | Charts are single-series bars with direct value labels and no legend; the one three-series chart (all/male/female) has a legend, direct labels and a hatch pattern on the third series. | Identity never rests on colour alone; a table sits behind every chart. | decided |
+| 108 | The three-series chart uses a validated trio (#178A5C, #2456C4, #B3741A with a hatch): the design's muted green and ink failed the chroma checks of the palette validator when used as series colours. | Series colours must be distinguishable for colour-blind readers; labels and the pattern carry identity as well. | decided |
+| 109 | The historical layer is drawn as pale bands with small labels above the year axis, in the active language. | Recessive background, never competing with the bars. | decided |
+

@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (e) complete; stage (f) (timeline and statistics) is next.**
+Current status (2026-09-13): **stage (f) complete; stage (g) (printing and export) is next.**
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -57,6 +57,17 @@ the "keep unknown data" toggle with a size read-out and a remove button, six GED
 including malformed, Windows-1252, UTF-16, ANSEL and GEDCOM 7, and a round-trip test asserting
 model equality. 163 unit tests and 42 Playwright tests pass.
 
+Stage (f) delivered: the Timeline mode (one lifespan bar per person, sorted by birth year or
+grouped by family, four zoom steps, uncertain dates with dashed edges, living people as open bars
+to today, unknown status as short faded bars, a legend, the count of undated people, choosing a
+bar shows the person in the tree, and the historical layer with the agreed eight entries, off by
+default, labelled as orientation only) and the Statistics mode (people, partnerships, generations,
+birth-year range, sex, life status, age at death, average age at death by decade and sex, age at
+first marriage, children per partnership, month of birth, most common given names, surnames,
+occupations and places), every metric with its base population, charts as lean SVG with text
+labels and a data table behind a disclosure. Both views are a lazily loaded chunk.
+173 unit tests and 48 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -71,7 +82,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(c)** person/union forms, date field with echo, context actions, delete with impact preview, union delete choices, merge, duplicates, warnings, undo buttons, multi-select — screenshots in `docs/screenshots/stage-c/`
 - [x] **(d)** auto-layout with generations and clusters, null-position placement, re-arrange selection, snap-to-grid, alignment guides, jump-to-cluster — screenshots in `docs/screenshots/stage-d/`
 - [x] **(e)** GEDCOM import (new / merge) and export, encodings, import report, raw preservation toggle — screenshots in `docs/screenshots/stage-e/`
-- [ ] **(f)** timeline and statistics with base populations, charts with data tables, historical layer
+- [x] **(f)** timeline and statistics with base populations, charts with data tables, historical layer — screenshots in `docs/screenshots/stage-f/`
 - [ ] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions
 - [ ] **(h)** first-run screen, wizard, inline hints, help page, printable quick start
 - [ ] **(i)** manifest, service worker, update banner, install entry, offline verification

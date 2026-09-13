@@ -3,9 +3,9 @@
 A fully client-side family tree editor for the browser. Create, edit, print and export a family
 tree without a server, an account or any network traffic. **All data stays on the device.**
 
-Status: **stage (e) of (j) complete** — data model, storage, the tree canvas with auto-layout,
-the outline list view, the project list, full editing and GEDCOM import/export work; timeline,
-printing, onboarding and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
+Status: **stage (f) of (j) complete** — data model, storage, the tree canvas with auto-layout,
+the outline list view, the project list, full editing, GEDCOM import/export, the timeline and the
+statistics work; printing, onboarding and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
 every design and technical decision.
 
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `docs/screenshots/`.
@@ -21,6 +21,9 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 - **List** shows every family as an indented outline; choose a person to see their details.
 - Choose a person, then **Edit**, **Add** (partner, child, father, mother, sibling) or **Delete**.
   Deleting explains exactly what else changes; **Undo** and **Redo** are always in the header.
+- **Timeline** shows one lifespan bar per person, zoomable, with an optional layer of a few
+  historical events (off by default). **Statistics** shows counts, ages and most common names, and
+  every figure says how many people it is based on.
 - **Data → GEDCOM files** imports a `.ged` file (GEDCOM 5.5.1; UTF-8, UTF-16, ANSEL and
   Windows-1252 are recognised) as a new tree or into the open tree, shows an import report, and
   exports the tree as GEDCOM 5.5.1 for other programs. GEDCOM 7 files are refused with an explanation.
@@ -78,18 +81,18 @@ the PWA manifest's `start_url`/`scope` and the service-worker registration path 
 ## Bundle budget
 
 Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Measured by
-`npm run budget` after the stage (e) build:
+`npm run budget` after the stage (f) build:
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 128.1 KB | 250.0 KB |
-| Initial CSS | 4.7 KB | — |
+| Initial JS (entry + static imports) | 130.1 KB | 250.0 KB |
+| Initial CSS | 5.0 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 157.5 KB | 500.0 KB |
+| **Initial payload** | 159.9 KB | 500.0 KB |
 
-The sample family and the GEDCOM module load lazily and do not count. The timeline/statistics
-views and the print/export module will be lazy chunks as well.
+The sample family, the GEDCOM module and the timeline/statistics views load lazily and do not
+count. The print/export module will be a lazy chunk as well.
 
 ## Privacy
 

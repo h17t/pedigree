@@ -9,9 +9,11 @@ import { UndoRedo } from '../edit/UndoRedo';
 import { EditorDialogs } from '../edit/EditorDialogs';
 import { openEditor } from '../edit/editorStore';
 
-const NAV: { mode: Mode; key: 'nav.tree' | 'nav.list' | 'nav.data' }[] = [
+const NAV: { mode: Mode; key: 'nav.tree' | 'nav.list' | 'nav.timeline' | 'nav.statistics' | 'nav.data' }[] = [
   { mode: 'tree', key: 'nav.tree' },
   { mode: 'list', key: 'nav.list' },
+  { mode: 'timeline', key: 'nav.timeline' },
+  { mode: 'statistics', key: 'nav.statistics' },
   { mode: 'data', key: 'nav.data' },
 ];
 
@@ -105,6 +107,18 @@ function NavIcon({ mode }: { mode: Mode }) {
       return (
         <svg {...common}>
           <path d="M4 6h16M8 12h12M12 18h8" />
+        </svg>
+      );
+    case 'timeline':
+      return (
+        <svg {...common}>
+          <path d="M3 7h9M8 12h11M5 17h8" />
+        </svg>
+      );
+    case 'statistics':
+      return (
+        <svg {...common}>
+          <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
         </svg>
       );
     case 'data':
