@@ -41,27 +41,29 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 31 | Returning users land on their last open project; first-run screen only when no project exists. | The empty screen is the hardest moment; returning users should never see it again. | brief |
 | 32 | Photos, structured sources, GEDCOM 7 and a privacy filter for living people are out of scope. | Given in the brief; the model stays open for a later `photo` field (images would go to IndexedDB). | brief |
 
-## Proposed in the planning session (2026-09-13)
+## Decided in the planning session (2026-09-13, approved by h17t)
 
 | # | Decision | Rationale | Status |
 |---|---|---|---|
-| 33 | Repository stays `pedigree`; default base path is `'/pedigree/'`. | The repo already exists under that name; the base is a one-line env override either way. | proposed |
-| 34 | React 19, TypeScript 5 strict, Vite 7; CI pins Node 20 LTS. | Current stable releases; Vite 7 needs Node ≥ 20.19, which Node 20 LTS provides. | proposed |
-| 35 | Zustand for state, custom Immer-patch undo stack outside React state. | Selector subscriptions keep drag frames cheap; patches keep undo small; no Redux boilerplate. | proposed |
-| 36 | No router library; mode is mirrored to the URL hash. | Four modes and a few dialogs do not justify a dependency; the hash keeps back-button and `start_url` behaviour. | proposed |
-| 37 | Custom generational layout; ELK and dagre rejected. | ELK is ~1 MB; dagre is unmaintained and has no notion of unions. | proposed |
-| 38 | `vite-plugin-pwa` with `generateSW` and `registerType: 'prompt'`. | Workbox precache without a hand-written worker; prompt mode gives the update banner instead of auto-reload. | proposed |
-| 39 | `TextDecoder` for UTF-8/UTF-16/Windows-1252, hand-written ANSEL table. | Native in all target browsers; `iconv-lite` would add ~150 KB. | proposed |
-| 40 | Font: Atkinson Hyperlegible Next, weights 400/500/700, self-hosted WOFF2, OFL 1.1. Fallback Source Sans 3. | Designed for low-vision readers; OFL permits embedding in documents. | proposed |
-| 41 | One typeface only; no serif for names. | Every exported SVG embeds the font; a second family doubles that cost and serif loses first at 6 pt. | proposed |
-| 42 | Font subsetting for SVG export is chunk-level (build-time unicode ranges), not per-glyph. | Per-glyph subsetting needs a ~700 KB font compiler in the browser; chunks give 20–40 KB per weight with no parser. | proposed |
-| 43 | Card geometry: width 220; heights 84 / 124 / 164 / 280; notes clamped to 4 lines in the tall variant. | Derived from the type scale; see design plan §3. Changing later re-runs every layout and print test. | proposed |
-| 44 | `estimated` dates render as `~` on the card like `about`; the panel and legend spell out "estimated". | A fourth mark would not survive 6 pt print. | proposed |
-| 45 | GEDCOM `BET`/`FROM` ranges and Julian/dual-year dates keep the verbatim value in `gedcomDate` on the event; export writes it back unless the user edited the date. | Lossless round-trip without model fields the UI cannot edit. | proposed |
-| 46 | Sex marker follows pedigree-chart convention: square = male, circle = female, diamond = diverse, none = unknown. | A genealogical convention that survives black-and-white printing and does not rely on colour. | proposed |
-| 47 | Deceased people: `†` before the death date plus a `slate` border instead of `ink`. | Two cues, neither is colour alone; not morbid. | proposed |
-| 48 | Light theme only in v1. | Print previews and daylight reading; dark chrome can follow if requested. | proposed |
-| 49 | Multi-tab lock heartbeat every 5 s, stale after 15 s. | Fast enough to notice a crashed tab, slow enough not to churn `localStorage`. | proposed |
-| 50 | Autosave debounce 500 ms, flushed on `visibilitychange` and `pagehide`. | Keeps typing smooth and still saves before a tab is closed. | proposed |
-| 51 | Historical context layer limited to the eight entries in design plan §7. | Minimal, Central/Western-European, labelled as orientation only; additions need the user's say. | proposed |
-| 52 | Only Latin font chunks of two weights load at startup; Latin-Extended and the third weight load on demand. | Keeps the initial payload well under 500 KB. | proposed |
+| 33 | Repository stays `pedigree`; default base path is `'/pedigree/'`. | The repo already exists under that name; the base is a one-line env override either way. | accepted |
+| 34 | React 19, TypeScript 5 strict, Vite 7; CI pins Node 20 LTS. | Current stable releases; Vite 7 needs Node ≥ 20.19, which Node 20 LTS provides. | accepted |
+| 35 | Zustand for state, custom Immer-patch undo stack outside React state. | Selector subscriptions keep drag frames cheap; patches keep undo small; no Redux boilerplate. | accepted |
+| 36 | No router library; mode is mirrored to the URL hash. | Four modes and a few dialogs do not justify a dependency; the hash keeps back-button and `start_url` behaviour. | accepted |
+| 37 | Custom generational layout; ELK and dagre rejected. | ELK is ~1 MB; dagre is unmaintained and has no notion of unions. | accepted |
+| 38 | `vite-plugin-pwa` with `generateSW` and `registerType: 'prompt'`. | Workbox precache without a hand-written worker; prompt mode gives the update banner instead of auto-reload. | accepted |
+| 39 | `TextDecoder` for UTF-8/UTF-16/Windows-1252, hand-written ANSEL table. | Native in all target browsers; `iconv-lite` would add ~150 KB. | accepted |
+| 40 | Font: Atkinson Hyperlegible Next, weights 400/500/700, self-hosted WOFF2, OFL 1.1. Fallback Source Sans 3. | Designed for low-vision readers; OFL permits embedding in documents. | accepted |
+| 41 | One typeface only; no serif for names. | Every exported SVG embeds the font; a second family doubles that cost and serif loses first at 6 pt. | accepted |
+| 42 | Font subsetting for SVG export is chunk-level (build-time unicode ranges), not per-glyph. | Per-glyph subsetting needs a ~700 KB font compiler in the browser; chunks give 20–40 KB per weight with no parser. | accepted |
+| 43 | Card geometry: width 220; heights 84 / 124 / 164 / 280; notes clamped to 4 lines in the tall variant. | Derived from the type scale; see design plan §3. Changing later re-runs every layout and print test. | accepted |
+| 44 | `estimated` dates render as `~` on the card like `about`; the panel and legend spell out "estimated". | A fourth mark would not survive 6 pt print. | accepted |
+| 45 | GEDCOM `BET`/`FROM` ranges and Julian/dual-year dates keep the verbatim value in `gedcomDate` on the event; export writes it back unless the user edited the date. | Lossless round-trip without model fields the UI cannot edit. | accepted |
+| 46 | Sex marker follows pedigree-chart convention: square = male, circle = female, diamond = diverse, none = unknown. | A genealogical convention that survives black-and-white printing and does not rely on colour. | accepted |
+| 47 | Deceased people: `†` before the death date plus a `slate` border instead of `ink`. | Two cues, neither is colour alone; not morbid. | accepted |
+| 48 | Light theme only in v1. | Print previews and daylight reading; dark chrome can follow if requested. | accepted |
+| 49 | Multi-tab lock heartbeat every 5 s, stale after 15 s. | Fast enough to notice a crashed tab, slow enough not to churn `localStorage`. | accepted |
+| 50 | Autosave debounce 500 ms, flushed on `visibilitychange` and `pagehide`. | Keeps typing smooth and still saves before a tab is closed. | accepted |
+| 51 | Historical context layer limited to the eight entries in design plan §7. | Minimal, Central/Western-European, labelled as orientation only; additions need the user's say. | accepted |
+| 52 | Only Latin font chunks of two weights load at startup; Latin-Extended and the third weight load on demand. | Keeps the initial payload well under 500 KB. | accepted |
+| 53 | MIT licence copyright holder is `h17t`. | The user's choice; the GitHub account name rather than a personal name. | accepted |
+| 54 | Historical layer stays at the eight entries; Franco-Prussian War, post-1945 expulsion and the Berlin Wall are not added. | The user's choice: keep the layer minimal and closest to "orientation only". | accepted |

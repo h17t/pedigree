@@ -1,7 +1,7 @@
 # Design plan
 
-Status: **proposed, awaiting approval**. Items marked **ASK** need your answer; **ASSUMED** items
-are decisions I made and recorded in `DECISIONS.md`. Section 8 is the self-critique the brief asks for.
+Status: **approved 2026-09-13**. The **ASK** items were answered and are recorded in `DECISIONS.md`
+(items 33–54); **ASSUMED** items are decisions I made and recorded there too. Section 8 is the self-critique the brief asks for.
 
 A preview page with the palette, the type samples and the four card variants rendered as real SVG
 accompanies this document (link in the status report).

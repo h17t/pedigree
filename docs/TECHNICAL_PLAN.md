@@ -1,6 +1,6 @@
 # Technical plan
 
-Status: **proposed, awaiting approval**. Nothing in this document is implemented yet.
+Status: **approved 2026-09-13**. Nothing in this document is implemented yet; the answers to the **ASK** items are recorded in `DECISIONS.md` (items 33–54).
 Open questions for you are marked **ASK**. Assumptions I made are marked **ASSUMED** and
 are also listed in `DECISIONS.md`.
 

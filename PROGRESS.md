@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **planning complete, awaiting approval of the technical and design plans.**
+Current status (2026-09-13): **technical and design plans approved; stage (a) is next.**
 No application code exists yet.
 
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
@@ -11,7 +11,7 @@ Every stage is "done" only when all of these hold: unit tests green, Playwright 
 screenshot jobs green, every string present in `de` and `en`, verified at 360×640 and 1440×900,
 deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status report sent.
 
-- [ ] **Plan** — technical plan and design plan written; **waiting for approval**
+- [x] **Plan** — technical plan and design plan written and approved (repo stays `pedigree`, Atkinson Hyperlegible Next, cards 220 × 84/124/164/280, chunk-level font embedding, light theme only, eight-entry historical list)
 - [ ] **(a)** design tokens, fonts, i18n + ESLint rule, data model, validation, graph utilities, migration frame, store + undo/redo, persistence (recovery, quota, multi-tab lock), project list, outline list view, sample fixture, CI + Pages pipeline, bundle budget, README, LICENSE
 - [ ] **(b)** SVG canvas, viewport, person cards (four variants), union junctions, connectors, selection, drag, error boundary, search, focus/filter
 - [ ] **(c)** person/union forms, date field with echo, context actions, delete with impact preview, union delete choices, merge, duplicates, warnings, undo buttons, multi-select
@@ -25,10 +25,10 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 
 ## Pending items that need the user
 
-- [ ] Approve or amend the technical plan (repository name / base path, font subsetting approach)
-- [ ] Approve or amend the design plan (typeface, card geometry, light-only theme)
-- [ ] Confirm the historical-context list (needed by stage f)
-- [ ] Provide the copyright holder name for the MIT `LICENSE` (needed by stage a)
+- [x] Technical plan approved (repository name / base path, font subsetting approach)
+- [x] Design plan approved (typeface, card geometry, light-only theme)
+- [x] Historical-context list confirmed (the eight proposed entries, no additions)
+- [x] Copyright holder for the MIT `LICENSE`: h17t
 - [ ] Manual screen-reader checklist (VoiceOver macOS/iOS, NVDA) — **pending**, will be written in stage (j) and handed over; screen-reader support is not claimed until it has been run
 
 ## Screenshots
