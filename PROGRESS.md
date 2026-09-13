@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **all stages (a)–(j) complete.** Two items remain with the user: the manual screen-reader run and the first deployment (see below).
+Current status (2026-09-13): **all stages (a)–(j) complete and deployed** to https://h17t.github.io/pedigree/ (workflow run #5 on `main`). One item remains with the user: the manual screen-reader run (see below).
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -146,7 +146,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - The layout engine reduces crossings with barycentre sweeps but does not eliminate them; marriages between two documented families still cross, which is inherent to a single-plane drawing.
 - Black-and-white rendering of the branch stripes is implemented as SVG patterns and used by print in stage (g).
 
-- The Pages deployment has not run yet: the workflow triggers on push to `main`, and the repository currently has only the feature branch (`claude/family-tree-plan-9llfvw` is also its default branch; no `main` exists). To deploy: create `main` from this branch (or merge into it), set **Pages → Source: GitHub Actions** in the repository settings, push, and open `https://h17t.github.io/pedigree/`. The workflow runs the full check chain first, so a red check blocks a broken deployment.
+- Deployment: the workflow on `main` runs typecheck, lint, unit tests, build, budget and the Playwright suite before publishing; a red check blocks a broken deployment. CI needs Node 22 (jsdom 30 → undici 8) and the preview server bound to 127.0.0.1, both fixed after the first runs.
 - The storage capacity is measured lazily the first time the Data view opens (a short probe write); until then the meter assumes 5 MB.
 
 ## Pending items that need the user
@@ -156,7 +156,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] Historical-context list confirmed (the eight proposed entries, no additions)
 - [x] Copyright holder for the MIT `LICENSE`: h17t
 - [ ] Manual screen-reader run (VoiceOver macOS/iOS, NVDA) — **pending**: the checklist is written in `docs/SCREEN_READER_CHECKLIST.md`; screen-reader support is not claimed until it has been run
-- [ ] First deployment — **pending**: needs a `main` branch and **Pages → Source: GitHub Actions** (see above)
+- [x] First deployment — `main` created, Pages source set to GitHub Actions, the `github-pages` environment allows `main`; run #5 deployed successfully
 
 ## Screenshots
 
