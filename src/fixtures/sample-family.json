@@ -1,0 +1,2221 @@
+{
+  "schemaVersion": 1,
+  "id": "00000000-0000-4000-8000-000000000999",
+  "name": "Beispielfamilie (Weber und Koch)",
+  "createdAt": 1700000000000,
+  "modifiedAt": 1700000000000,
+  "persons": {
+    "00000000-0000-4000-8000-000000000001": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "givenNames": "Friedrich",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1848-04-02",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": ""
+      },
+      "death": {
+        "date": "1912-11-19",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": "",
+        "cause": "Lungenentzündung"
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Winzer",
+      "religion": "evangelisch",
+      "residence": "",
+      "events": [
+        {
+          "id": "00000000-0000-4000-8000-000000000301",
+          "label": "",
+          "qualifier": "exact",
+          "place": "Landau, Hauptfriedhof",
+          "note": "",
+          "type": "burial",
+          "date": "1912-11-22"
+        }
+      ],
+      "sources": "Kirchenbuch Landau, Sterberegister 1912, Nr. 214",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000002": {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "givenNames": "Wilhelmine Charlotte",
+      "surname": "Weber",
+      "birthName": "Kühl",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1852",
+        "qualifier": "about",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": "1930-01-05",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Bäuerin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "Laut Familienerzählung stammte Wilhelmine aus Neustadt; ihre Eltern sind in keinem Kirchenbuch gefunden worden. Ihr Bruder August wanderte zeitweise nach Lothringen aus und kehrte 1890 zurück. Sie führte nach dem Tod ihres Mannes den Weinbetrieb noch 18 Jahre allein weiter und galt im Dorf als streng, aber gerecht.",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000003": {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "givenNames": "August",
+      "surname": "Kühl",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1855",
+        "qualifier": "estimated",
+        "place": "",
+        "note": ""
+      },
+      "death": {
+        "date": "1920",
+        "qualifier": "after",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Tagelöhner",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000004": {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "givenNames": "Karl",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1878-02-11",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": ""
+      },
+      "death": {
+        "date": "1944-12-30",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Winzer",
+      "religion": "",
+      "residence": "",
+      "events": [
+        {
+          "id": "00000000-0000-4000-8000-000000000302",
+          "label": "",
+          "qualifier": "exact",
+          "place": "Stiftskirche Landau",
+          "note": "",
+          "type": "baptism",
+          "date": "1878-02-24"
+        }
+      ],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000005": {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "givenNames": "Marie",
+      "surname": "Koch",
+      "birthName": "Weber",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1881-07-30",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "unknown",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "Sterbedatum nicht bekannt; zuletzt 1955 in Speyer nachgewiesen.",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "amber",
+        "label": "Koch"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000006": {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "givenNames": "Otto",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1885-10-03",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": ""
+      },
+      "death": {
+        "date": "1915-05",
+        "qualifier": "about",
+        "place": "bei Ypern",
+        "note": "Gefallen",
+        "cause": "Gefallen im Ersten Weltkrieg"
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Küfer",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000007": {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "givenNames": "Anna",
+      "surname": "Weber",
+      "birthName": "Schmidt",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1884-03-14",
+        "qualifier": "exact",
+        "place": "Edenkoben",
+        "note": ""
+      },
+      "death": {
+        "date": "1962-01-02",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Lehrerin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000008": {
+      "id": "00000000-0000-4000-8000-000000000008",
+      "givenNames": "Heinrich",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1906-06-21",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": ""
+      },
+      "death": {
+        "date": "1980-08-14",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Weinhändler",
+      "religion": "",
+      "residence": "Neustadt an der Weinstraße",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [
+        {
+          "label": "Weingut",
+          "value": "Weber & Söhne, gegründet 1931"
+        }
+      ],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000009": {
+      "id": "00000000-0000-4000-8000-000000000009",
+      "givenNames": "Elisabeth",
+      "surname": "Hartmann",
+      "birthName": "Weber",
+      "nickname": "Lisbeth",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1909-12-01",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": ""
+      },
+      "death": {
+        "date": "1998-03-17",
+        "qualifier": "exact",
+        "place": "Karlsruhe",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000010": {
+      "id": "00000000-0000-4000-8000-000000000010",
+      "givenNames": "Paul",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1912-04-02",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": ""
+      },
+      "death": {
+        "date": "1912-04-09",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000011": {
+      "id": "00000000-0000-4000-8000-000000000011",
+      "givenNames": "Ludwig",
+      "surname": "Koch",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1879",
+        "qualifier": "about",
+        "place": "Speyer",
+        "note": ""
+      },
+      "death": {
+        "date": "1950-10-10",
+        "qualifier": "exact",
+        "place": "Speyer",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Lehrer",
+      "religion": "katholisch",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "amber",
+        "label": "Koch"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000012": {
+      "id": "00000000-0000-4000-8000-000000000012",
+      "givenNames": "Johann",
+      "surname": "Koch",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1908-08-08",
+        "qualifier": "exact",
+        "place": "Speyer",
+        "note": ""
+      },
+      "death": {
+        "date": "1975-02-27",
+        "qualifier": "exact",
+        "place": "Speyer",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Buchhalter",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "amber",
+        "label": "Koch"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000013": {
+      "id": "00000000-0000-4000-8000-000000000013",
+      "givenNames": "Klara",
+      "surname": "Koch",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1911-01-15",
+        "qualifier": "exact",
+        "place": "Speyer",
+        "note": ""
+      },
+      "death": {
+        "date": "2001-06-30",
+        "qualifier": "exact",
+        "place": "Mannheim",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Schneiderin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "amber",
+        "label": "Koch"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000014": {
+      "id": "00000000-0000-4000-8000-000000000014",
+      "givenNames": "Gertrud",
+      "surname": "Meyer",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1910-02-20",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": "1990-11-11",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000015": {
+      "id": "00000000-0000-4000-8000-000000000015",
+      "givenNames": "Werner",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1934-01-19",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": "2010-05-05",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Weinhändler",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000016": {
+      "id": "00000000-0000-4000-8000-000000000016",
+      "givenNames": "Ingrid",
+      "surname": "Schulz",
+      "birthName": "Weber",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1937-09-09",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Apothekerin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000017": {
+      "id": "00000000-0000-4000-8000-000000000017",
+      "givenNames": "Hilde",
+      "surname": "Weber",
+      "birthName": "Braun",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1920-07-07",
+        "qualifier": "exact",
+        "place": "Kaiserslautern",
+        "note": ""
+      },
+      "death": {
+        "date": "2005-12-24",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000018": {
+      "id": "00000000-0000-4000-8000-000000000018",
+      "givenNames": "Dieter",
+      "surname": "Weber",
+      "birthName": "Braun",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1945-03-03",
+        "qualifier": "exact",
+        "place": "Kaiserslautern",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Kfz-Meister",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "Von Heinrich Weber 1951 adoptiert; leiblicher Vater unbekannt.",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000019": {
+      "id": "00000000-0000-4000-8000-000000000019",
+      "givenNames": "Ursula",
+      "surname": "Fischer",
+      "birthName": "Weber",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1952-10-10",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Ärztin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000020": {
+      "id": "00000000-0000-4000-8000-000000000020",
+      "givenNames": "Franz",
+      "surname": "Hartmann",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1905-05-05",
+        "qualifier": "exact",
+        "place": "Karlsruhe",
+        "note": ""
+      },
+      "death": {
+        "date": "1970-01-20",
+        "qualifier": "exact",
+        "place": "Karlsruhe",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Eisenbahner",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000021": {
+      "id": "00000000-0000-4000-8000-000000000021",
+      "givenNames": "Rosa",
+      "surname": "Hartmann",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1935-02-02",
+        "qualifier": "exact",
+        "place": "Karlsruhe",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000022": {
+      "id": "00000000-0000-4000-8000-000000000022",
+      "givenNames": "Ernst",
+      "surname": "Hartmann",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1938-08-18",
+        "qualifier": "exact",
+        "place": "Karlsruhe",
+        "note": ""
+      },
+      "death": {
+        "date": "2015-07-07",
+        "qualifier": "exact",
+        "place": "Karlsruhe",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Ingenieur",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000023": {
+      "id": "00000000-0000-4000-8000-000000000023",
+      "givenNames": "Erna",
+      "surname": "Koch",
+      "birthName": "Lang",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1910",
+        "qualifier": "estimated",
+        "place": "Ludwigshafen",
+        "note": ""
+      },
+      "death": {
+        "date": "1985-09-09",
+        "qualifier": "exact",
+        "place": "Speyer",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "amber",
+        "label": "Koch"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000024": {
+      "id": "00000000-0000-4000-8000-000000000024",
+      "givenNames": "Helmut",
+      "surname": "Koch",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "unknown",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "amber",
+        "label": "Koch"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000025": {
+      "id": "00000000-0000-4000-8000-000000000025",
+      "givenNames": "Brigitte",
+      "surname": "Koch",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1940-11-30",
+        "qualifier": "exact",
+        "place": "Speyer",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Bibliothekarin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "amber",
+        "label": "Koch"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000026": {
+      "id": "00000000-0000-4000-8000-000000000026",
+      "givenNames": "Walter",
+      "surname": "Vogt",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1908-04-04",
+        "qualifier": "exact",
+        "place": "Mannheim",
+        "note": ""
+      },
+      "death": {
+        "date": "1979-03-03",
+        "qualifier": "exact",
+        "place": "Mannheim",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Musiker",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000027": {
+      "id": "00000000-0000-4000-8000-000000000027",
+      "givenNames": "Renate",
+      "surname": "Koch",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1942-06-06",
+        "qualifier": "exact",
+        "place": "Mannheim",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Journalistin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "amber",
+        "label": "Koch"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000028": {
+      "id": "00000000-0000-4000-8000-000000000028",
+      "givenNames": "Christa",
+      "surname": "Weber",
+      "birthName": "Neumann",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1936-12-12",
+        "qualifier": "exact",
+        "place": "Bad Dürkheim",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000029": {
+      "id": "00000000-0000-4000-8000-000000000029",
+      "givenNames": "Thomas",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1960-03-21",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Winzer",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000030": {
+      "id": "00000000-0000-4000-8000-000000000030",
+      "givenNames": "Sabine",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1963-07-14",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Architektin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000031": {
+      "id": "00000000-0000-4000-8000-000000000031",
+      "givenNames": "Peter",
+      "surname": "Schulz",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1935-01-01",
+        "qualifier": "exact",
+        "place": "Mainz",
+        "note": ""
+      },
+      "death": {
+        "date": "2020-04-18",
+        "qualifier": "exact",
+        "place": "Mainz",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Apotheker",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000032": {
+      "id": "00000000-0000-4000-8000-000000000032",
+      "givenNames": "Andreas",
+      "surname": "Schulz",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1961-09-30",
+        "qualifier": "exact",
+        "place": "Mainz",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Apotheker",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000033": {
+      "id": "00000000-0000-4000-8000-000000000033",
+      "givenNames": "Michael",
+      "surname": "Fischer",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1950-02-28",
+        "qualifier": "exact",
+        "place": "Heidelberg",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Lehrer",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000034": {
+      "id": "00000000-0000-4000-8000-000000000034",
+      "givenNames": "Julia",
+      "surname": "Fischer",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1978-11-11",
+        "qualifier": "exact",
+        "place": "Heidelberg",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Übersetzerin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000035": {
+      "id": "00000000-0000-4000-8000-000000000035",
+      "givenNames": "Kevin",
+      "surname": "Ortiz",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1990-05-19",
+        "qualifier": "exact",
+        "place": "Heidelberg",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "Pflegekind der Familie Fischer von 1996 bis 2008.",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000036": {
+      "id": "00000000-0000-4000-8000-000000000036",
+      "givenNames": "Monika",
+      "surname": "Berger",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1965-10-02",
+        "qualifier": "exact",
+        "place": "Freiburg",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Ingenieurin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000037": {
+      "id": "00000000-0000-4000-8000-000000000037",
+      "givenNames": "Lena",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1998-01-23",
+        "qualifier": "exact",
+        "place": "Freiburg",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "Adoptiert 2003.",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000038": {
+      "id": "00000000-0000-4000-8000-000000000038",
+      "givenNames": "Claudia",
+      "surname": "Weber",
+      "birthName": "Roth",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1962-04-04",
+        "qualifier": "exact",
+        "place": "Landau in der Pfalz",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000039": {
+      "id": "00000000-0000-4000-8000-000000000039",
+      "givenNames": "Felix",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1990-09-09",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Winzer",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000040": {
+      "id": "00000000-0000-4000-8000-000000000040",
+      "givenNames": "Anna",
+      "surname": "Weber",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1993-12-05",
+        "qualifier": "exact",
+        "place": "Neustadt an der Weinstraße",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "living",
+      "occupation": "Studentin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "green",
+        "label": "Weber"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000041": {
+      "id": "00000000-0000-4000-8000-000000000041",
+      "givenNames": "Johann",
+      "surname": "Lindner",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1860-03-01",
+        "qualifier": "exact",
+        "place": "Bremen",
+        "note": ""
+      },
+      "death": {
+        "date": "1935-06-06",
+        "qualifier": "exact",
+        "place": "Bremen",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Schiffszimmermann",
+      "religion": "",
+      "residence": "",
+      "events": [
+        {
+          "id": "00000000-0000-4000-8000-000000000303",
+          "label": "",
+          "qualifier": "exact",
+          "place": "Bremerhaven → New York",
+          "note": "Rückkehr 1892",
+          "type": "emigration",
+          "date": "1884-04"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000304",
+          "label": "",
+          "qualifier": "exact",
+          "place": "Bremen-Vegesack",
+          "note": "",
+          "type": "residence",
+          "date": "1892"
+        }
+      ],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "steel",
+        "label": "Lindner"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000042": {
+      "id": "00000000-0000-4000-8000-000000000042",
+      "givenNames": "Emma",
+      "surname": "Lindner",
+      "birthName": "Voss",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1865-08-15",
+        "qualifier": "exact",
+        "place": "Vegesack",
+        "note": ""
+      },
+      "death": {
+        "date": "1940-02-02",
+        "qualifier": "exact",
+        "place": "Bremen",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "steel",
+        "label": "Lindner"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000043": {
+      "id": "00000000-0000-4000-8000-000000000043",
+      "givenNames": "Carl",
+      "surname": "Lindner",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1888-05-05",
+        "qualifier": "exact",
+        "place": "New York",
+        "note": ""
+      },
+      "death": {
+        "date": "1960-10-30",
+        "qualifier": "exact",
+        "place": "Bremen",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Werftarbeiter",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "steel",
+        "label": "Lindner"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000044": {
+      "id": "00000000-0000-4000-8000-000000000044",
+      "givenNames": "Hedwig",
+      "surname": "Lindner",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1891-01-31",
+        "qualifier": "exact",
+        "place": "New York",
+        "note": ""
+      },
+      "death": {
+        "date": "1970",
+        "qualifier": "about",
+        "place": "Hamburg",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "steel",
+        "label": "Lindner"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000045": {
+      "id": "00000000-0000-4000-8000-000000000045",
+      "givenNames": "Margarethe",
+      "surname": "Lindner",
+      "birthName": "Berg",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1890-12-24",
+        "qualifier": "exact",
+        "place": "Bremen",
+        "note": ""
+      },
+      "death": {
+        "date": null,
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "unknown",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "steel",
+        "label": "Lindner"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000046": {
+      "id": "00000000-0000-4000-8000-000000000046",
+      "givenNames": "Robert",
+      "surname": "Lindner",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "male",
+      "birth": {
+        "date": "1920-02-14",
+        "qualifier": "exact",
+        "place": "Bremen",
+        "note": ""
+      },
+      "death": {
+        "date": "1944",
+        "qualifier": "about",
+        "place": "Ostfront",
+        "note": "Vermisst, 1950 für tot erklärt",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "steel",
+        "label": "Lindner"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000047": {
+      "id": "00000000-0000-4000-8000-000000000047",
+      "givenNames": "Else",
+      "surname": "Lindner",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1923-06-18",
+        "qualifier": "exact",
+        "place": "Bremen",
+        "note": ""
+      },
+      "death": {
+        "date": "2010-01-09",
+        "qualifier": "exact",
+        "place": "Bremen",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "Verkäuferin",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "",
+      "customFields": [],
+      "position": null,
+      "tag": {
+        "color": "steel",
+        "label": "Lindner"
+      },
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000048": {
+      "id": "00000000-0000-4000-8000-000000000048",
+      "givenNames": "Sophie",
+      "surname": "Meier",
+      "birthName": "",
+      "nickname": "",
+      "titlePrefix": "",
+      "sex": "female",
+      "birth": {
+        "date": "1900",
+        "qualifier": "about",
+        "place": "",
+        "note": ""
+      },
+      "death": {
+        "date": "1970-05-01",
+        "qualifier": "exact",
+        "place": "",
+        "note": "",
+        "cause": ""
+      },
+      "lifeStatus": "deceased",
+      "occupation": "",
+      "religion": "",
+      "residence": "",
+      "events": [],
+      "sources": "",
+      "notes": "Auf einem Foto im Nachlass von Anna Weber; Verwandtschaft unklar.",
+      "customFields": [],
+      "position": null,
+      "tag": null,
+      "rawGedcom": []
+    }
+  },
+  "unions": {
+    "00000000-0000-4000-8000-000000000101": {
+      "id": "00000000-0000-4000-8000-000000000101",
+      "partnerIds": [],
+      "type": "unknown",
+      "marriageDate": null,
+      "marriageQualifier": "exact",
+      "marriagePlace": "",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "unknown",
+      "notes": "Eltern unbekannt",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000102": {
+      "id": "00000000-0000-4000-8000-000000000102",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002"
+      ],
+      "type": "marriage",
+      "marriageDate": "1876-05-20",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Landau in der Pfalz",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "married",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000103": {
+      "id": "00000000-0000-4000-8000-000000000103",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000004",
+        "00000000-0000-4000-8000-000000000007"
+      ],
+      "type": "marriage",
+      "marriageDate": "1905-09-16",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Edenkoben",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "married",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000104": {
+      "id": "00000000-0000-4000-8000-000000000104",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000011",
+        "00000000-0000-4000-8000-000000000005"
+      ],
+      "type": "marriage",
+      "marriageDate": "1906",
+      "marriageQualifier": "about",
+      "marriagePlace": "Speyer",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "married",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000105": {
+      "id": "00000000-0000-4000-8000-000000000105",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000008",
+        "00000000-0000-4000-8000-000000000014"
+      ],
+      "type": "marriage",
+      "marriageDate": "1932-04-30",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Neustadt an der Weinstraße",
+      "divorceDate": "1948-02-12",
+      "divorceQualifier": "exact",
+      "status": "divorced",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000106": {
+      "id": "00000000-0000-4000-8000-000000000106",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000017"
+      ],
+      "type": "unknown",
+      "marriageDate": null,
+      "marriageQualifier": "exact",
+      "marriagePlace": "",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "unknown",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000107": {
+      "id": "00000000-0000-4000-8000-000000000107",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000008",
+        "00000000-0000-4000-8000-000000000017"
+      ],
+      "type": "marriage",
+      "marriageDate": "1950-06-03",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Neustadt an der Weinstraße",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "widowed",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000108": {
+      "id": "00000000-0000-4000-8000-000000000108",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000020",
+        "00000000-0000-4000-8000-000000000009"
+      ],
+      "type": "marriage",
+      "marriageDate": "1933-10-14",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Landau in der Pfalz",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "widowed",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000109": {
+      "id": "00000000-0000-4000-8000-000000000109",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000012",
+        "00000000-0000-4000-8000-000000000023"
+      ],
+      "type": "marriage",
+      "marriageDate": "1935-05-25",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Speyer",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "married",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000110": {
+      "id": "00000000-0000-4000-8000-000000000110",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000013",
+        "00000000-0000-4000-8000-000000000026"
+      ],
+      "type": "unmarried",
+      "marriageDate": null,
+      "marriageQualifier": "exact",
+      "marriagePlace": "",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "partnership",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000111": {
+      "id": "00000000-0000-4000-8000-000000000111",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000015",
+        "00000000-0000-4000-8000-000000000028"
+      ],
+      "type": "marriage",
+      "marriageDate": "1958-08-23",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Bad Dürkheim",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "widowed",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000112": {
+      "id": "00000000-0000-4000-8000-000000000112",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000031",
+        "00000000-0000-4000-8000-000000000016"
+      ],
+      "type": "marriage",
+      "marriageDate": "1960-05-14",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Mainz",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "widowed",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000113": {
+      "id": "00000000-0000-4000-8000-000000000113",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000033",
+        "00000000-0000-4000-8000-000000000019"
+      ],
+      "type": "marriage",
+      "marriageDate": "1975-07-05",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Heidelberg",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "separated",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000114": {
+      "id": "00000000-0000-4000-8000-000000000114",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000030",
+        "00000000-0000-4000-8000-000000000036"
+      ],
+      "type": "partnership",
+      "marriageDate": "2002-09-14",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Freiburg",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "partnership",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000115": {
+      "id": "00000000-0000-4000-8000-000000000115",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000029",
+        "00000000-0000-4000-8000-000000000038"
+      ],
+      "type": "marriage",
+      "marriageDate": "1988-06-11",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Neustadt an der Weinstraße",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "married",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000116": {
+      "id": "00000000-0000-4000-8000-000000000116",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000041",
+        "00000000-0000-4000-8000-000000000042"
+      ],
+      "type": "marriage",
+      "marriageDate": "1887-10-01",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Bremen",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "married",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    },
+    "00000000-0000-4000-8000-000000000117": {
+      "id": "00000000-0000-4000-8000-000000000117",
+      "partnerIds": [
+        "00000000-0000-4000-8000-000000000043",
+        "00000000-0000-4000-8000-000000000045"
+      ],
+      "type": "marriage",
+      "marriageDate": "1919-03-08",
+      "marriageQualifier": "exact",
+      "marriagePlace": "Bremen",
+      "divorceDate": null,
+      "divorceQualifier": "exact",
+      "status": "married",
+      "notes": "",
+      "position": null,
+      "rawGedcom": []
+    }
+  },
+  "childLinks": {
+    "00000000-0000-4000-8000-000000000201": {
+      "id": "00000000-0000-4000-8000-000000000201",
+      "unionId": "00000000-0000-4000-8000-000000000101",
+      "childId": "00000000-0000-4000-8000-000000000002",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000202": {
+      "id": "00000000-0000-4000-8000-000000000202",
+      "unionId": "00000000-0000-4000-8000-000000000101",
+      "childId": "00000000-0000-4000-8000-000000000003",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000203": {
+      "id": "00000000-0000-4000-8000-000000000203",
+      "unionId": "00000000-0000-4000-8000-000000000102",
+      "childId": "00000000-0000-4000-8000-000000000004",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000204": {
+      "id": "00000000-0000-4000-8000-000000000204",
+      "unionId": "00000000-0000-4000-8000-000000000102",
+      "childId": "00000000-0000-4000-8000-000000000005",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000205": {
+      "id": "00000000-0000-4000-8000-000000000205",
+      "unionId": "00000000-0000-4000-8000-000000000102",
+      "childId": "00000000-0000-4000-8000-000000000006",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000206": {
+      "id": "00000000-0000-4000-8000-000000000206",
+      "unionId": "00000000-0000-4000-8000-000000000103",
+      "childId": "00000000-0000-4000-8000-000000000008",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000207": {
+      "id": "00000000-0000-4000-8000-000000000207",
+      "unionId": "00000000-0000-4000-8000-000000000103",
+      "childId": "00000000-0000-4000-8000-000000000009",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000208": {
+      "id": "00000000-0000-4000-8000-000000000208",
+      "unionId": "00000000-0000-4000-8000-000000000103",
+      "childId": "00000000-0000-4000-8000-000000000010",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000209": {
+      "id": "00000000-0000-4000-8000-000000000209",
+      "unionId": "00000000-0000-4000-8000-000000000104",
+      "childId": "00000000-0000-4000-8000-000000000012",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000210": {
+      "id": "00000000-0000-4000-8000-000000000210",
+      "unionId": "00000000-0000-4000-8000-000000000104",
+      "childId": "00000000-0000-4000-8000-000000000013",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000211": {
+      "id": "00000000-0000-4000-8000-000000000211",
+      "unionId": "00000000-0000-4000-8000-000000000105",
+      "childId": "00000000-0000-4000-8000-000000000015",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000212": {
+      "id": "00000000-0000-4000-8000-000000000212",
+      "unionId": "00000000-0000-4000-8000-000000000105",
+      "childId": "00000000-0000-4000-8000-000000000016",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000213": {
+      "id": "00000000-0000-4000-8000-000000000213",
+      "unionId": "00000000-0000-4000-8000-000000000106",
+      "childId": "00000000-0000-4000-8000-000000000018",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000214": {
+      "id": "00000000-0000-4000-8000-000000000214",
+      "unionId": "00000000-0000-4000-8000-000000000107",
+      "childId": "00000000-0000-4000-8000-000000000018",
+      "relationType": "adopted"
+    },
+    "00000000-0000-4000-8000-000000000215": {
+      "id": "00000000-0000-4000-8000-000000000215",
+      "unionId": "00000000-0000-4000-8000-000000000107",
+      "childId": "00000000-0000-4000-8000-000000000019",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000216": {
+      "id": "00000000-0000-4000-8000-000000000216",
+      "unionId": "00000000-0000-4000-8000-000000000108",
+      "childId": "00000000-0000-4000-8000-000000000021",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000217": {
+      "id": "00000000-0000-4000-8000-000000000217",
+      "unionId": "00000000-0000-4000-8000-000000000108",
+      "childId": "00000000-0000-4000-8000-000000000022",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000218": {
+      "id": "00000000-0000-4000-8000-000000000218",
+      "unionId": "00000000-0000-4000-8000-000000000109",
+      "childId": "00000000-0000-4000-8000-000000000024",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000219": {
+      "id": "00000000-0000-4000-8000-000000000219",
+      "unionId": "00000000-0000-4000-8000-000000000109",
+      "childId": "00000000-0000-4000-8000-000000000025",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000220": {
+      "id": "00000000-0000-4000-8000-000000000220",
+      "unionId": "00000000-0000-4000-8000-000000000110",
+      "childId": "00000000-0000-4000-8000-000000000027",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000221": {
+      "id": "00000000-0000-4000-8000-000000000221",
+      "unionId": "00000000-0000-4000-8000-000000000111",
+      "childId": "00000000-0000-4000-8000-000000000029",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000222": {
+      "id": "00000000-0000-4000-8000-000000000222",
+      "unionId": "00000000-0000-4000-8000-000000000111",
+      "childId": "00000000-0000-4000-8000-000000000030",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000223": {
+      "id": "00000000-0000-4000-8000-000000000223",
+      "unionId": "00000000-0000-4000-8000-000000000112",
+      "childId": "00000000-0000-4000-8000-000000000032",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000224": {
+      "id": "00000000-0000-4000-8000-000000000224",
+      "unionId": "00000000-0000-4000-8000-000000000113",
+      "childId": "00000000-0000-4000-8000-000000000034",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000225": {
+      "id": "00000000-0000-4000-8000-000000000225",
+      "unionId": "00000000-0000-4000-8000-000000000113",
+      "childId": "00000000-0000-4000-8000-000000000035",
+      "relationType": "foster"
+    },
+    "00000000-0000-4000-8000-000000000226": {
+      "id": "00000000-0000-4000-8000-000000000226",
+      "unionId": "00000000-0000-4000-8000-000000000114",
+      "childId": "00000000-0000-4000-8000-000000000037",
+      "relationType": "adopted"
+    },
+    "00000000-0000-4000-8000-000000000227": {
+      "id": "00000000-0000-4000-8000-000000000227",
+      "unionId": "00000000-0000-4000-8000-000000000115",
+      "childId": "00000000-0000-4000-8000-000000000039",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000228": {
+      "id": "00000000-0000-4000-8000-000000000228",
+      "unionId": "00000000-0000-4000-8000-000000000115",
+      "childId": "00000000-0000-4000-8000-000000000040",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000229": {
+      "id": "00000000-0000-4000-8000-000000000229",
+      "unionId": "00000000-0000-4000-8000-000000000116",
+      "childId": "00000000-0000-4000-8000-000000000043",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000230": {
+      "id": "00000000-0000-4000-8000-000000000230",
+      "unionId": "00000000-0000-4000-8000-000000000116",
+      "childId": "00000000-0000-4000-8000-000000000044",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000231": {
+      "id": "00000000-0000-4000-8000-000000000231",
+      "unionId": "00000000-0000-4000-8000-000000000117",
+      "childId": "00000000-0000-4000-8000-000000000046",
+      "relationType": "biological"
+    },
+    "00000000-0000-4000-8000-000000000232": {
+      "id": "00000000-0000-4000-8000-000000000232",
+      "unionId": "00000000-0000-4000-8000-000000000117",
+      "childId": "00000000-0000-4000-8000-000000000047",
+      "relationType": "biological"
+    }
+  },
+  "rawRecords": [],
+  "settings": {
+    "preserveRawGedcom": true
+  }
+}

@@ -1,0 +1,83 @@
+/* Base styles: resets, typography, shared controls. Component-specific styles live next to their components. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--chrome);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  overflow-x: hidden;
+}
+#root { min-height: 100dvh; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+h1 { font-size: var(--fs-xl); line-height: var(--lh-xl); font-weight: 700; }
+h2 { font-size: var(--fs-lg); line-height: var(--lh-lg); font-weight: 700; }
+h3 { font-size: var(--fs-md); line-height: var(--lh-md); font-weight: 500; }
+p { margin: 0; }
+a { color: var(--line); font-weight: 500; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--select); outline-offset: 2px; }
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.tnum { font-variant-numeric: tabular-nums; }
+.muted { color: var(--slate); }
+.small { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  min-height: var(--touch); padding: 0 var(--sp-5);
+  border: 1.5px solid var(--line); border-radius: var(--r-control);
+  background: var(--paper); color: var(--line); font-weight: 500; cursor: pointer;
+  text-decoration: none; text-align: center;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+.btn:hover { background: var(--line-bg); }
+.btn:disabled { border-color: var(--rule); color: var(--rule); cursor: not-allowed; background: var(--paper); }
+.btn-primary { background: var(--line); color: var(--paper); min-height: var(--touch-primary); padding: 0 var(--sp-6); }
+.btn-primary:hover { background: #185a4b; }
+.btn-primary:disabled { background: var(--rule); border-color: var(--rule); color: var(--paper); }
+.btn-danger { border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover { background: var(--danger-bg); }
+.btn-quiet { border-color: transparent; background: transparent; color: var(--ink); }
+.btn-quiet:hover { background: var(--ground); }
+.btn-block { width: 100%; }
+.btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+.btn-row-end { justify-content: flex-end; }
+
+/* Fields */
+.field { display: grid; gap: var(--sp-1); }
+.field > label, .field-label { font-size: var(--fs-md); line-height: var(--lh-md); font-weight: 500; }
+.input, .select, .textarea {
+  min-height: var(--touch); padding: 10px var(--sp-3);
+  border: 1.5px solid var(--rule); border-radius: var(--r-control);
+  background: var(--paper); color: var(--ink); width: 100%;
+}
+.input:focus-visible, .select:focus-visible, .textarea:focus-visible { border-color: var(--select); }
+.textarea { min-height: 96px; resize: vertical; }
+.hint { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--slate); }
+.field-error { font-size: var(--fs-sm); line-height: var(--lh-sm); color: var(--danger); font-weight: 500; }
+
+/* Notices */
+.notice { display: grid; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); border-radius: 0 var(--r-control) var(--r-control) 0; border-left: 4px solid var(--rule); background: var(--paper); }
+.notice-warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.notice-danger { border-left-color: var(--danger); background: var(--danger-bg); }
+.notice-info { border-left-color: var(--line); background: var(--line-bg); }
+.notice-title { font-weight: 700; }
+
+/* Surfaces */
+.panel { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-card); }
+.stack { display: grid; gap: var(--sp-4); }
+.stack-tight { display: grid; gap: var(--sp-2); }
+.page { padding: var(--sp-5) var(--sp-4); max-width: 880px; margin: 0 auto; display: grid; gap: var(--sp-6); }
+@media (min-width: 1024px) { .page { padding: var(--sp-8) var(--sp-8); } }
+
+/* Data tables */
+.table-wrap { overflow-x: auto; }
+table.table { border-collapse: collapse; width: 100%; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+table.table th, table.table td { text-align: left; padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--rule); }
+table.table th { font-weight: 500; background: var(--ground); }
