@@ -25,6 +25,9 @@ import { DetailsHost } from '../edit/DetailsHost';
 import { AddMenu } from '../edit/AddMenu';
 import { closeEditor, openEditor, useEditor } from '../edit/editorStore';
 import { openPrint } from '../print/printStore';
+import { Hint } from '../onboarding/Hint';
+import { useHints } from '@/onboarding/hints';
+import { startGuidedHere } from '../onboarding/start';
 
 /**
  * Tree mode: toolbar (search, legend, fit, zoom, card detail, add person), the canvas, the
@@ -130,8 +133,20 @@ export function TreeView() {
 
   const frameLabel = useCallback((f: ClusterFrame) => t('layout.frameLabel', { index: f.index, people: t('common.people', { count: f.personIds.length }) }), [t]);
 
+  const total = project ? Object.keys(project.persons).length : 0;
+  const offerHint = useHints((h) => h.offer);
+  const unplaced = placement ? placement.provisional.size : 0;
+  // Contextual tips, offered once their situation arises; the hint store shows one at a time
+  // and remembers dismissals.
+  useEffect(() => {
+    if (total === 0) return;
+    if (!ui.selectedPersonId) offerHint('selectCard');
+    if (total >= 4 && unplaced > 0) offerHint('arrangeTree');
+    if (ui.changesSinceBackup >= 10 && ui.lastBackupAt === null) offerHint('backupSoon');
+    if (!isDesktop && total >= 15) offerHint('listView');
+  }, [total, ui.selectedPersonId, ui.changesSinceBackup, ui.lastBackupAt, isDesktop, unplaced, offerHint]);
+
   if (!project || !placement) return null;
-  const total = Object.keys(project.persons).length;
   const selected = ui.selectedPersonId ? project.persons[ui.selectedPersonId] : undefined;
   const hidden = total - visible.size;
 
@@ -378,12 +393,26 @@ export function TreeView() {
       )}
 
       <div className="tree-canvas-wrap">
+        {total > 0 && (
+          <div className="tree-hints">
+            <Hint id="addGrandparents" />
+            <Hint id="selectCard" />
+            <Hint id="arrangeTree" />
+            <Hint id="backupSoon" />
+            <Hint id="listView" />
+          </div>
+        )}
         {total === 0 ? (
           <div className="tree-empty">
             <p>{t('tree.empty')}</p>
             <div className="btn-row">
               {!readOnly && (
-                <button type="button" className="btn btn-primary" onClick={addNewPerson}>
+                <button type="button" className="btn btn-primary" onClick={() => startGuidedHere(project.id)}>
+                  {t('tree.startGuided')}
+                </button>
+              )}
+              {!readOnly && (
+                <button type="button" className="btn" onClick={addNewPerson}>
                   {t('edit.addPerson')}
                 </button>
               )}

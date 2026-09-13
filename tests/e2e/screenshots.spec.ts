@@ -58,4 +58,18 @@ test('stage screenshots', async ({ page }, testInfo) => {
   await page.waitForTimeout(300);
   await expectNoHorizontalScroll(page);
   await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-data.png`, fullPage: true });
+  await page.getByRole('button', { name: 'Help', exact: true }).click();
+  await page.waitForTimeout(300);
+  await expectNoHorizontalScroll(page);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-help.png`, fullPage: true });
+  await page.getByRole('button', { name: 'Trees', exact: true }).or(page.getByRole('button', { name: 'Family trees', exact: true })).first().click();
+  await page.getByRole('button', { name: 'Start with yourself' }).click();
+  await page.getByLabel('Given names').fill('Anna');
+  await page.getByLabel('Surname').fill('Muster');
+  await page.getByLabel('Year of birth').fill('1985');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('group', { name: 'Father' }).getByLabel('Given names').fill('Peter');
+  await page.waitForTimeout(200);
+  await expectNoHorizontalScroll(page);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-wizard.png`, fullPage: true });
 });

@@ -7,6 +7,7 @@ import { Dialog } from './components/Dialog';
 import { FilePicker } from './components/FilePicker';
 import { announce } from './status';
 import { useRouter } from './router';
+import { startGuided, resumableDraft, resumeGuided } from './onboarding/start';
 
 /**
  * The list of family trees on this device with the three ways to start (empty, sample,
@@ -31,6 +32,10 @@ export function ProjectsView() {
   };
   const storageFailed = () => announce(t('data.storageFull'), 'danger');
 
+  const draft = resumableDraft();
+  const onStartGuided = () => {
+    if (!startGuided()) storageFailed();
+  };
   const onStartEmpty = () => {
     const r = createEmptyProject();
     if (r.ok) open(r.id);
@@ -57,6 +62,72 @@ export function ProjectsView() {
     else storageFailed();
   };
 
+  const guidedCard = (
+    <div className="start-card start-card-primary">
+      <button type="button" className="btn btn-primary btn-block" onClick={onStartGuided}>
+        {t('projects.startGuided')}
+      </button>
+      <p className="hint">{t('projects.startGuidedHint')}</p>
+    </div>
+  );
+  const sampleCard = (
+    <div className="start-card">
+      <button type="button" className="btn btn-block" onClick={onSample} disabled={busy}>
+        {t('projects.loadSample')}
+      </button>
+      <p className="hint">{t('projects.loadSampleHint')}</p>
+    </div>
+  );
+  const emptyCard = (
+    <div className="start-card">
+      <button type="button" className="btn btn-block" onClick={onStartEmpty}>
+        {t('projects.startEmpty')}
+      </button>
+      <p className="hint">{t('projects.startEmptyHint')}</p>
+    </div>
+  );
+  const resumeNotice = draft && (
+    <div className="notice notice-info">
+      <p className="notice-title">{t('wizard.resume')}</p>
+      <p>{t('wizard.resumeHint')}</p>
+      <div className="btn-row">
+        <button type="button" className="btn btn-primary" onClick={() => resumeGuided(draft.projectId)}>
+          {t('wizard.resume')}
+        </button>
+      </div>
+    </div>
+  );
+
+  if (projects.length === 0) {
+    // First run: three large choices and a quiet restore below them.
+    return (
+      <div className="page first-run">
+        <div className="stack-tight first-run-head">
+          <p className="hint">{t('app.name')}</p>
+          <h1>{t('projects.welcome')}</h1>
+          <p className="muted">{t('app.tagline')}</p>
+          <p className="muted">{t('app.privacyNote')}</p>
+        </div>
+        {resumeNotice}
+        <div className="start-cards">
+          {guidedCard}
+          {sampleCard}
+          {emptyCard}
+        </div>
+        <div className="panel section first-run-restore">
+          <p className="muted">{t('projects.quietRestore')}</p>
+          <FilePicker label={t('projects.restoreBackup')} hint={t('projects.restoreBackupHint')} onText={onBackup} />
+        </div>
+        <div className="btn-row">
+          <button type="button" className="link-btn" onClick={() => go('help')}>
+            {t('projects.help')}
+          </button>
+        </div>
+        <p className="hint">{t('app.privacyLong')}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <div className="stack-tight">
@@ -64,21 +135,12 @@ export function ProjectsView() {
         <p className="muted">{t('app.privacyNote')}</p>
       </div>
 
-      {projects.length === 0 && <p>{t('projects.empty')}</p>}
+      {resumeNotice}
 
-      <div className="start-cards">
-        <div className="start-card">
-          <button type="button" className="btn btn-primary btn-block" onClick={onStartEmpty}>
-            {t('projects.startEmpty')}
-          </button>
-          <p className="hint">{t('projects.startEmptyHint')}</p>
-        </div>
-        <div className="start-card">
-          <button type="button" className="btn btn-block" onClick={onSample} disabled={busy}>
-            {t('projects.loadSample')}
-          </button>
-          <p className="hint">{t('projects.loadSampleHint')}</p>
-        </div>
+      <div className="start-cards start-cards-4">
+        {guidedCard}
+        {emptyCard}
+        {sampleCard}
         <div className="start-card">
           <FilePicker label={t('projects.restoreBackup')} hint={t('projects.restoreBackupHint')} onText={onBackup} />
         </div>
@@ -133,6 +195,11 @@ export function ProjectsView() {
         </section>
       )}
 
+      <div className="btn-row">
+        <button type="button" className="link-btn" onClick={() => go('help')}>
+          {t('projects.help')}
+        </button>
+      </div>
       <p className="hint">{t('app.privacyLong')}</p>
 
       <Dialog open={renaming !== null} title={t('projects.renameTitle')} onClose={() => setRenaming(null)}>

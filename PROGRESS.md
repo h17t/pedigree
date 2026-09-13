@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (g) complete; stage (h) (onboarding, wizard, help) is next.**
+Current status (2026-09-13): **stage (h) complete; stage (i) (PWA and offline) is next.**
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -80,6 +80,19 @@ with the fonts embedded as base64 WOFF2 chunks (only the chunks the text uses), 
 unit tests for the scaling, tiling, cap and font-chunk maths. 181 unit tests and 53 Playwright
 tests pass.
 
+Stage (h) delivered: the first-run screen (welcome, three large choices with "Start with
+yourself" as the primary one, a quiet restore panel below, a link to the help), the guided start
+as a four-step form (you, parents, partner, children; every step skippable; progress line and
+step count; back; a draft saved on every change so leaving mid-way loses nothing and a reload
+reopens the same step; the result written through the ordinary edit functions as ONE undo step,
+laid out at once, with "you" selected and the "Next: add grandparents" tip on the canvas),
+contextual tips (one at a time, dismissible, remembered on the device: add grandparents, choose a
+person, tidy up the tree, save a backup, try the list), the help page in German and English
+(printable one-page quick start, adding people and relationships, reading the lines, dates with
+`~ < >`, backups and restoring, printing including print shop and PDF, keyboard) reachable from
+the header, the first-run screen and the empty tree, with "run the guided start again" and "show
+the tips again". 187 unit tests and 66 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -96,7 +109,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(e)** GEDCOM import (new / merge) and export, encodings, import report, raw preservation toggle — screenshots in `docs/screenshots/stage-e/`
 - [x] **(f)** timeline and statistics with base populations, charts with data tables, historical layer — screenshots in `docs/screenshots/stage-f/`
 - [x] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions — screenshots in `docs/screenshots/stage-g/`
-- [ ] **(h)** first-run screen, wizard, inline hints, help page, printable quick start
+- [x] **(h)** first-run screen, guided start (resumable, one undo step), contextual tips, help page with printable quick start — screenshots in `docs/screenshots/stage-h/`
 - [ ] **(i)** manifest, service worker, update banner, install entry, offline verification
 - [ ] **(j)** final accessibility audit, 500-person performance pass, README numbers, network-tab verification
 
@@ -106,9 +119,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - Black-and-white rendering of the branch stripes is implemented as SVG patterns and used by print in stage (g).
 
 - The Pages deployment has not run yet: the workflow triggers on push to `main`, and all work so far is on the feature branch. Once merged, set **Pages → Source: GitHub Actions** in the repository settings and check the published URL.
-- Undo/redo exists in the store with tests, but the visible Undo/Redo buttons arrive with the first editing UI in stage (c) (nothing is editable yet in stage a apart from project names).
-- The bottom navigation shows only the modes that exist (List, Data, Family trees); Tree, Timeline and Statistics are added as they are built rather than as placeholders.
-- The first-run screen is the plain project list for now; the designed first-run experience with the wizard is stage (h).
+- The help page's install/offline section arrives with stage (i), when it becomes true.
 - The storage capacity is measured lazily the first time the Data view opens (a short probe write); until then the meter assumes 5 MB.
 
 ## Pending items that need the user

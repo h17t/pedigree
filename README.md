@@ -12,7 +12,11 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 
 ## Using the app
 
-- Open the site. Choose **Start an empty tree**, **Look at the sample family** or **Restore a backup file**.
+- Open the site. Choose **Start with yourself** (a four-step guided start: you, parents, partner,
+  children; every step can be skipped and the result is one undo step), **Look at the sample
+  family**, **Start an empty tree** or **Restore a backup file**.
+- **Help** in the header opens a one-page help in the current language with a printable quick
+  start, and can bring the small tips back or run the guided start again.
 - **Tree** draws the family as cards and lines. Drag the picture to move around, pinch or use the
   buttons to zoom, tap or click a card to select it, type a name to jump to a person, and use
   "Show only" to see just the ancestors or descendants of the selected person. On a laptop you can
@@ -89,11 +93,11 @@ Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Mea
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 133.1 KB | 250.0 KB |
-| Initial CSS | 5.3 KB | — |
+| Initial JS (entry + static imports) | 141.4 KB | 250.0 KB |
+| Initial CSS | 5.6 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 163.1 KB | 500.0 KB |
+| **Initial payload** | 171.7 KB | 500.0 KB |
 
 The sample family, the GEDCOM module, the timeline/statistics views and the print dialog load
 lazily and do not count.

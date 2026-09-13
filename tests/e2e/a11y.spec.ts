@@ -11,8 +11,12 @@ async function expectNoViolations(page: Page, context: string) {
   expect(results.violations, `${context}\n${summary}`).toEqual([]);
 }
 
-test('project list has no accessibility violations', async ({ page }) => {
+test('first-run screen and project list have no accessibility violations', async ({ page }) => {
   await page.goto('');
+  await expect(page.getByRole('heading', { name: 'Welcome' })).toBeVisible();
+  await expectNoViolations(page, 'first run');
+  await page.getByRole('button', { name: 'Start an empty tree' }).click();
+  await page.getByRole('button', { name: 'Trees', exact: true }).or(page.getByRole('button', { name: 'Family trees', exact: true })).first().click();
   await expect(page.getByRole('heading', { name: 'Your family trees' })).toBeVisible();
   await expectNoViolations(page, 'project list');
 });

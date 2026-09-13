@@ -4,8 +4,8 @@
  */
 import { create } from 'zustand';
 
-export type Mode = 'projects' | 'tree' | 'list' | 'timeline' | 'statistics' | 'data';
-const MODES: Mode[] = ['projects', 'tree', 'list', 'timeline', 'statistics', 'data'];
+export type Mode = 'projects' | 'tree' | 'list' | 'timeline' | 'statistics' | 'data' | 'wizard' | 'help';
+const MODES: Mode[] = ['projects', 'tree', 'list', 'timeline', 'statistics', 'data', 'wizard', 'help'];
 
 function fromHash(hash: string): Mode | null {
   const m = hash.replace(/^#\/?/, '').split(/[/?]/)[0] as Mode;

@@ -164,3 +164,14 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 114 | Fonts embedded in SVG exports are the Fontsource WOFF2 chunks (Latin, Latin Extended) for the weights used, selected by scanning the exported text. | Decision 42: chunk-level subsetting without a font compiler; OFL 1.1 permits embedding. | decided |
 | 115 | Sheet 1 of a tiled print carries a small assembly plan in the top-left corner of the drawing area. | The brief asks for an assembly diagram; the corner keeps it away from the crop marks. | decided |
 
+
+## Stage (h) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 116 | The guided start creates its own tree ("My family") and writes the people through the same edit functions as the editor, as one undo step that also includes the layout. | The result is indistinguishable from manual entry; one Undo removes everything if the user changes their mind. | decided |
+| 117 | The wizard draft is saved to localStorage on every change and carries the id of its tree; the empty tree's "Start with yourself" button and the project list's "Continue the guided start" notice both resume it. | Leaving mid-way must lose nothing; a returning user lands on the tree, so the tree must offer the way back. | decided |
+| 118 | Wizard people carry a year of birth only (no full dates, no places); the partner step asks for the kind of relationship and a year of marriage. | The brief wants the first entry quick; everything else is one click away in the editor. | decided |
+| 119 | Contextual tips are a small store with a single active hint and a persisted dismissal list; they are offered by the views when their situation arises and rendered as an overlay in the canvas corner. | One tip at a time, attached to the canvas the tip talks about, never a tour. | decided |
+| 120 | The help page is one page with a printable quick start on top; printing adds a body class that hides everything except the quick start panel. | The brief asks for a one-page quick start that can be printed; reusing the browser's print dialog avoids a second print pipeline. | decided |
+| 121 | Help texts live in the typed dictionaries, so the initial bundle grows by about 8 KB gzipped for both languages. | Keeps the one-dictionary parity check; the help view itself is a lazy chunk. | decided |

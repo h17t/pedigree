@@ -188,3 +188,37 @@
 .ranked-fill { display: block; height: 100%; background: var(--line); }
 .ranked-value { text-align: right; }
 .plain-list { margin: 0; padding-left: var(--sp-5); }
+
+/* First run and guided start */
+.first-run { max-width: 960px; }
+.first-run-head h1 { font-size: var(--fs-xl); line-height: var(--lh-xl); margin: 0; }
+.start-card-primary { border-color: var(--line); box-shadow: inset 0 0 0 1px var(--line); }
+.start-cards-4 { grid-template-columns: 1fr; }
+@media (min-width: 768px) { .start-cards-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1200px) { .start-cards-4 { grid-template-columns: repeat(4, 1fr); } }
+.first-run-restore { gap: var(--sp-2); }
+.wizard { max-width: 640px; }
+.wizard-heading { margin: 0; }
+.wizard-heading:focus-visible { outline: 3px solid var(--select); outline-offset: 4px; border-radius: 2px; }
+.wizard-progress { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--sp-2); }
+.wizard-progress li { flex: 1 1 0; height: 6px; border-radius: 3px; background: var(--ground); border: 1px solid var(--rule); }
+.wizard-progress .wizard-progress-done { background: var(--line); border-color: var(--line); }
+.wizard-progress .wizard-progress-current { background: var(--select); border-color: var(--select); }
+.wizard-person { gap: var(--sp-3); }
+.wizard-child { display: grid; gap: var(--sp-2); justify-items: start; }
+.wizard-child .wizard-person { width: 100%; }
+.wizard-actions { justify-content: flex-end; }
+.wizard-summary-title { font-size: var(--fs-md); line-height: var(--lh-md); margin: 0; }
+.input-year { max-width: 8em; }
+
+/* Contextual tips */
+.hint-callout { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2) var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--line-bg); border: 1px solid var(--line); border-radius: var(--r-control); box-shadow: var(--shadow-menu); }
+.hint-callout-text { display: grid; gap: 2px; min-width: 0; flex: 1 1 200px; font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.hint-callout-title { font-weight: 700; }
+.tree-hints { position: absolute; top: var(--sp-2); left: var(--sp-3); right: var(--sp-3); z-index: 3; pointer-events: none; }
+.tree-hints > * { pointer-events: auto; max-width: 520px; }
+
+/* Help button in the header */
+.btn-help { display: inline-flex; align-items: center; gap: var(--sp-1); padding: 0 var(--sp-2); }
+.btn-help-active { background: var(--line-bg); }
+@media (max-width: 479px) { .btn-help-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }

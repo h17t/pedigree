@@ -87,6 +87,13 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
             {t('warnings.count', { count: warnings })}
           </button>
         )}
+        <button type="button" className={`btn btn-quiet btn-help${mode === 'help' ? ' btn-help-active' : ''}`} aria-current={mode === 'help' ? 'page' : undefined} onClick={() => go('help')}>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01" />
+          </svg>
+          <span className="btn-help-text">{t('nav.help')}</span>
+        </button>
         <UndoRedo compact />
       </header>
       <EditorDialogs />

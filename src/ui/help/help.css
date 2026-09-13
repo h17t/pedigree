@@ -1,0 +1,22 @@
+.help { max-width: 760px; }
+.help-sections { display: grid; gap: var(--sp-6); }
+.help-sections p { max-width: 68ch; }
+.quick-start { gap: var(--sp-3); }
+.quick-start-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-3); }
+.quick-steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--sp-2); }
+.quick-steps li { padding-left: var(--sp-1); }
+.quick-start-foot { margin: 0; }
+
+/* Printing the quick start: only that panel is printed, on one page. */
+@media print {
+  body.printing-help .shell-header,
+  body.printing-help .shell-nav,
+  body.printing-help .banners,
+  body.printing-help .status-region,
+  body.printing-help .help-head,
+  body.printing-help .help-sections,
+  body.printing-help .no-print { display: none !important; }
+  body.printing-help .shell-main { padding: 0; }
+  body.printing-help .quick-start { border: 0; padding: 0; font-size: 12pt; line-height: 1.4; }
+  body.printing-help .quick-start h2 { font-size: 20pt; margin: 0 0 8pt; }
+}
