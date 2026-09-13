@@ -125,3 +125,19 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 90 | Alignment guides snap to the edges and centre of other cards within 6 screen pixels; snap-to-grid (20 units) replaces them when on. | Two snapping systems at once fight each other. | decided |
 | 91 | Family frames are drawn only when there is more than one family. | A frame around the only family is noise. | decided |
 
+## Stage (e) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 92 | `_MARNM` becomes the surname and the GEDCOM surname becomes the birth name. | The app shows the name a person used; the report says so. | decided |
+| 93 | Shared NOTE records referenced by a person are copied into that person's notes and not preserved separately. | The text is what the user wants to read; keeping the record as well would duplicate it on export. | decided |
+| 94 | Source citations by reference (`SOUR @S1@`) are preserved verbatim, including those inside BIRT/DEAT; on export they are written back under the mapped event. | Keeps exported files valid without structured citations in the model. | decided |
+| 95 | Submitter records are regenerated on export rather than preserved. | The header must reference a submitter; regenerating avoids a dangling or duplicate one. | decided |
+| 96 | Imported cross-reference ids are stored (`gedcomXref`) and reused on export when unique. | Preserved lines such as `ASSO @I5@` stay valid. | decided |
+| 97 | Only the first NAME, BIRT and DEAT of a person are mapped; further ones are preserved raw. | The model has one of each; nothing is lost on a round trip. | decided |
+| 98 | A file declared UTF-8 whose bytes are not valid UTF-8 is read as Windows-1252 and the report says so. | The most common mislabelling in practice. | decided |
+| 99 | An invalid calendar date such as "31 FEB 1900" is kept verbatim with no interpreted date and listed under uncertain dates. | Never silently correct data. | decided |
+| 100 | Merge-import adds everyone from the file without automatic matching; the duplicates list is the way to merge. | Automatic matching guesses; the brief asks for the merge UI. | decided |
+| 101 | Import as a new tree runs the full layout and stores positions; merge-import places only the newcomers. | Imported people have `position: null` and must be placed; existing positions are never moved by an import. | decided |
+| 102 | Exported partnerships are `MARR` with `TYPE partnership`; unmarried unions carry `_STAT unmarried`; same-sex couples are written as HUSB/WIFE with a note in the report. | GEDCOM 5.5.1 has no better representation. | decided |
+

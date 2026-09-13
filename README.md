@@ -3,9 +3,9 @@
 A fully client-side family tree editor for the browser. Create, edit, print and export a family
 tree without a server, an account or any network traffic. **All data stays on the device.**
 
-Status: **stage (d) of (j) complete** — data model, storage, the tree canvas with auto-layout,
-the outline list view, the project list and full editing work; GEDCOM, timeline, printing,
-onboarding and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
+Status: **stage (e) of (j) complete** — data model, storage, the tree canvas with auto-layout,
+the outline list view, the project list, full editing and GEDCOM import/export work; timeline,
+printing, onboarding and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
 every design and technical decision.
 
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `docs/screenshots/`.
@@ -21,6 +21,9 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 - **List** shows every family as an indented outline; choose a person to see their details.
 - Choose a person, then **Edit**, **Add** (partner, child, father, mother, sibling) or **Delete**.
   Deleting explains exactly what else changes; **Undo** and **Redo** are always in the header.
+- **Data → GEDCOM files** imports a `.ged` file (GEDCOM 5.5.1; UTF-8, UTF-16, ANSEL and
+  Windows-1252 are recognised) as a new tree or into the open tree, shows an import report, and
+  exports the tree as GEDCOM 5.5.1 for other programs. GEDCOM 7 files are refused with an explanation.
 - **Data → Possible duplicates** lists people who may be the same person and lets you merge them
   field by field.
 - **Data** holds the backup buttons, the storage meter, the language and the date-format setting.
@@ -75,18 +78,18 @@ the PWA manifest's `start_url`/`scope` and the service-worker registration path 
 ## Bundle budget
 
 Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Measured by
-`npm run budget` after the stage (d) build:
+`npm run budget` after the stage (e) build:
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 123.3 KB | 250.0 KB |
+| Initial JS (entry + static imports) | 128.1 KB | 250.0 KB |
 | Initial CSS | 4.7 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 152.7 KB | 500.0 KB |
+| **Initial payload** | 157.5 KB | 500.0 KB |
 
-The sample family loads lazily (4.2 KB). The GEDCOM module, the timeline/statistics views and the
-print/export module will be lazy chunks as well.
+The sample family and the GEDCOM module load lazily and do not count. The timeline/statistics
+views and the print/export module will be lazy chunks as well.
 
 ## Privacy
 

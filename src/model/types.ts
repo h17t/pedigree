@@ -83,6 +83,8 @@ export interface Person {
   tag: Tag | null;
   /** Unknown GEDCOM lines belonging to this person, preserved verbatim for export. */
   rawGedcom: string[];
+  /** Original GEDCOM cross-reference id (e.g. "@I12@") so exports keep references valid. */
+  gedcomXref?: string;
 }
 
 export type UnionType = 'marriage' | 'partnership' | 'unmarried' | 'unknown';
@@ -104,6 +106,7 @@ export interface Union {
   rawGedcom: string[];
   marriageGedcomDate?: string;
   divorceGedcomDate?: string;
+  gedcomXref?: string;
 }
 
 export type RelationType = 'biological' | 'adopted' | 'step' | 'foster' | 'unknown';

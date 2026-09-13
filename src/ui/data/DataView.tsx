@@ -10,6 +10,7 @@ import { downloadBackup, importBackupText, downloadText } from '@/store/projects
 import { openProject } from '@/store/store';
 import { FilePicker } from '../components/FilePicker';
 import { DuplicatesPanel } from '../edit/DuplicatesPanel';
+import { GedcomPanel } from './GedcomPanel';
 import { announce } from '../status';
 import { useRouter } from '../router';
 import { SCHEMA_VERSION } from '@/model/types';
@@ -131,6 +132,8 @@ export function DataView() {
           </div>
         )}
       </section>
+
+      <GedcomPanel />
 
       <DuplicatesPanel />
 

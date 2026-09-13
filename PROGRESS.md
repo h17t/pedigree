@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (d) complete; stage (e) (GEDCOM import and export) is next.**
+Current status (2026-09-13): **stage (e) complete; stage (f) (timeline and statistics) is next.**
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -42,6 +42,21 @@ snap-to-grid, alignment guides while dragging, a family list with "Show family n
 families", and placement of people without a stored position into free space (dotted outline
 until arranged). 134 unit tests and 39 Playwright tests pass; 500 people lay out in well under a second.
 
+Stage (e) delivered: GEDCOM 5.5.1 import and export as a lazily loaded module. Encoding
+detection (UTF-8 with or without BOM, UTF-16 LE/BE, ANSEL with a hand-written table,
+Windows-1252 for "ANSI" declarations and for invalid UTF-8), a tolerant lexer (CR/LF/CRLF,
+CONC/CONT, level jumps), the date grammar (ABT/EST/CAL/BEF/AFT/BET…AND/FROM…TO, partial
+dates, Julian and dual years kept verbatim), mapping of INDI/NAME (GIVN, SURN, NICK, NPFX,
+_MARNM)/SEX (+_GENDER)/BIRT/DEAT (CAUS)/BAPM/CHR/BURI/RESI/EMIG/OCCU/RELI/NOTE (records
+inlined)/SOUR (free text)/_UDF and FAM/HUSB/WIFE/CHIL/MARR/DIV/_STAT with PEDI relation types,
+verbatim preservation of unknown lines per person/family and of unreferenced top-level records,
+stable cross-reference ids on export, an import report (counts, encoding, ignored tags,
+preserved records, uncertain dates, problems, dangling references, warnings, notes) and an
+export report, import as a new tree (laid out) or merged into the open tree as one undo step,
+the "keep unknown data" toggle with a size read-out and a remove button, six GEDCOM sample files
+including malformed, Windows-1252, UTF-16, ANSEL and GEDCOM 7, and a round-trip test asserting
+model equality. 163 unit tests and 42 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -55,7 +70,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(b)** SVG canvas, viewport, person cards (four variants), union junctions, connectors, selection, drag, error boundary, search, focus/filter — screenshots in `docs/screenshots/stage-b/`
 - [x] **(c)** person/union forms, date field with echo, context actions, delete with impact preview, union delete choices, merge, duplicates, warnings, undo buttons, multi-select — screenshots in `docs/screenshots/stage-c/`
 - [x] **(d)** auto-layout with generations and clusters, null-position placement, re-arrange selection, snap-to-grid, alignment guides, jump-to-cluster — screenshots in `docs/screenshots/stage-d/`
-- [ ] **(e)** GEDCOM import (new / merge) and export, encodings, import report, raw preservation toggle
+- [x] **(e)** GEDCOM import (new / merge) and export, encodings, import report, raw preservation toggle — screenshots in `docs/screenshots/stage-e/`
 - [ ] **(f)** timeline and statistics with base populations, charts with data tables, historical layer
 - [ ] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions
 - [ ] **(h)** first-run screen, wizard, inline hints, help page, printable quick start

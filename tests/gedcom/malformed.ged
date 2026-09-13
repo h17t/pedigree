@@ -1,0 +1,18 @@
+0 HEAD
+1 GEDC
+2 VERS 5.5.1
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME Broken /Record/
+3 DATE 1900
+this line is not gedcom at all
+1 FAMC @F99@
+0 @I2@ INDI
+1 NAME Second /Person/
+1 BIRT
+2 DATE 31 FEB 1900
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I77@
+1 CHIL @I2@
+1 CHIL @I88@

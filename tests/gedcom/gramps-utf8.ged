@@ -1,0 +1,123 @@
+0 HEAD
+1 SOUR Gramps
+2 VERS 5.2.0
+2 NAME Gramps
+1 DATE 12 SEP 2026
+2 TIME 10:00:00
+1 SUBM @SUBM@
+1 FILE weber.ged
+1 COPR Copyright (c) 2026 Test.
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+1 LANG German
+0 @SUBM@ SUBM
+1 NAME Test Person
+0 @I1@ INDI
+1 NAME Karl /Weber/
+2 GIVN Karl
+2 SURN Weber
+2 NICK Kalle
+1 SEX M
+1 BIRT
+2 DATE 11 FEB 1878
+2 PLAC Landau in der Pfalz
+2 SOUR @S1@
+3 PAGE Geburtsregister 1878, Nr. 44
+1 DEAT
+2 DATE 30 DEC 1944
+2 PLAC Landau in der Pfalz
+2 CAUS Herzschwäche
+1 BAPM
+2 DATE 24 FEB 1878
+2 PLAC Stiftskirche Landau
+1 OCCU Winzer
+1 RELI evangelisch
+1 NOTE Ein Winzer aus der Pfalz. Zweite Zeile mit Umlauten: äöü ß.
+2 CONT Dritte Zeile nach CONT.
+1 SOUR @S1@
+2 PAGE Familienbuch S. 12
+1 _UDF Weingut
+2 TEXT Weber & Söhne
+1 FAMS @F1@
+1 FAMC @F2@
+1 _UID 1234567890ABCDEF
+1 CHAN
+2 DATE 1 JAN 2026
+0 @I2@ INDI
+1 NAME Anna /Schmidt/
+2 GIVN Anna
+2 SURN Schmidt
+2 _MARNM Weber
+1 SEX F
+1 BIRT
+2 DATE ABT 1884
+2 PLAC Edenkoben
+1 DEAT
+2 DATE BET 1960 AND 1962
+1 RESI
+2 DATE FROM 1905 TO 1962
+2 PLAC Landau
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME Heinrich /Weber/
+1 SEX M
+1 BIRT
+2 DATE 21 JUN 1906
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Dieter /Braun/
+1 SEX M
+1 BIRT
+2 DATE EST 1945
+1 FAMC @F1@
+2 PEDI adopted
+1 NOTE @N1@
+0 @I5@ INDI
+1 NAME Friedrich /Weber/
+1 SEX M
+1 BIRT
+2 DATE 2 APR 1848
+1 DEAT Y
+1 FAMS @F2@
+0 @I6@ INDI
+1 NAME Alex /Weber/
+1 SEX X
+1 _GENDER diverse
+1 BIRT
+2 DATE 1990
+1 FAMC @F1@
+0 @I7@ INDI
+1 NAME Robert /Lindner/
+1 SEX M
+1 BIRT
+2 DATE @#DJULIAN@ 14 FEB 1720/21
+1 EMIG
+2 DATE 1884
+2 PLAC Bremerhaven
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 CHIL @I3@
+1 CHIL @I4@
+1 CHIL @I6@
+1 MARR
+2 DATE 16 SEP 1905
+2 PLAC Edenkoben
+1 _CUSTOMFAM something
+0 @F2@ FAM
+1 HUSB @I5@
+1 CHIL @I1@
+1 DIV
+2 DATE 1890
+0 @S1@ SOUR
+1 TITL Kirchenbuch Landau
+1 REPO @R1@
+0 @R1@ REPO
+1 NAME Landeskirchliches Archiv
+0 @N1@ NOTE Adoptiert 1951.
+0 @O1@ OBJE
+1 FILE karl.jpg
+2 FORM jpg
+0 TRLR
