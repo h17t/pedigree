@@ -175,3 +175,13 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 119 | Contextual tips are a small store with a single active hint and a persisted dismissal list; they are offered by the views when their situation arises and rendered as an overlay in the canvas corner. | One tip at a time, attached to the canvas the tip talks about, never a tour. | decided |
 | 120 | The help page is one page with a printable quick start on top; printing adds a body class that hides everything except the quick start panel. | The brief asks for a one-page quick start that can be printed; reusing the browser's print dialog avoids a second print pipeline. | decided |
 | 121 | Help texts live in the typed dictionaries, so the initial bundle grows by about 8 KB gzipped for both languages. | Keeps the one-dictionary parity check; the help view itself is a lazy chunk. | decided |
+
+## Stage (i) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 122 | The service worker precaches the entire build and serves navigations from the cached shell; there is no runtime caching because the app makes no runtime requests. | Everything the app needs is known at build time; a precache is the simplest correct strategy and the update is atomic. | decided |
+| 123 | Updates are prompt-style: the new worker waits (no `skipWaiting`, no `clientsClaim`) until the user presses "Reload now"; "Later" hides the notice for this session. | The brief forbids silent updates and reloads while someone is editing; the data is in localStorage and is never touched by an update. | decided |
+| 124 | The service worker is registered from the entry module (`injectRegister: null`) rather than an extra script tag. | Keeps the registration and the store together and one request fewer at startup. | decided |
+| 125 | Icons are rendered from the SVG mark by a script using the bundled Chromium; the maskable icon is the mark at 62 % on a solid green square. | No image library in the toolchain; the safe zone of maskable icons is the inner 80 % circle. | decided |
+| 126 | Playwright verifies offline use by reloading the app with the context offline after the worker has taken control, and verifies data safety by comparing every `pedigree:*` key before and after an update pass. | The brief asks for an "offline session" test and an "update keeps data" test; a real version switch is not possible in one build, but the invariant (the worker never touches localStorage) holds by construction. | decided |

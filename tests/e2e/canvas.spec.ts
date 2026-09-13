@@ -104,11 +104,16 @@ test.describe('desktop only', () => {
     const moved = (await card.boundingBox())!;
     expect(Math.round(moved.x - box.x)).toBe(100);
     expect(Math.round(moved.y - box.y)).toBe(60);
+    // Compare relative to the canvas: a notice above it (e.g. "ready to work offline" after the
+    // first load) may shift the whole canvas without changing the stored position.
+    const canvas = page.getByRole('group', { name: /Family tree canvas/ });
+    const canvasBefore = (await canvas.boundingBox())!;
     await page.reload();
-    await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
+    await expect(canvas).toBeVisible();
+    const canvasAfter = (await canvas.boundingBox())!;
     const after = (await page.getByRole('button', { name: /Otto Weber, 1885/ }).boundingBox())!;
-    expect(Math.round(after.x)).toBe(Math.round(moved.x));
-    expect(Math.round(after.y)).toBe(Math.round(moved.y));
+    expect(Math.round(after.x - canvasAfter.x)).toBe(Math.round(moved.x - canvasBefore.x));
+    expect(Math.round(after.y - canvasAfter.y)).toBe(Math.round(moved.y - canvasBefore.y));
   });
 });
 

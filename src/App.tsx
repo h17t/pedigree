@@ -15,6 +15,7 @@ const Wizard = lazy(() => import('./ui/onboarding/Wizard').then((m) => ({ defaul
 const HelpView = lazy(() => import('./ui/help/HelpView').then((m) => ({ default: m.HelpView })));
 import { DataView } from './ui/data/DataView';
 import { StatusMessages } from './ui/components/StatusMessages';
+import { PwaNotices } from './ui/shell/PwaNotices';
 import { listProjects } from './store/projects';
 import { useT } from '@/i18n';
 
@@ -59,6 +60,7 @@ export default function App() {
     return (
       <div className="shell shell-plain">
         <main id="main" className="shell-main" tabIndex={-1}>
+          <PwaNotices />
           <StatusMessages />
           <Suspense fallback={loading}>
             <HelpView />
@@ -71,6 +73,7 @@ export default function App() {
     return (
       <div className="shell shell-plain">
         <main id="main" className="shell-main" tabIndex={-1}>
+          <PwaNotices />
           <StatusMessages />
           <ProjectsView />
         </main>
@@ -81,6 +84,7 @@ export default function App() {
     return (
       <div className="shell shell-plain">
         <main id="main" className="shell-main" tabIndex={-1}>
+          <PwaNotices />
           <StatusMessages />
           <RecoveryView />
         </main>

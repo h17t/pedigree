@@ -7,12 +7,13 @@ import { announce } from '../status';
 import { useRouter } from '../router';
 import './help.css';
 
-const SECTIONS: { id: 'people' | 'lines' | 'dates' | 'backup' | 'print' | 'keys'; paragraphs: number }[] = [
+const SECTIONS: { id: 'people' | 'lines' | 'dates' | 'backup' | 'print' | 'install' | 'keys'; paragraphs: number }[] = [
   { id: 'people', paragraphs: 4 },
   { id: 'lines', paragraphs: 3 },
   { id: 'dates', paragraphs: 3 },
   { id: 'backup', paragraphs: 4 },
   { id: 'print', paragraphs: 4 },
+  { id: 'install', paragraphs: 3 },
   { id: 'keys', paragraphs: 3 },
 ];
 const QUICK_STEPS = [1, 2, 3, 4, 5, 6, 7, 8] as const;

@@ -11,6 +11,7 @@ import { openProject } from '@/store/store';
 import { FilePicker } from '../components/FilePicker';
 import { DuplicatesPanel } from '../edit/DuplicatesPanel';
 import { GedcomPanel } from './GedcomPanel';
+import { InstallPanel } from './InstallPanel';
 import { announce } from '../status';
 import { useRouter } from '../router';
 import { SCHEMA_VERSION } from '@/model/types';
@@ -166,6 +167,8 @@ export function DataView() {
           </button>
         </div>
       </section>
+
+      <InstallPanel />
 
       <section className="panel section" aria-labelledby="sec-about">
         <h3 id="sec-about">{t('data.about')}</h3>

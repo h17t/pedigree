@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (h) complete; stage (i) (PWA and offline) is next.**
+Current status (2026-09-13): **stage (i) complete; stage (j) (final audit, performance pass, handover) is next.**
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -93,6 +93,19 @@ person, tidy up the tree, save a backup, try the list), the help page in German 
 the header, the first-run screen and the empty tree, with "run the guided start again" and "show
 the tips again". 187 unit tests and 66 Playwright tests pass.
 
+Stage (i) delivered: the installable, offline-capable app. `vite-plugin-pwa` generates a precaching
+service worker for the whole build (app files, fonts, icons; navigations fall back to the cached
+shell) with `registerType: 'prompt'`, so a new version waits until the user chooses "Reload now" in
+the in-app notice and never interrupts an edit; a one-time "ready to work offline" notice and an
+"Offline" notice while the connection is gone; the web app manifest with `start_url`, `scope` and
+`id` derived from the base path, standalone display, 192/512 px icons and a maskable icon rendered
+from the SVG mark by `scripts/make-icons.mjs`; "Install on this device" on the Data page with the
+native prompt where the browser offers one, Safari instructions on iPhone and iPad and a generic
+hint elsewhere; a help section on offline use and installing; unit tests for the install/update
+store and Playwright tests that read the manifest, reload the app offline (including a lazy view)
+and check that an update pass leaves every `pedigree:*` key in localStorage untouched. 191 unit
+tests and 72 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -110,7 +123,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(f)** timeline and statistics with base populations, charts with data tables, historical layer — screenshots in `docs/screenshots/stage-f/`
 - [x] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions — screenshots in `docs/screenshots/stage-g/`
 - [x] **(h)** first-run screen, guided start (resumable, one undo step), contextual tips, help page with printable quick start — screenshots in `docs/screenshots/stage-h/`
-- [ ] **(i)** manifest, service worker, update banner, install entry, offline verification
+- [x] **(i)** manifest, service worker with prompt-style updates, update and offline notices, install entry with iOS instructions, offline verification — screenshots in `docs/screenshots/stage-i/`
 - [ ] **(j)** final accessibility audit, 500-person performance pass, README numbers, network-tab verification
 
 ## Known open points after stage (b)
@@ -119,7 +132,6 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - Black-and-white rendering of the branch stripes is implemented as SVG patterns and used by print in stage (g).
 
 - The Pages deployment has not run yet: the workflow triggers on push to `main`, and all work so far is on the feature branch. Once merged, set **Pages → Source: GitHub Actions** in the repository settings and check the published URL.
-- The help page's install/offline section arrives with stage (i), when it becomes true.
 - The storage capacity is measured lazily the first time the Data view opens (a short probe write); until then the meter assumes 5 MB.
 
 ## Pending items that need the user

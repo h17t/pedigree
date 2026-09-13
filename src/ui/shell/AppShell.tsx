@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/store';
 import { useRouter } from '../router';
 import type { Mode } from '../router';
 import { Banners } from './Banners';
+import { PwaNotices } from './PwaNotices';
 import { StatusMessages } from '../components/StatusMessages';
 import { UndoRedo } from '../edit/UndoRedo';
 import { EditorDialogs } from '../edit/EditorDialogs';
@@ -105,6 +106,7 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
       <div className="shell-body">
         <div className="shell-nav">{nav}</div>
         <main id="main" className={`shell-main${mode === 'tree' ? ' shell-main-tree' : ''}`} tabIndex={-1}>
+          <PwaNotices />
           <Banners />
           <StatusMessages />
           {children}

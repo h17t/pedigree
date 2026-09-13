@@ -41,6 +41,10 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 - Save a backup file (a `.json` file) regularly. The browser can delete site data at any time; the
   backup file is the only copy you control. The app reminds you after 50 changes or 7 days.
 - Opening the same tree in two tabs: the first tab edits, the second is read-only and can take over.
+- After the first visit the app works offline. **Data → Install on this device** adds it to the
+  home screen or app list (on iPhone and iPad: Share → Add to Home Screen in Safari). A new version
+  is announced with a notice and applied only when you choose **Reload now**; updates never touch
+  your data.
 
 ## Development
 
@@ -77,8 +81,9 @@ to GitHub Pages. A failing check blocks the deployment. In the repository settin
 **Pages → Source** to **GitHub Actions** once.
 
 The base path is one value, `VITE_BASE_PATH`, read in `vite.config.ts` and defaulting to
-`/pedigree/` (the repository name). Vite's `base`, every in-app absolute URL and — from stage (i) —
-the PWA manifest's `start_url`/`scope` and the service-worker registration path all derive from it.
+`/pedigree/` (the repository name). Vite's `base`, every in-app absolute URL, the PWA manifest's
+`start_url`/`scope`/`id`, the service worker's navigation fallback and its registration path all
+derive from it.
 
 | Where the site is served | Setting |
 |---|---|
@@ -93,11 +98,11 @@ Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Mea
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 141.4 KB | 250.0 KB |
+| Initial JS (entry + static imports) | 143.5 KB | 250.0 KB |
 | Initial CSS | 5.6 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 171.7 KB | 500.0 KB |
+| **Initial payload** | 173.9 KB | 500.0 KB |
 
 The sample family, the GEDCOM module, the timeline/statistics views and the print dialog load
 lazily and do not count.
@@ -124,7 +129,8 @@ proportions in any case.
 ## Privacy
 
 There is no server, no account, no analytics, and no network request after the page has loaded
-(verified by a Playwright test that records every request). Data lives in the browser's
+(verified by a Playwright test that records every request; the service worker only serves the
+app's own files from its cache). Data lives in the browser's
 `localStorage` for this site only. Fonts are bundled with the app (Atkinson Hyperlegible Next,
 SIL Open Font License, see `public/fonts/OFL.txt`).
 
