@@ -13,6 +13,8 @@ export interface PersonCardProps {
   level: DetailLevel;
   locale: Locale;
   selected: boolean;
+  /** Position not stored yet: dotted outline. */
+  provisional?: boolean;
   hasWarning: boolean;
   print?: boolean;
   blackAndWhite?: boolean;
@@ -29,7 +31,7 @@ export interface PersonCardProps {
  * Deceased: † plus a slate border. Sex: square/circle/diamond marker. Branch tag: stripe +
  * label. Rendered identically on screen and in print (only the detail level differs).
  */
-export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, hasWarning, print = false, blackAndWhite = false, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
+export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
   const h = cardHeight(level, print);
   const w = card.width;
   const text = useMemo(() => cardText(person, level, locale, print, labels), [person, level, locale, print, labels]);
@@ -63,7 +65,7 @@ export const PersonCard = memo(function PersonCard({ person, x, y, level, locale
     >
       {!print && <title>{ariaLabel}</title>}
       {selected && <rect x={-3} y={-3} width={w + 6} height={h + 6} rx={card.radius + 3} fill={color.selectBg} stroke={color.select} strokeWidth={3} />}
-      <rect x={card.border / 2} y={card.border / 2} width={w - card.border} height={h - card.border} rx={card.radius} fill={color.paper} stroke={border} strokeWidth={card.border} />
+      <rect x={card.border / 2} y={card.border / 2} width={w - card.border} height={h - card.border} rx={card.radius} fill={color.paper} stroke={border} strokeWidth={card.border} strokeDasharray={provisional ? '4 3' : undefined} />
       {stripe && <rect x={card.border} y={card.border} width={card.stripeWidth} height={h - card.border * 2} fill={stripe} />}
       {stripe && person.tag && (
         <text x={w - card.padding.right - card.marker - 8} y={card.padding.top + 11} fontSize={12} fontWeight={500} fill={color.slate} textAnchor="end">

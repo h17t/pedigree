@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (c) complete; stage (d) (auto-layout with clusters) is next.**
+Current status (2026-09-13): **stage (d) complete; stage (e) (GEDCOM import and export) is next.**
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -33,6 +33,15 @@ Data view, the warnings dialog reachable from the header badge, visible Undo/Red
 keyboard shortcuts, and multi-select on laptops (Shift+click, Shift+drag, group move, delete as
 one step). 122 unit tests and 38 Playwright tests pass.
 
+Stage (d) delivered: the generational layout engine (longest-path ranks with partner
+equalisation, couple blocks with the hub person between partners, barycentre ordering sweeps,
+parents centred over children and sibling runs centred under parents), cluster packing (row up
+to four families, grid beyond, largest first, with a gutter), dashed family frames with labels on
+the canvas, "Arrange the whole tree" as one undo step, "Arrange only the selected people",
+snap-to-grid, alignment guides while dragging, a family list with "Show family n" and "Show all
+families", and placement of people without a stored position into free space (dotted outline
+until arranged). 134 unit tests and 39 Playwright tests pass; 500 people lay out in well under a second.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -45,7 +54,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(a)** design tokens, fonts, i18n + ESLint rule, data model, validation, graph utilities, migration frame, store + undo/redo, persistence (recovery, quota, multi-tab lock), project list, outline list view, sample fixture, CI + Pages pipeline, bundle budget, README, LICENSE — screenshots in `docs/screenshots/stage-a/`
 - [x] **(b)** SVG canvas, viewport, person cards (four variants), union junctions, connectors, selection, drag, error boundary, search, focus/filter — screenshots in `docs/screenshots/stage-b/`
 - [x] **(c)** person/union forms, date field with echo, context actions, delete with impact preview, union delete choices, merge, duplicates, warnings, undo buttons, multi-select — screenshots in `docs/screenshots/stage-c/`
-- [ ] **(d)** auto-layout with generations and clusters, null-position placement, re-arrange selection, snap-to-grid, alignment guides, jump-to-cluster
+- [x] **(d)** auto-layout with generations and clusters, null-position placement, re-arrange selection, snap-to-grid, alignment guides, jump-to-cluster — screenshots in `docs/screenshots/stage-d/`
 - [ ] **(e)** GEDCOM import (new / merge) and export, encodings, import report, raw preservation toggle
 - [ ] **(f)** timeline and statistics with base populations, charts with data tables, historical layer
 - [ ] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions
@@ -55,8 +64,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 
 ## Known open points after stage (b)
 
-- Cards without a stored position are placed by a provisional row layout (one row per generation, partners adjacent, components side by side). It is deliberately wide and does not reduce crossings; stage (d) replaces it with the real layout, cluster packing and placement into free space. Until then "Fit" on a phone shows a very small tree, and the search jump is the practical way to a person.
-- Snap-to-grid and alignment guides are wired in the canvas (`snapToGrid` prop) but switched off until the toolbar control arrives with stage (d).
+- The layout engine reduces crossings with barycentre sweeps but does not eliminate them; marriages between two documented families still cross, which is inherent to a single-plane drawing.
 - Black-and-white rendering of the branch stripes is implemented as SVG patterns and used by print in stage (g).
 
 - The Pages deployment has not run yet: the workflow triggers on push to `main`, and all work so far is on the feature branch. Once merged, set **Pages → Source: GitHub Actions** in the repository settings and check the published URL.

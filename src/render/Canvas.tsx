@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent, KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { Position, Project } from '@/model/types';
-import { color, layout } from '@/design/tokens';
+import { card, color, layout } from '@/design/tokens';
 import type { Locale } from '@/i18n';
 import { PersonCard } from './PersonCard';
 import { UnionNode } from './UnionNode';
@@ -12,6 +12,7 @@ import type { Box, DetailLevel } from './geometry';
 import { routeUnions } from './connectors';
 import { clampZoom, snap, toWorld, zoomAt } from './viewport';
 import type { Viewport } from './viewport';
+import type { ClusterFrame } from './layout/clusters';
 
 export interface CanvasProps {
   project: Project;
@@ -26,6 +27,11 @@ export interface CanvasProps {
   warningIds: Set<string>;
   readOnly: boolean;
   snapToGrid: boolean;
+  /** People whose position is not stored yet (drawn with a dotted outline). */
+  provisional: Set<string>;
+  /** Family boundaries with labels; drawn when there is more than one. */
+  frames: ClusterFrame[];
+  frameLabel: (f: ClusterFrame) => string;
   labels: { née: string; living: string; unknownDate: string; warning: string; unknownParents: string; canvas: string };
   cardLabel: (id: string) => string;
   onViewport: (v: Viewport) => void;
@@ -54,7 +60,8 @@ const DRAG_THRESHOLD = 4;
  * is a focusable button, and the list view is the keyboard-navigable equivalent of this canvas.
  */
 export function Canvas(props: CanvasProps) {
-  const { project, positions, visible, level, locale, viewport, selectedId, multiSelected, warningIds, readOnly, snapToGrid, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onMoveMany, onMultiSelect, onDeleteKey, onSize } = props;
+  const { project, positions, visible, level, locale, viewport, selectedId, multiSelected, warningIds, readOnly, snapToGrid, provisional, frames, frameLabel, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onMoveMany, onMultiSelect, onDeleteKey, onSize } = props;
+  const [guides, setGuides] = useState<{ x: number[]; y: number[] }>({ x: [], y: [] });
   const svgRef = useRef<SVGSVGElement>(null);
   const gestureRef = useRef<Gesture>({ kind: 'none' });
   const [dragPos, setDragPos] = useState<Map<string, Position> | null>(null);
@@ -168,15 +175,40 @@ export function Canvas(props: CanvasProps) {
       const dx = (p.x - g.startX) / viewport.zoom, dy = (p.y - g.startY) / viewport.zoom;
       if (!g.moved && Math.hypot(dx * viewport.zoom, dy * viewport.zoom) < DRAG_THRESHOLD) return;
       g.moved = true;
+      // Alignment guides: snap the lead card's edges/centre to other cards within 6 px (world).
+      let ax = 0, ay = 0;
+      const gx: number[] = [], gy: number[] = [];
+      const lead = g.origins.get(g.id)!;
+      const lx = lead.x + dx, ly = lead.y + dy;
+      const h = boxes.get(g.id)?.h ?? 0;
+      const tol = 6 / viewport.zoom;
+      if (!snapToGrid) {
+        for (const [oid, b] of boxes) {
+          if (g.origins.has(oid)) continue;
+          for (const [mine, theirs] of [[lx, b.x], [lx + card.width, b.x + b.w], [lx + card.width / 2, b.x + b.w / 2]] as [number, number][]) {
+            if (Math.abs(mine - theirs) < tol && !ax) {
+              ax = theirs - mine;
+              gx.push(theirs);
+            }
+          }
+          for (const [mine, theirs] of [[ly, b.y], [ly + h, b.y + b.h], [ly + h / 2, b.y + b.h / 2]] as [number, number][]) {
+            if (Math.abs(mine - theirs) < tol && !ay) {
+              ay = theirs - mine;
+              gy.push(theirs);
+            }
+          }
+        }
+      }
       const next = new Map<string, Position>();
       for (const [gid, o] of g.origins) {
-        let x = o.x + dx, y = o.y + dy;
+        let x = o.x + dx + ax, y = o.y + dy + ay;
         if (snapToGrid) {
           x = snap(x, layout.grid);
           y = snap(y, layout.grid);
         }
         next.set(gid, { x, y });
       }
+      setGuides({ x: gx, y: gy });
       setDragPos(next);
     } else if (g.kind === 'band' && g.pointerId === e.pointerId) {
       g.moved = true;
@@ -203,6 +235,7 @@ export function Canvas(props: CanvasProps) {
         else onMoveMany([...dragPos.entries()].map(([id, pos]) => ({ id, pos })));
       } else onSelect(g.id);
       setDragPos(null);
+      setGuides({ x: [], y: [] });
       gestureRef.current = { kind: 'none' };
     } else if (g.kind === 'band' && g.pointerId === e.pointerId) {
       if (band) {
@@ -280,6 +313,21 @@ export function Canvas(props: CanvasProps) {
     >
       <Defs />
       <g transform={`translate(${viewport.x} ${viewport.y}) scale(${viewport.zoom})`}>
+        {frames.length > 1 &&
+          frames.map((f) => (
+            <g key={f.index} className="cluster-frame" aria-hidden="true">
+              <rect x={f.box.x} y={f.box.y} width={f.box.w} height={f.box.h} rx={12} fill="none" stroke={color.rule} strokeWidth={1.5} strokeDasharray="10 8" />
+              <text x={f.box.x + 16} y={f.box.y + 24} fontSize={15} fontWeight={500} fill={color.slate}>
+                {frameLabel(f)}
+              </text>
+            </g>
+          ))}
+        {guides.x.map((gx, i) => (
+          <line key={`gx${i}`} x1={gx} x2={gx} y1={-1e5} y2={1e5} stroke={color.select} strokeWidth={1 / viewport.zoom} strokeDasharray={`${6 / viewport.zoom} ${4 / viewport.zoom}`} />
+        ))}
+        {guides.y.map((gy, i) => (
+          <line key={`gy${i}`} x1={-1e5} x2={1e5} y1={gy} y2={gy} stroke={color.select} strokeWidth={1 / viewport.zoom} strokeDasharray={`${6 / viewport.zoom} ${4 / viewport.zoom}`} />
+        ))}
         <Connectors unions={unions} />
         {unions.map((u) => (
           <UnionNode key={u.unionId} cx={u.cx} cy={u.cy} unknownParents={u.unknownParents} label={labels.unknownParents} />
@@ -296,6 +344,7 @@ export function Canvas(props: CanvasProps) {
               level={level}
               locale={locale}
               selected={id === selectedId || multiSelected.has(id)}
+              provisional={provisional.has(id)}
               hasWarning={warningIds.has(id)}
               ariaLabel={cardLabel(id)}
               labels={cardLabels}

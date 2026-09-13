@@ -118,6 +118,7 @@ export interface ProjectUiMeta {
   detailLevel: 'minimal' | 'standard' | 'full';
   filter: { kind: 'ancestors'; personId: string } | { kind: 'descendants'; personId: string } | { kind: 'around'; personId: string; generations: number } | null;
   legendOpen: boolean;
+  snapToGrid: boolean;
 }
 
 export const defaultUiMeta = (): ProjectUiMeta => ({
@@ -131,6 +132,7 @@ export const defaultUiMeta = (): ProjectUiMeta => ({
   detailLevel: 'standard',
   filter: null,
   legendOpen: false,
+  snapToGrid: false,
 });
 
 export function loadUiMeta(id: string): ProjectUiMeta {

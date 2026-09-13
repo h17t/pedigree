@@ -137,7 +137,8 @@
 .field-row { display: grid; gap: var(--sp-3); }
 @media (min-width: 768px) { .field-row { grid-template-columns: 1fr 1fr; align-items: end; } .custom-row { grid-template-columns: 1fr 1fr auto; } }
 .event-row { display: grid; gap: var(--sp-3); padding: var(--sp-3); }
-.form-actions { display: grid; gap: var(--sp-3); position: sticky; bottom: 0; background: var(--paper); padding-top: var(--sp-2); }
+.form-actions { position: sticky; bottom: 0; background: var(--paper); padding: var(--sp-2) 0; }
+.form-secondary { display: grid; gap: var(--sp-2); }
 .details-actions .btn { flex: 1 1 auto; }
 .add-menu { display: grid; gap: var(--sp-2); }
 .add-submenu { display: grid; gap: var(--sp-2); padding-left: var(--sp-3); border-left: 3px solid var(--line); }

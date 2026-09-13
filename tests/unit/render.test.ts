@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { measureText, truncateLine, wrapText } from '@/render/text';
 import { cardText, cardHeight, textWidth } from '@/render/geometry';
-import { placeProvisional } from '@/render/layout/provisional';
+import { placeUnpositioned } from '@/render/layout';
 import { routeUnions, partnerStyle, orthogonalH, orthogonalV } from '@/render/connectors';
 import type { Box } from '@/render/geometry';
 import { fitTo, zoomAt, clampZoom } from '@/render/viewport';
@@ -82,9 +82,9 @@ describe('card text and geometry', () => {
   });
 });
 
-describe('provisional placement', () => {
+describe('placement of unpositioned people', () => {
   it('places every null-position person without overlaps and keeps existing positions', () => {
-    const { positions, provisional } = placeProvisional(sampleProject, 'standard');
+    const { positions, provisional } = placeUnpositioned(sampleProject, 'standard');
     expect(positions.size).toBe(Object.keys(sampleProject.persons).length);
     expect(provisional.size).toBe(positions.size);
     const boxes = [...positions.values()];
@@ -98,7 +98,7 @@ describe('provisional placement', () => {
     const fixed = { ...sampleProject, persons: { ...sampleProject.persons } };
     const id = Object.keys(fixed.persons)[0]!;
     fixed.persons[id] = { ...fixed.persons[id]!, position: { x: -500, y: -500 } };
-    const r2 = placeProvisional(fixed, 'standard');
+    const r2 = placeUnpositioned(fixed, 'standard');
     expect(r2.positions.get(id)).toEqual({ x: -500, y: -500 });
     expect(r2.provisional.has(id)).toBe(false);
   });
@@ -106,18 +106,18 @@ describe('provisional placement', () => {
     const b = build();
     const m = b.person('M', born('1900')), f = b.person('F', born('1890')), k = b.person('K', born('1930'));
     b.family([m, f], [k]);
-    const pl = placeProvisional(b.project, 'minimal');
+    const pl = placeUnpositioned(b.project, 'minimal');
     expect(pl.positions.get(m.id)!.y).toBe(pl.positions.get(f.id)!.y);
     expect(pl.positions.get(k.id)!.y).toBeGreaterThan(pl.positions.get(m.id)!.y);
     const c = build();
     const a = c.person('A'), d = c.person('D');
     c.family([a], [d]);
     c.family([d], [a]);
-    expect(placeProvisional(c.project, 'minimal').positions.size).toBe(2);
+    expect(placeUnpositioned(c.project, 'minimal').positions.size).toBe(2);
   });
   it('is deterministic', () => {
-    const a = placeProvisional(sampleProject, 'standard');
-    const b = placeProvisional(sampleProject, 'standard');
+    const a = placeUnpositioned(sampleProject, 'standard');
+    const b = placeUnpositioned(sampleProject, 'standard');
     expect([...a.positions.entries()]).toEqual([...b.positions.entries()]);
   });
 });

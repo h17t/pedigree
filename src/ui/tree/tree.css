@@ -1,11 +1,13 @@
 /* Tree mode: toolbar on top, canvas filling the rest, details column on laptops. */
 .tree-view { display: grid; grid-template-rows: auto auto minmax(240px, 1fr); grid-template-columns: minmax(0, 1fr); }
 .tree-view-desktop { grid-template-columns: minmax(0, 1fr) 360px; }
-.tree-toolbar { grid-row: 1; grid-column: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(136px, auto); grid-template-areas: 'search legend' 'zoom detail'; gap: var(--sp-2); align-items: center; padding: var(--sp-2) var(--sp-3); background: var(--paper); border-bottom: 1px solid var(--rule); }
+.tree-toolbar { grid-row: 1; grid-column: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(136px, auto); grid-template-areas: 'search legend' 'zoom detail' 'layout layout'; gap: var(--sp-2); align-items: center; padding: var(--sp-2) var(--sp-3); background: var(--paper); border-bottom: 1px solid var(--rule); }
 .tree-search { grid-area: search; }
 .btn-legend { grid-area: legend; }
 .tree-zoom { grid-area: zoom; flex-wrap: nowrap; }
 .tree-detail { grid-area: detail; }
+.btn-layout { grid-area: layout; }
+.layout-panel { display: grid; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); background: var(--paper); }
 .zoom-reset { display: none; }
 .tree-search { position: relative; flex: 1 1 200px; min-width: 160px; }
 .search-results { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 25; list-style: none; margin: 0; padding: var(--sp-1); display: grid; gap: 2px; box-shadow: var(--shadow-menu); max-height: 50vh; overflow: auto; }

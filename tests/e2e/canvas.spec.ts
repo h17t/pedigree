@@ -111,3 +111,23 @@ test.describe('desktop only', () => {
     expect(Math.round(after.y)).toBe(Math.round(moved.y));
   });
 });
+
+test('layout panel: arrange the whole tree stores positions, families can be shown one by one, snap toggles', async ({ page }) => {
+  await openTree(page);
+  // Before arranging, the sample has no stored positions: cards are dotted.
+  await expect(page.locator('.person-card rect[stroke-dasharray="4 3"]')).toHaveCount(48);
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await expect(page.getByRole('button', { name: 'Show family 2' })).toBeVisible();
+  await page.getByRole('button', { name: 'Arrange the whole tree' }).click();
+  await expect(page.getByText('The tree was arranged.')).toBeVisible();
+  await expect(page.locator('.person-card rect[stroke-dasharray="4 3"]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await page.getByRole('button', { name: 'Show family 2' }).click();
+  await expect(page.locator('.person-card').filter({ hasText: 'Johann Lindner' })).toBeInViewport();
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await page.getByRole('button', { name: 'Snap to grid: off' }).click();
+  await expect(page.getByRole('button', { name: 'Snap to grid: on' })).toBeVisible();
+  // Undo restores the unarranged state
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(page.locator('.person-card rect[stroke-dasharray="4 3"]')).toHaveCount(48);
+});

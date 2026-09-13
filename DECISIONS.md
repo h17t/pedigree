@@ -112,3 +112,16 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 82 | Undo/Redo buttons sit in the header on every screen size (icon plus text from tablet width up). | Always visible, as the brief requires, without stealing canvas space on phones. | decided |
 | 83 | Multi-select is a laptop feature: Shift+click and Shift+drag; touch has no equivalent. | The brief scopes multi-select to desktop; every action it enables is also available one person at a time on phones. | decided |
 
+## Stage (d) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 84 | Layout is a layered (Sugiyama-style) layout with couple blocks, not a recursive tree drawing. | A family graph is a DAG, not a tree: people have parents and partners from other documented families. | decided |
+| 85 | Partners are raised to the deeper partner's generation; children always sit below both parents. | Keeps couples on one row and the "one row = one generation back" reading intact. | decided |
+| 86 | A person with several partnerships sits between the partners, earlier marriages to the left. | Each junction stays between its two partners so child lines never cross a third person. | decided |
+| 87 | Families are packed in a row up to four, then in a near-square grid, sorted by size. | Matches the brief; a long row of many tiny families would leave most of them off-screen. | decided |
+| 88 | People without a stored position are laid out for display only (dotted outline) and persisted when the user arranges the tree, moves them, or the wizard/import runs the layout. | `position: null` keeps meaning "not yet laid out" until an explicit action; the display never stacks anyone at 0,0. | decided |
+| 89 | "Arrange the whole tree" runs without a confirmation but is one undo step and says so in its hint. | The action is explicit and reversible; a confirmation would be friction for the common case. | decided |
+| 90 | Alignment guides snap to the edges and centre of other cards within 6 screen pixels; snap-to-grid (20 units) replaces them when on. | Two snapping systems at once fight each other. | decided |
+| 91 | Family frames are drawn only when there is more than one family. | A frame around the only family is noise. | decided |
+

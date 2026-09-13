@@ -6,7 +6,10 @@ import { useAppStore, updateUi, transact } from '@/store/store';
 import { addPerson } from '@/model/edits';
 import { Canvas } from '@/render/Canvas';
 import { CanvasErrorBoundary } from '@/render/CanvasErrorBoundary';
-import { placeProvisional } from '@/render/layout/provisional';
+import { layoutAll, layoutSubset, placeUnpositioned } from '@/render/layout';
+import { clusterFrames } from '@/render/layout/clusters';
+import type { ClusterFrame } from '@/render/layout/clusters';
+import { announce } from '../status';
 import { visiblePersons } from '@/render/filter';
 import { cardBox, cardText } from '@/render/geometry';
 import type { DetailLevel } from '@/render/geometry';
@@ -46,7 +49,9 @@ export function TreeView() {
   const readOnly = lockState !== 'owner';
   const editing = editor.kind === 'person' || editor.kind === 'union';
 
-  const placement = useMemo(() => (project ? placeProvisional(project, level) : null), [project, level]);
+  const placement = useMemo(() => (project ? placeUnpositioned(project, level) : null), [project, level]);
+  const frames = useMemo(() => (project && placement ? clusterFrames(project, placement.positions, level) : []), [project, placement, level]);
+  const [layoutOpen, setLayoutOpen] = useState(false);
   const visible = useMemo(() => (project ? visiblePersons(project, ui.filter) : new Set<string>()), [project, ui.filter]);
   const warningIds = useMemo(() => new Set(warnings.map((w) => w.personIds[0]!)), [warnings]);
   const boundsAll = useMemo(() => {
@@ -122,6 +127,8 @@ export function TreeView() {
     else openEditor({ kind: 'deleteMany', ids });
   }, [multiLive, ui.selectedPersonId]);
 
+  const frameLabel = useCallback((f: ClusterFrame) => t('layout.frameLabel', { index: f.index, people: t('common.people', { count: f.personIds.length }) }), [t]);
+
   if (!project || !placement) return null;
   const total = Object.keys(project.persons).length;
   const selected = ui.selectedPersonId ? project.persons[ui.selectedPersonId] : undefined;
@@ -156,6 +163,32 @@ export function TreeView() {
         if (p) p.position = m.pos;
       }
     });
+  };
+  const arrangeAll = () => {
+    const next = layoutAll(project, level);
+    transact(t('layout.auto'), (d) => {
+      for (const [id, pos] of next) {
+        const p = d.persons[id];
+        if (p) p.position = pos;
+      }
+    });
+    announce(t('layout.autoDone'));
+    updateUi({ viewport: null });
+  };
+  const arrangeSelection = () => {
+    const ids = [...multiLive];
+    const next = layoutSubset(project, ids, placement.positions, level);
+    transact(t('layout.selection'), (d) => {
+      for (const [id, pos] of next) {
+        const p = d.persons[id];
+        if (p) p.position = pos;
+      }
+    });
+    announce(t('layout.selectionDone'));
+  };
+  const showFamily = (f: ClusterFrame) => {
+    setViewport(fitTo(f.box, size.w, size.h));
+    setLayoutOpen(false);
   };
   const addNewPerson = () => {
     let id = '';
@@ -263,12 +296,54 @@ export function TreeView() {
             <option value="full">{t('tree.detailLevel.full')}</option>
           </select>
         </div>
+        <button type="button" className="btn btn-layout" aria-expanded={layoutOpen} onClick={() => setLayoutOpen((v) => !v)}>
+          {t('layout.panel')}
+        </button>
         {!readOnly && isDesktop && (
           <button type="button" className="btn btn-primary btn-add" onClick={addNewPerson}>
             {t('edit.addPerson')}
           </button>
         )}
       </div>
+
+      {layoutOpen && (
+        <section className="filter-bar layout-panel panel" aria-label={t('layout.panel')}>
+          {!readOnly && (
+            <div className="stack-tight">
+              <div className="btn-row">
+                <button type="button" className="btn btn-primary" onClick={arrangeAll}>
+                  {t('layout.auto')}
+                </button>
+                {multiLive.size > 1 && (
+                  <button type="button" className="btn" onClick={arrangeSelection}>
+                    {t('layout.selection')}
+                  </button>
+                )}
+                <button type="button" className="btn" aria-pressed={ui.snapToGrid} onClick={() => updateUi({ snapToGrid: !ui.snapToGrid })}>
+                  {ui.snapToGrid ? t('layout.snapOn') : t('layout.snapOff')}
+                </button>
+              </div>
+              <p className="hint">{t('layout.autoHint')}</p>
+              {placement.provisional.size > 0 && <p className="hint">{t('layout.unplacedHint')}</p>}
+            </div>
+          )}
+          {frames.length > 1 && (
+            <div className="stack-tight">
+              <p className="field-label">{t('layout.families')}</p>
+              <div className="btn-row">
+                <button type="button" className="btn" onClick={() => { fit(); setLayoutOpen(false); }}>
+                  {t('layout.fitAll')}
+                </button>
+                {frames.map((f) => (
+                  <button key={f.index} type="button" className="btn" onClick={() => showFamily(f)} aria-label={t('layout.goToFamily', { index: f.index })}>
+                    {t('layout.familyLabel', { index: f.index, people: t('common.people', { count: f.personIds.length }) })}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       {ui.filter && (
         <div className="filter-bar notice notice-info" role="status">
@@ -338,7 +413,10 @@ export function TreeView() {
               multiSelected={multiLive}
               warningIds={warningIds}
               readOnly={readOnly}
-              snapToGrid={false}
+              snapToGrid={ui.snapToGrid}
+              provisional={placement.provisional}
+              frames={frames}
+              frameLabel={frameLabel}
               labels={labels}
               cardLabel={cardLabel}
               onViewport={setViewport}

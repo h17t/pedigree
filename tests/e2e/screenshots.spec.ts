@@ -16,6 +16,12 @@ test('stage screenshots', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Tree', exact: true }).click();
   await page.waitForTimeout(400);
   await expectNoHorizontalScroll(page);
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await page.getByRole('button', { name: 'Arrange the whole tree' }).click();
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await page.getByRole('button', { name: 'Fit' }).click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-tree-fit.png`, fullPage: false });
   await page.getByLabel('Type a name to jump to a person').fill('karl');
   await page.getByRole('button', { name: /Karl Weber, 1878/ }).first().click();
   await page.waitForTimeout(300);

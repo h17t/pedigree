@@ -3,9 +3,9 @@
 A fully client-side family tree editor for the browser. Create, edit, print and export a family
 tree without a server, an account or any network traffic. **All data stays on the device.**
 
-Status: **stage (c) of (j) complete** — data model, storage, the tree canvas, the outline list
-view, the project list and full editing (people, partnerships, relatives, delete, merge) work;
-auto-layout, GEDCOM, timeline, printing, onboarding and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
+Status: **stage (d) of (j) complete** — data model, storage, the tree canvas with auto-layout,
+the outline list view, the project list and full editing work; GEDCOM, timeline, printing,
+onboarding and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
 every design and technical decision.
 
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `docs/screenshots/`.
@@ -16,7 +16,8 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 - **Tree** draws the family as cards and lines. Drag the picture to move around, pinch or use the
   buttons to zoom, tap or click a card to select it, type a name to jump to a person, and use
   "Show only" to see just the ancestors or descendants of the selected person. On a laptop you can
-  drag cards; their positions are saved.
+  drag cards; their positions are saved. **Layout** arranges the whole tree by generation (undoable),
+  arranges only a selection, toggles snap-to-grid and jumps to each family.
 - **List** shows every family as an indented outline; choose a person to see their details.
 - Choose a person, then **Edit**, **Add** (partner, child, father, mother, sibling) or **Delete**.
   Deleting explains exactly what else changes; **Undo** and **Redo** are always in the header.
@@ -74,15 +75,15 @@ the PWA manifest's `start_url`/`scope` and the service-worker registration path 
 ## Bundle budget
 
 Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Measured by
-`npm run budget` after the stage (c) build:
+`npm run budget` after the stage (d) build:
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 119.9 KB | 250.0 KB |
-| Initial CSS | 4.6 KB | — |
+| Initial JS (entry + static imports) | 123.3 KB | 250.0 KB |
+| Initial CSS | 4.7 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 149.2 KB | 500.0 KB |
+| **Initial payload** | 152.7 KB | 500.0 KB |
 
 The sample family loads lazily (4.2 KB). The GEDCOM module, the timeline/statistics views and the
 print/export module will be lazy chunks as well.

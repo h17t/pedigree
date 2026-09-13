@@ -236,6 +236,8 @@ export function PersonForm({ person, isNew, onDone, onDelete }: { person: Person
         <button type="submit" className="btn btn-primary btn-block">
           {t('edit.saveChanges')}
         </button>
+      </div>
+      <div className="form-secondary">
         <div className="btn-row">
           <button type="button" className="btn" onClick={onDone}>
             {isNew ? t('common.cancel') : t('edit.discard')}

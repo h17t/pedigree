@@ -75,6 +75,8 @@ export function UnionForm({ union, onDone, onDelete }: { union: Union; onDone: (
         <button type="submit" className="btn btn-primary btn-block">
           {t('edit.saveChanges')}
         </button>
+      </div>
+      <div className="form-secondary">
         <div className="btn-row">
           <button type="button" className="btn" onClick={onDone}>
             {t('edit.discard')}
