@@ -21,6 +21,8 @@ export interface CanvasProps {
   locale: Locale;
   viewport: Viewport;
   selectedId: string | null;
+  /** Additional selected people (multi-select). */
+  multiSelected: Set<string>;
   warningIds: Set<string>;
   readOnly: boolean;
   snapToGrid: boolean;
@@ -30,13 +32,17 @@ export interface CanvasProps {
   onSelect: (id: string | null) => void;
   onOpen: (id: string) => void;
   onMove: (id: string, pos: Position) => void;
+  onMoveMany: (moves: { id: string; pos: Position }[]) => void;
+  onMultiSelect: (ids: string[], mode: 'toggle' | 'set') => void;
+  onDeleteKey: () => void;
   onSize?: (w: number, h: number) => void;
 }
 
 type Gesture =
   | { kind: 'none' }
   | { kind: 'pan'; pointerId: number; startX: number; startY: number; vx: number; vy: number; moved: boolean; tapTarget: string | null }
-  | { kind: 'drag'; pointerId: number; id: string; startX: number; startY: number; origin: Position; moved: boolean }
+  | { kind: 'drag'; pointerId: number; id: string; startX: number; startY: number; origins: Map<string, Position>; moved: boolean }
+  | { kind: 'band'; pointerId: number; startX: number; startY: number; moved: boolean }
   | { kind: 'pinch'; pointers: Map<number, { x: number; y: number }>; startDist: number; startZoom: number; startCenter: { x: number; y: number }; startViewport: Viewport };
 
 const DRAG_THRESHOLD = 4;
@@ -48,10 +54,11 @@ const DRAG_THRESHOLD = 4;
  * is a focusable button, and the list view is the keyboard-navigable equivalent of this canvas.
  */
 export function Canvas(props: CanvasProps) {
-  const { project, positions, visible, level, locale, viewport, selectedId, warningIds, readOnly, snapToGrid, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onSize } = props;
+  const { project, positions, visible, level, locale, viewport, selectedId, multiSelected, warningIds, readOnly, snapToGrid, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onMoveMany, onMultiSelect, onDeleteKey, onSize } = props;
   const svgRef = useRef<SVGSVGElement>(null);
   const gestureRef = useRef<Gesture>({ kind: 'none' });
-  const [dragPos, setDragPos] = useState<{ id: string; pos: Position } | null>(null);
+  const [dragPos, setDragPos] = useState<Map<string, Position> | null>(null);
+  const [band, setBand] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const spaceDown = useRef(false);
 
   useLayoutEffect(() => {
@@ -82,7 +89,7 @@ export function Canvas(props: CanvasProps) {
   const boxes = useMemo(() => {
     const m = new Map<string, Box>();
     for (const id of visible) {
-      const p = dragPos?.id === id ? dragPos.pos : positions.get(id);
+      const p = dragPos?.get(id) ?? positions.get(id);
       if (p) m.set(id, cardBox(p.x, p.y, level));
     }
     return m;
@@ -111,7 +118,11 @@ export function Canvas(props: CanvasProps) {
     if (g.kind !== 'none') return;
     if (e.button !== 0 && e.button !== 1) return;
     const p = localPoint(e);
-    gestureRef.current = { kind: 'pan', pointerId: e.pointerId, startX: p.x, startY: p.y, vx: viewport.x, vy: viewport.y, moved: false, tapTarget: null };
+    if (e.shiftKey && e.pointerType !== 'touch' && e.button === 0) {
+      gestureRef.current = { kind: 'band', pointerId: e.pointerId, startX: p.x, startY: p.y, moved: false };
+    } else {
+      gestureRef.current = { kind: 'pan', pointerId: e.pointerId, startX: p.x, startY: p.y, vx: viewport.x, vy: viewport.y, moved: false, tapTarget: null };
+    }
     svgRef.current?.setPointerCapture(e.pointerId);
   };
 
@@ -121,10 +132,19 @@ export function Canvas(props: CanvasProps) {
       if (g.kind !== 'none') return;
       if (e.button !== 0) return;
       const p = localPoint(e);
+      if (e.shiftKey && e.pointerType !== 'touch') {
+        e.stopPropagation();
+        onMultiSelect([id], 'toggle');
+        return;
+      }
       const canDrag = !readOnly && e.pointerType !== 'touch' && !spaceDown.current;
       if (canDrag) {
         e.stopPropagation();
-        gestureRef.current = { kind: 'drag', pointerId: e.pointerId, id, startX: p.x, startY: p.y, origin: positions.get(id) ?? { x: 0, y: 0 }, moved: false };
+        // Dragging one of several selected cards moves the whole group.
+        const group = multiSelected.has(id) && multiSelected.size > 1 ? [...multiSelected] : [id];
+        const origins = new Map<string, Position>();
+        for (const gid of group) origins.set(gid, positions.get(gid) ?? { x: 0, y: 0 });
+        gestureRef.current = { kind: 'drag', pointerId: e.pointerId, id, startX: p.x, startY: p.y, origins, moved: false };
         svgRef.current?.setPointerCapture(e.pointerId);
       } else {
         // Touch or read-only: a tap selects, a drag pans.
@@ -133,7 +153,7 @@ export function Canvas(props: CanvasProps) {
         svgRef.current?.setPointerCapture(e.pointerId);
       }
     },
-    [positions, readOnly, viewport],
+    [positions, readOnly, viewport, multiSelected, onMultiSelect],
   );
 
   const onPointerMove = (e: ReactPointerEvent<SVGSVGElement>) => {
@@ -148,12 +168,19 @@ export function Canvas(props: CanvasProps) {
       const dx = (p.x - g.startX) / viewport.zoom, dy = (p.y - g.startY) / viewport.zoom;
       if (!g.moved && Math.hypot(dx * viewport.zoom, dy * viewport.zoom) < DRAG_THRESHOLD) return;
       g.moved = true;
-      let x = g.origin.x + dx, y = g.origin.y + dy;
-      if (snapToGrid) {
-        x = snap(x, layout.grid);
-        y = snap(y, layout.grid);
+      const next = new Map<string, Position>();
+      for (const [gid, o] of g.origins) {
+        let x = o.x + dx, y = o.y + dy;
+        if (snapToGrid) {
+          x = snap(x, layout.grid);
+          y = snap(y, layout.grid);
+        }
+        next.set(gid, { x, y });
       }
-      setDragPos({ id: g.id, pos: { x, y } });
+      setDragPos(next);
+    } else if (g.kind === 'band' && g.pointerId === e.pointerId) {
+      g.moved = true;
+      setBand({ x: Math.min(g.startX, p.x), y: Math.min(g.startY, p.y), w: Math.abs(p.x - g.startX), h: Math.abs(p.y - g.startY) });
     } else if (g.kind === 'pinch' && g.pointers.has(e.pointerId)) {
       g.pointers.set(e.pointerId, p);
       const [a, b] = [...g.pointers.values()] as [{ x: number; y: number }, { x: number; y: number }];
@@ -171,9 +198,20 @@ export function Canvas(props: CanvasProps) {
       if (!g.moved) onSelect(g.tapTarget);
       gestureRef.current = { kind: 'none' };
     } else if (g.kind === 'drag' && g.pointerId === e.pointerId) {
-      if (g.moved && dragPos) onMove(g.id, dragPos.pos);
-      else onSelect(g.id);
+      if (g.moved && dragPos) {
+        if (dragPos.size === 1) onMove(g.id, dragPos.get(g.id)!);
+        else onMoveMany([...dragPos.entries()].map(([id, pos]) => ({ id, pos })));
+      } else onSelect(g.id);
       setDragPos(null);
+      gestureRef.current = { kind: 'none' };
+    } else if (g.kind === 'band' && g.pointerId === e.pointerId) {
+      if (band) {
+        const x1 = (band.x - viewport.x) / viewport.zoom, y1 = (band.y - viewport.y) / viewport.zoom;
+        const x2 = x1 + band.w / viewport.zoom, y2 = y1 + band.h / viewport.zoom;
+        const hits = [...boxes.entries()].filter(([, b]) => b.x < x2 && b.x + b.w > x1 && b.y < y2 && b.y + b.h > y1).map(([id]) => id);
+        onMultiSelect(hits, 'set');
+      }
+      setBand(null);
       gestureRef.current = { kind: 'none' };
     } else if (g.kind === 'pinch') {
       g.pointers.delete(e.pointerId);
@@ -203,6 +241,11 @@ export function Canvas(props: CanvasProps) {
   }, []);
 
   const onKeyDown = (e: ReactKeyboardEvent<SVGSVGElement>) => {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && !readOnly) {
+      e.preventDefault();
+      onDeleteKey();
+      return;
+    }
     if (e.target !== e.currentTarget) return; // cards handle their own keys
     const step = 60;
     if (e.key === 'ArrowLeft') onViewport({ ...viewport, x: viewport.x + step });
@@ -252,7 +295,7 @@ export function Canvas(props: CanvasProps) {
               y={b.y}
               level={level}
               locale={locale}
-              selected={id === selectedId}
+              selected={id === selectedId || multiSelected.has(id)}
               hasWarning={warningIds.has(id)}
               ariaLabel={cardLabel(id)}
               labels={cardLabels}
@@ -263,6 +306,7 @@ export function Canvas(props: CanvasProps) {
           );
         })}
       </g>
+      {band && <rect className="rubber-band" x={band.x} y={band.y} width={band.w} height={band.h} />}
     </svg>
   );
 }

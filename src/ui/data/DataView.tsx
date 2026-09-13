@@ -9,6 +9,7 @@ import { backupStatus } from '@/store/backupReminder';
 import { downloadBackup, importBackupText, downloadText } from '@/store/projects';
 import { openProject } from '@/store/store';
 import { FilePicker } from '../components/FilePicker';
+import { DuplicatesPanel } from '../edit/DuplicatesPanel';
 import { announce } from '../status';
 import { useRouter } from '../router';
 import { SCHEMA_VERSION } from '@/model/types';
@@ -130,6 +131,8 @@ export function DataView() {
           </div>
         )}
       </section>
+
+      <DuplicatesPanel />
 
       <section className="panel section" aria-labelledby="sec-settings">
         <h3 id="sec-settings">{t('data.settings')}</h3>

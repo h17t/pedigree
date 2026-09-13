@@ -211,7 +211,9 @@ describe('focus filter', () => {
     const a = b.person('A'), c = b.person('C');
     b.family([a], [c]);
     b.family([c], [a]);
-    expect(visiblePersons(b.project, { kind: 'ancestors', personId: a.id }).size).toBe(2);
+    // One edge of the loop is dropped for traversal: one of the two has an ancestor, the other none.
+    const sizes = [a, c].map((p) => visiblePersons(b.project, { kind: 'ancestors', personId: p.id }).size).sort();
+    expect(sizes).toEqual([1, 2]);
     expect(visiblePersons(b.project, null).size).toBe(2);
   });
 });

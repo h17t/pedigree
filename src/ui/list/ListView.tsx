@@ -3,10 +3,12 @@ import { useT } from '@/i18n';
 import type { DateQualifier, Person, Project } from '@/model/types';
 import { personName } from '@/model/types';
 import { formatDateWithQualifier } from '@/model/dates';
-import { useAppStore, updateUi } from '@/store/store';
+import { useAppStore, updateUi, transact } from '@/store/store';
+import { addPerson } from '@/model/edits';
+import { DetailsHost } from '../edit/DetailsHost';
+import { closeEditor, openEditor, useEditor } from '../edit/editorStore';
 import { buildOutline, searchPersons } from './outline';
 import type { PersonRow, UnionRow } from './outline';
-import { PersonDetails } from './PersonDetails';
 import { useIsDesktop } from '../hooks';
 
 /**
@@ -22,6 +24,9 @@ export function ListView() {
   const [query, setQuery] = useState('');
   const isDesktop = useIsDesktop();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const editor = useEditor((s) => s.state);
+  const editing = editor.kind === 'person' || editor.kind === 'union';
+  const readOnly = useAppStore((s) => s.lockState !== 'owner');
 
   const outline = useMemo(() => (project ? buildOutline(project) : null), [project]);
   const expanded = useMemo(() => new Set(expandedList), [expandedList]);
@@ -63,13 +68,29 @@ export function ListView() {
   const matches = query.trim() ? searchPersons(project, query) : null;
   const total = Object.keys(project.persons).length;
 
-  const details = selected ? <PersonDetails project={project} person={selected} onSelect={select} /> : <p className="muted">{t('list.selectHint')}</p>;
+  const details = <DetailsHost project={project} person={selected} onSelect={select} />;
+  const addNewPerson = () => {
+    let id = '';
+    transact(t('edit.addedPerson', { what: t('edit.what.person') }), (d) => {
+      id = addPerson(d).id;
+    });
+    updateUi({ selectedPersonId: id });
+    openEditor({ kind: 'person', id, isNew: true });
+    if (!isDesktop) setSheetOpen(true);
+  };
 
   return (
     <div className="list-view">
       <div className="list-head">
         <h2>{t('list.title')}</h2>
         <p className="muted">{t('list.intro')}</p>
+        {!readOnly && (
+          <div className="btn-row">
+            <button type="button" className="btn btn-primary" onClick={addNewPerson}>
+              {t('edit.addPerson')}
+            </button>
+          </div>
+        )}
       </div>
       <div className="field">
         <label htmlFor="person-search">{t('list.searchLabel')}</label>
@@ -121,19 +142,24 @@ export function ListView() {
         </>
       )}
 
-      {!isDesktop &&
-        sheetOpen &&
-        selected && (
-          <div className="sheet" role="dialog" aria-modal="true" aria-label={t('person.details')}>
-            <div className="sheet-head">
-              <button type="button" className="btn btn-quiet" onClick={() => setSheetOpen(false)}>
-                {t('common.back')}
-              </button>
-              <span className="sheet-title">{t('person.details')}</span>
-            </div>
-            <div className="sheet-body">{details}</div>
+      {!isDesktop && (sheetOpen || editing) && (selected || editing) && (
+        <div className="sheet" role="dialog" aria-modal="true" aria-label={editing ? t('edit.editTitle') : t('person.details')}>
+          <div className="sheet-head">
+            <button
+              type="button"
+              className="btn btn-quiet"
+              onClick={() => {
+                if (editing) closeEditor();
+                else setSheetOpen(false);
+              }}
+            >
+              {t('common.back')}
+            </button>
+            <span className="sheet-title">{editing ? t('edit.editTitle') : t('person.details')}</span>
           </div>
-        )}
+          <div className="sheet-body">{details}</div>
+        </div>
+      )}
       {isDesktop && (
         <aside className="list-details-desktop" aria-label={t('person.details')}>
           {details}

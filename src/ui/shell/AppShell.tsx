@@ -5,6 +5,9 @@ import { useRouter } from '../router';
 import type { Mode } from '../router';
 import { Banners } from './Banners';
 import { StatusMessages } from '../components/StatusMessages';
+import { UndoRedo } from '../edit/UndoRedo';
+import { EditorDialogs } from '../edit/EditorDialogs';
+import { openEditor } from '../edit/editorStore';
 
 const NAV: { mode: Mode; key: 'nav.tree' | 'nav.list' | 'nav.data' }[] = [
   { mode: 'tree', key: 'nav.tree' },
@@ -65,8 +68,14 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
           )}
         </h1>
         {lockState !== 'owner' && <span className="badge badge-warn">{t('lock.readOnlyBadge')}</span>}
-        {warnings > 0 && <span className="badge">{t('warnings.count', { count: warnings })}</span>}
+        {warnings > 0 && (
+          <button type="button" className="badge badge-btn" onClick={() => openEditor({ kind: 'warnings' })} aria-label={t('warnings.open')}>
+            {t('warnings.count', { count: warnings })}
+          </button>
+        )}
+        <UndoRedo compact />
       </header>
+      <EditorDialogs />
       <div className="shell-body">
         <div className="shell-nav">{nav}</div>
         <main id="main" className={`shell-main${mode === 'tree' ? ' shell-main-tree' : ''}`} tabIndex={-1}>

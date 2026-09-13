@@ -97,3 +97,18 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 72 | Mode, selection and filter changes are written to storage immediately; viewport changes are debounced. | A second tab or a reload must land where the user is; the viewport changes on every pan frame. | decided |
 | 73 | Card text on screen is measured with a 2D canvas using the real font, with a per-glyph estimate as fallback (tests, font not yet loaded). | SVG has no automatic wrapping; measured widths keep truncation honest, and the fallback keeps the unit tests deterministic. | decided |
 
+## Stage (c) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 74 | A new relative is created at once (one undo step) and the editor opens for them; cancelling the editor keeps the person, Undo removes them. | Matches "buttons name what happens": "Add child" adds a child. No half-created state, and the wizard in stage (h) can reuse the same path. | decided |
+| 75 | New children inherit the father's surname, new partners of women start with an empty surname, new parents inherit the child's birth name or surname. | Sensible defaults for the German/English naming customs of the period; every value is editable. | decided |
+| 76 | "Add child" for a person with several partnerships asks which family, with "other parent unknown" as an extra choice. | The brief's fast entry must not guess a parent. | decided |
+| 77 | A union left with one partner after a deletion is kept as a single-partner union; with none and children as a "Parents unknown" group; with neither it is removed. | Exactly the brief's default behaviour; the preview lists each case in words. | decided |
+| 78 | Removing a partnership keeps the children together as a "Parents unknown" sibling group by default; the second option drops the child links. | The brief's two options; keeping siblings together is the less destructive default. | decided |
+| 79 | Merge default per field: the surviving record wins unless its value is empty; conflicts can be appended to the notes under a heading. | Nothing is lost without the user seeing it. | decided |
+| 80 | Duplicate detection: same or near-same given name (edit distance ≤ 1) and surname or birth name, plus birth years within 2 years or unknown. | Cheap, explainable, few false positives; the reasons are shown in words. | decided |
+| 81 | Editing happens in the same column (laptop) or sheet (phone) as the details, never in a modal. | Modals are hard on phones and hide the tree; the column keeps context. Confirmations and merges are modal because they need a decision. | decided |
+| 82 | Undo/Redo buttons sit in the header on every screen size (icon plus text from tablet width up). | Always visible, as the brief requires, without stealing canvas space on phones. | decided |
+| 83 | Multi-select is a laptop feature: Shift+click and Shift+drag; touch has no equivalent. | The brief scopes multi-select to desktop; every action it enables is also available one person at a time on phones. | decided |
+

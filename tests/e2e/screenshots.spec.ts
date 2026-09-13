@@ -22,6 +22,13 @@ test('stage screenshots', async ({ page }, testInfo) => {
   await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-tree.png`, fullPage: false });
   await page.getByRole('button', { name: 'List', exact: true }).click();
   await page.getByRole('button', { name: /Karl Weber/ }).first().click();
+  await page.waitForTimeout(200);
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.waitForTimeout(200);
+  await expectNoHorizontalScroll(page);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-edit-form.png`, fullPage: w >= 1024 });
+  await page.getByRole('button', { name: w >= 1024 ? 'Discard changes' : 'Back' }).click();
+  await page.waitForTimeout(200);
   await page.waitForTimeout(300);
   await expectNoHorizontalScroll(page);
   await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-list-details.png`, fullPage: w >= 1024 });

@@ -40,3 +40,5 @@
   .tree-search { flex: 1 1 200px; }
   .zoom-reset { display: inline-flex; }
 }
+.btn-add-floating { position: absolute; right: var(--sp-3); bottom: var(--sp-3); box-shadow: var(--shadow-menu); }
+@media (min-width: 768px) { .btn-add { margin-left: auto; } }

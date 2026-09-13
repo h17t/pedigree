@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (b) complete; stage (c) (editor forms, context actions, delete and merge) is next.**
+Current status (2026-09-13): **stage (c) complete; stage (d) (auto-layout with clusters) is next.**
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -23,6 +23,16 @@ canvas, the phone selection bar and the laptop details column. Provisional place
 person without a position a deterministic spot until the real layout arrives in stage (d).
 109 unit tests and 31 Playwright tests pass.
 
+Stage (c) delivered: the person editor (every field, events, custom fields, branch tag, the
+death-date-forces-deceased rule), the partnership editor, the date field with the plain-language
+echo and the one-click alternative reading, fast entry (add partner, child with family choice,
+father, mother, sibling) from the details column and the phone selection bar, "Add person" for
+unconnected people, delete with an exact impact preview, the two-choice partnership removal, the
+merge dialog with per-field choice and conflict preservation, the possible-duplicates list in the
+Data view, the warnings dialog reachable from the header badge, visible Undo/Redo buttons with
+keyboard shortcuts, and multi-select on laptops (Shift+click, Shift+drag, group move, delete as
+one step). 122 unit tests and 38 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -34,7 +44,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **Plan** — technical plan and design plan written and approved (repo stays `pedigree`, Atkinson Hyperlegible Next, cards 220 × 84/124/164/280, chunk-level font embedding, light theme only, eight-entry historical list)
 - [x] **(a)** design tokens, fonts, i18n + ESLint rule, data model, validation, graph utilities, migration frame, store + undo/redo, persistence (recovery, quota, multi-tab lock), project list, outline list view, sample fixture, CI + Pages pipeline, bundle budget, README, LICENSE — screenshots in `docs/screenshots/stage-a/`
 - [x] **(b)** SVG canvas, viewport, person cards (four variants), union junctions, connectors, selection, drag, error boundary, search, focus/filter — screenshots in `docs/screenshots/stage-b/`
-- [ ] **(c)** person/union forms, date field with echo, context actions, delete with impact preview, union delete choices, merge, duplicates, warnings, undo buttons, multi-select
+- [x] **(c)** person/union forms, date field with echo, context actions, delete with impact preview, union delete choices, merge, duplicates, warnings, undo buttons, multi-select — screenshots in `docs/screenshots/stage-c/`
 - [ ] **(d)** auto-layout with generations and clusters, null-position placement, re-arrange selection, snap-to-grid, alignment guides, jump-to-cluster
 - [ ] **(e)** GEDCOM import (new / merge) and export, encodings, import report, raw preservation toggle
 - [ ] **(f)** timeline and statistics with base populations, charts with data tables, historical layer
@@ -46,7 +56,6 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 ## Known open points after stage (b)
 
 - Cards without a stored position are placed by a provisional row layout (one row per generation, partners adjacent, components side by side). It is deliberately wide and does not reduce crossings; stage (d) replaces it with the real layout, cluster packing and placement into free space. Until then "Fit" on a phone shows a very small tree, and the search jump is the practical way to a person.
-- Multi-select, rubber band and group move come with stage (c), together with the first editing UI and the visible Undo/Redo buttons.
 - Snap-to-grid and alignment guides are wired in the canvas (`snapToGrid` prop) but switched off until the toolbar control arrives with stage (d).
 - Black-and-white rendering of the branch stripes is implemented as SVG patterns and used by print in stage (g).
 

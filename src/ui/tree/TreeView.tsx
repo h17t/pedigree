@@ -3,6 +3,7 @@ import { useT, formatNumber } from '@/i18n';
 import type { Position } from '@/model/types';
 import { personName } from '@/model/types';
 import { useAppStore, updateUi, transact } from '@/store/store';
+import { addPerson } from '@/model/edits';
 import { Canvas } from '@/render/Canvas';
 import { CanvasErrorBoundary } from '@/render/CanvasErrorBoundary';
 import { placeProvisional } from '@/render/layout/provisional';
@@ -14,14 +15,17 @@ import { centerOn, fitTo, zoomAt } from '@/render/viewport';
 import type { Viewport } from '@/render/viewport';
 import { card } from '@/design/tokens';
 import { searchPersons } from '../list/outline';
-import { PersonDetails } from '../list/PersonDetails';
 import { Legend } from './Legend';
 import { useIsDesktop } from '../hooks';
 import { useRouter } from '../router';
+import { DetailsHost } from '../edit/DetailsHost';
+import { AddMenu } from '../edit/AddMenu';
+import { closeEditor, openEditor, useEditor } from '../edit/editorStore';
 
 /**
- * Tree mode: toolbar (fit, zoom, card detail, legend), search that jumps to a person, the
- * canvas, the focus filter bar, and the selection bar on phones / the details column on laptops.
+ * Tree mode: toolbar (search, legend, fit, zoom, card detail, add person), the canvas, the
+ * focus filter bar, multi-selection bar, and the selection bar on phones / details column on
+ * laptops. Editing opens in the same column or sheet.
  */
 export function TreeView() {
   const { t, locale } = useT();
@@ -29,15 +33,18 @@ export function TreeView() {
   const ui = useAppStore((s) => s.ui);
   const lockState = useAppStore((s) => s.lockState);
   const warnings = useAppStore((s) => s.warnings);
+  const editor = useEditor((s) => s.state);
   const go = useRouter((s) => s.go);
   const isDesktop = useIsDesktop();
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [query, setQuery] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [filterMenu, setFilterMenu] = useState(false);
+  const [menu, setMenu] = useState<'none' | 'add' | 'more'>('none');
+  const [multi, setMulti] = useState<Set<string>>(() => new Set());
   const searchRef = useRef<HTMLInputElement>(null);
   const level: DetailLevel = ui.detailLevel;
   const readOnly = lockState !== 'owner';
+  const editing = editor.kind === 'person' || editor.kind === 'union';
 
   const placement = useMemo(() => (project ? placeProvisional(project, level) : null), [project, level]);
   const visible = useMemo(() => (project ? visiblePersons(project, ui.filter) : new Set<string>()), [project, ui.filter]);
@@ -53,12 +60,10 @@ export function TreeView() {
   const setViewport = useCallback((v: Viewport) => updateUi({ viewport: v }), []);
   const onSize = useCallback((w: number, h: number) => setSize({ w, h }), []);
 
-  // First time on this project: fit everything once the canvas has a size.
   useEffect(() => {
     if (ui.viewport === null && size.w > 0 && boundsAll) setViewport(fitTo(boundsAll, size.w, size.h));
   }, [ui.viewport, size, boundsAll, setViewport]);
 
-  // Ctrl+F focuses the search, Ctrl+0 resets zoom.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
@@ -72,6 +77,9 @@ export function TreeView() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [viewport, setViewport]);
+
+  // Ignore multi-selection entries that no longer exist (deleted meanwhile).
+  const multiLive = useMemo(() => new Set([...multi].filter((id) => project?.persons[id])), [multi, project]);
 
   const cardLabel = useCallback(
     (id: string) => {
@@ -87,24 +95,48 @@ export function TreeView() {
     [t],
   );
 
+  const select = useCallback((id: string | null) => {
+    updateUi({ selectedPersonId: id });
+    setMulti(new Set());
+    setMenu('none');
+  }, []);
+  const onMultiSelect = useCallback((ids: string[], mode: 'toggle' | 'set') => {
+    setMulti((prev) => {
+      const next = mode === 'set' ? new Set(ids) : new Set(prev);
+      if (mode === 'toggle') {
+        const current = useAppStore.getState().ui.selectedPersonId;
+        if (current && !next.has(current)) next.add(current);
+        for (const id of ids) {
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+        }
+      }
+      if (next.size === 1) updateUi({ selectedPersonId: [...next][0]! });
+      return next;
+    });
+  }, []);
+  const onDeleteKey = useCallback(() => {
+    const ids = multiLive.size > 1 ? [...multiLive] : ui.selectedPersonId ? [ui.selectedPersonId] : [];
+    if (ids.length === 0) return;
+    if (ids.length === 1) openEditor({ kind: 'deletePerson', id: ids[0]! });
+    else openEditor({ kind: 'deleteMany', ids });
+  }, [multiLive, ui.selectedPersonId]);
+
   if (!project || !placement) return null;
   const total = Object.keys(project.persons).length;
   const selected = ui.selectedPersonId ? project.persons[ui.selectedPersonId] : undefined;
   const hidden = total - visible.size;
 
-  const select = (id: string | null) => {
-    updateUi({ selectedPersonId: id });
-    setFilterMenu(false);
-  };
   const openDetails = (id: string) => {
     updateUi({ selectedPersonId: id });
-    if (isDesktop) return;
-    setSheetOpen(true);
+    if (isDesktop) openEditor({ kind: 'person', id, isNew: false });
+    else setSheetOpen(true);
   };
   const jumpTo = (id: string) => {
     const p = placement.positions.get(id);
     if (!p) return;
     updateUi({ selectedPersonId: id, filter: visible.has(id) ? ui.filter : null });
+    setMenu('none');
     setViewport(centerOn({ ...viewport, zoom: Math.max(viewport.zoom, 0.8) }, p.x + card.width / 2, p.y + cardBox(0, 0, level).h / 2, size.w, size.h));
     setQuery('');
   };
@@ -117,18 +149,35 @@ export function TreeView() {
       if (p) p.position = pos;
     });
   };
+  const moveMany = (moves: { id: string; pos: Position }[]) => {
+    transact(t('edit.moveSelected', { count: moves.length }), (d) => {
+      for (const m of moves) {
+        const p = d.persons[m.id];
+        if (p) p.position = m.pos;
+      }
+    });
+  };
+  const addNewPerson = () => {
+    let id = '';
+    transact(t('edit.addedPerson', { what: t('edit.what.person') }), (d) => {
+      id = addPerson(d, { position: { x: (size.w / 2 - viewport.x) / viewport.zoom - card.width / 2, y: (size.h / 2 - viewport.y) / viewport.zoom } }).id;
+    });
+    select(id);
+    openEditor({ kind: 'person', id, isNew: true });
+  };
 
   const matches = query.trim() ? searchPersons(project, query).slice(0, 8) : [];
+  const nameOf = (id: string) => personName(project.persons[id] ?? { givenNames: '', surname: '', titlePrefix: '' });
   const filterLabel = ui.filter
     ? ui.filter.kind === 'ancestors'
-      ? t('tree.filterAncestors', { name: personName(project.persons[ui.filter.personId] ?? { givenNames: '', surname: '', titlePrefix: '' }) })
+      ? t('tree.filterAncestors', { name: nameOf(ui.filter.personId) })
       : ui.filter.kind === 'descendants'
-        ? t('tree.filterDescendants', { name: personName(project.persons[ui.filter.personId] ?? { givenNames: '', surname: '', titlePrefix: '' }) })
-        : t('tree.filterAround', { count: ui.filter.generations, name: personName(project.persons[ui.filter.personId] ?? { givenNames: '', surname: '', titlePrefix: '' }) })
+        ? t('tree.filterDescendants', { name: nameOf(ui.filter.personId) })
+        : t('tree.filterAround', { count: ui.filter.generations, name: nameOf(ui.filter.personId) })
     : '';
 
   const applyFilter = (filter: NonNullable<typeof ui.filter>) => {
-    setFilterMenu(false);
+    setMenu('none');
     updateUi({ filter, viewport: null });
   };
   const filterButtons = selected && (
@@ -145,14 +194,23 @@ export function TreeView() {
     </div>
   );
 
-  const details = selected ? (
-    <div className="stack">
-      <PersonDetails project={project} person={selected} onSelect={jumpTo} />
-      {filterButtons}
-    </div>
-  ) : (
-    <p className="muted">{t('tree.noSelection')}</p>
+  const details = (
+    <DetailsHost
+      project={project}
+      person={selected}
+      onSelect={jumpTo}
+      extra={
+        selected && (
+          <>
+            <h3>{t('tree.filter')}</h3>
+            {filterButtons}
+          </>
+        )
+      }
+    />
   );
+
+  const sheetVisible = !isDesktop && (sheetOpen || editing) && (selected || editing);
 
   return (
     <div className={`tree-view${isDesktop ? ' tree-view-desktop' : ''}`}>
@@ -205,6 +263,11 @@ export function TreeView() {
             <option value="full">{t('tree.detailLevel.full')}</option>
           </select>
         </div>
+        {!readOnly && isDesktop && (
+          <button type="button" className="btn btn-primary btn-add" onClick={addNewPerson}>
+            {t('edit.addPerson')}
+          </button>
+        )}
       </div>
 
       {ui.filter && (
@@ -218,14 +281,35 @@ export function TreeView() {
           </button>
         </div>
       )}
+      {multiLive.size > 1 && (
+        <div className="filter-bar multi-bar" role="status">
+          <span>{t('edit.selectedCount', { count: multiLive.size })}</span>
+          <span className="hint">{t('edit.multiSelectHint')}</span>
+          {!readOnly && (
+            <button type="button" className="btn btn-danger" onClick={() => openEditor({ kind: 'deleteMany', ids: [...multiLive] })}>
+              {t('edit.deleteSelected', { count: multiLive.size })}
+            </button>
+          )}
+          <button type="button" className="btn" onClick={() => setMulti(new Set())}>
+            {t('edit.clearSelection')}
+          </button>
+        </div>
+      )}
 
       <div className="tree-canvas-wrap">
         {total === 0 ? (
           <div className="tree-empty">
             <p>{t('tree.empty')}</p>
-            <button type="button" className="btn" onClick={() => go('list')}>
-              {t('nav.list')}
-            </button>
+            <div className="btn-row">
+              {!readOnly && (
+                <button type="button" className="btn btn-primary" onClick={addNewPerson}>
+                  {t('edit.addPerson')}
+                </button>
+              )}
+              <button type="button" className="btn" onClick={() => go('list')}>
+                {t('nav.list')}
+              </button>
+            </div>
           </div>
         ) : (
           <CanvasErrorBoundary
@@ -251,6 +335,7 @@ export function TreeView() {
               locale={locale}
               viewport={viewport}
               selectedId={ui.selectedPersonId}
+              multiSelected={multiLive}
               warningIds={warningIds}
               readOnly={readOnly}
               snapToGrid={false}
@@ -260,14 +345,22 @@ export function TreeView() {
               onSelect={select}
               onOpen={openDetails}
               onMove={move}
+              onMoveMany={moveMany}
+              onMultiSelect={onMultiSelect}
+              onDeleteKey={onDeleteKey}
               onSize={onSize}
             />
           </CanvasErrorBoundary>
         )}
         {ui.legendOpen && <Legend onClose={() => updateUi({ legendOpen: false })} />}
+        {!readOnly && !isDesktop && !selected && total > 0 && (
+          <button type="button" className="btn btn-primary btn-add-floating" onClick={addNewPerson}>
+            {t('edit.addPerson')}
+          </button>
+        )}
       </div>
 
-      {!isDesktop && selected && (
+      {!isDesktop && selected && !sheetVisible && (
         <div className="selection-bar" role="region" aria-label={t('tree.selected', { name: personName(selected) })}>
           <div className="selection-bar-text">
             <span className="selection-name">{personName(selected) || t('person.unnamed')}</span>
@@ -277,24 +370,68 @@ export function TreeView() {
             </button>
           </div>
           <div className="btn-row selection-actions">
-            <button type="button" className="btn btn-primary" onClick={() => setSheetOpen(true)}>
-              {t('tree.details')}
-            </button>
-            <button type="button" className="btn" aria-expanded={filterMenu} onClick={() => setFilterMenu((v) => !v)}>
-              {t('tree.filter')}
+            {readOnly ? (
+              <button type="button" className="btn btn-primary" onClick={() => setSheetOpen(true)}>
+                {t('tree.details')}
+              </button>
+            ) : (
+              <button type="button" className="btn btn-primary" onClick={() => openEditor({ kind: 'person', id: selected.id, isNew: false })}>
+                {t('edit.editPerson')}
+              </button>
+            )}
+            {!readOnly && (
+              <button type="button" className="btn" aria-expanded={menu === 'add'} onClick={() => setMenu(menu === 'add' ? 'none' : 'add')}>
+                {t('edit.addMenu')}
+              </button>
+            )}
+            <button type="button" className="btn" aria-expanded={menu === 'more'} onClick={() => setMenu(menu === 'more' ? 'none' : 'more')}>
+              {t('common.moreActions')}
             </button>
           </div>
-          {filterMenu && <div className="selection-menu">{filterButtons}</div>}
+          {menu === 'add' && (
+            <div className="selection-menu">
+              <AddMenu person={selected} onAdded={() => setMenu('none')} />
+            </div>
+          )}
+          {menu === 'more' && (
+            <div className="selection-menu">
+              <div className="btn-row">
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setMenu('none');
+                    setSheetOpen(true);
+                  }}
+                >
+                  {t('tree.details')}
+                </button>
+                {!readOnly && (
+                  <button type="button" className="btn btn-danger" onClick={() => openEditor({ kind: 'deletePerson', id: selected.id })}>
+                    {t('common.delete')}
+                  </button>
+                )}
+              </div>
+              {filterButtons}
+            </div>
+          )}
         </div>
       )}
 
-      {!isDesktop && sheetOpen && selected && (
-        <div className="sheet" role="dialog" aria-modal="true" aria-label={t('person.details')}>
+      {sheetVisible && (
+        <div className="sheet" role="dialog" aria-modal="true" aria-label={editing ? t('edit.editTitle') : t('person.details')}>
           <div className="sheet-head">
-            <button type="button" className="btn btn-quiet" onClick={() => setSheetOpen(false)}>
+            <button
+              type="button"
+              className="btn btn-quiet"
+              onClick={() => {
+                if (editing) closeEditor();
+                else setSheetOpen(false);
+              }}
+            >
               {t('common.back')}
             </button>
-            <span className="sheet-title">{t('person.details')}</span>
+            <span className="sheet-title">{editing ? t('edit.editTitle') : t('person.details')}</span>
           </div>
           <div className="sheet-body">{details}</div>
         </div>

@@ -45,6 +45,7 @@ test('selecting a card shows the details; search jumps to a person; filter hides
   const w = page.viewportSize()?.width ?? 0;
   if (w < 1024) {
     await expect(page.getByRole('region', { name: 'Selected: Karl Weber' })).toBeVisible();
+    await page.getByRole('button', { name: 'More actions' }).click();
     await page.getByRole('button', { name: 'Details' }).click();
   }
   await expect(page.getByRole('heading', { name: 'Karl Weber' })).toBeVisible();
@@ -54,7 +55,7 @@ test('selecting a card shows the details; search jumps to a person; filter hides
   await page.getByRole('button', { name: /Johann Lindner/ }).first().click();
   await expect(page.getByRole('button', { name: /Johann Lindner, 1860/ })).toHaveAttribute('aria-pressed', 'true');
 
-  if (w < 1024) await page.getByRole('button', { name: 'Show only' }).click();
+  if (w < 1024) await page.getByRole('button', { name: 'More actions' }).click();
   await page.getByRole('button', { name: 'Descendants of Johann Lindner' }).click();
   await expect(page.locator('.person-card')).toHaveCount(7);
   await expect(page.getByText(/41 people hidden/)).toBeVisible();

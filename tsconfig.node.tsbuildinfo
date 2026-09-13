@@ -1,1 +1,1 @@
-{"root":["./vite.config.ts","./vitest.config.ts","./playwright.config.ts","./tests/e2e/a11y.spec.ts","./tests/e2e/canvas.spec.ts","./tests/e2e/helpers.ts","./tests/e2e/multitab.spec.ts","./tests/e2e/screenshots.spec.ts"],"version":"5.9.3"}
+{"root":["./vite.config.ts","./vitest.config.ts","./playwright.config.ts","./tests/e2e/a11y.spec.ts","./tests/e2e/canvas.spec.ts","./tests/e2e/edit.spec.ts","./tests/e2e/helpers.ts","./tests/e2e/multitab.spec.ts","./tests/e2e/screenshots.spec.ts"],"version":"5.9.3"}
