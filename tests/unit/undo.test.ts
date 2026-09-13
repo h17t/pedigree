@@ -67,6 +67,7 @@ describe('UndoStack', () => {
     s = u.undo(s)!.state;
     expect(u.canRedo).toBe(true);
     s = u.transact(s, 'b', (d) => void (d.n = 2));
+    expect(s.n).toBe(2);
     expect(u.canRedo).toBe(false);
     u.clear();
     expect(u.canUndo).toBe(false);

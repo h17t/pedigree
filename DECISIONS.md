@@ -67,3 +67,19 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 52 | Only Latin font chunks of two weights load at startup; Latin-Extended and the third weight load on demand. | Keeps the initial payload well under 500 KB. | accepted |
 | 53 | MIT licence copyright holder is `h17t`. | The user's choice; the GitHub account name rather than a personal name. | accepted |
 | 54 | Historical layer stays at the eight entries; Franco-Prussian War, post-1945 expulsion and the Berlin Wall are not added. | The user's choice: keep the layer minimal and closest to "orientation only". | accepted |
+
+## Stage (a) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 55 | The sample family has 48 people, not 40. | Covering every case the brief lists (two marriages, divorce, separation, widowhood, unmarried and same-sex partnerships, adoption, foster child, unknown parents, disconnected family, isolated person, incomplete records) needed a few more people than 40; the test asserts 40–50. | decided |
+| 56 | Vite 7 with `@vitejs/plugin-react` 5, although Vite 8 (Rolldown) is current. | Vite 8 shipped recently; the PWA plugin supports both, so an upgrade later is a version bump. Stability first. | decided |
+| 57 | The navigation shows only the modes that exist at each stage. | A disabled "Tree" entry would be a placeholder, which the brief forbids. | decided |
+| 58 | Outline list: partners are listed inline on the union row ("with Anna Weber") rather than as separate roots; a person under two unions is shown twice, the second time marked "also listed under". | Keeps one row per person in the normal case; adoptive links stay visible. | decided |
+| 59 | Outline indentation is 12 px per level below 768 px and 34 px above. | Ten nesting levels are common; the wide indent alone exceeded a 360 px screen and made Chrome zoom out. A Playwright assertion now fails on any horizontal overflow. | decided |
+| 60 | Storage capacity is measured lazily by a probe write the first time the Data view opens, then cached. | Browsers do not expose the localStorage quota; a one-time probe is cheaper than guessing wrongly. | decided |
+| 61 | Status messages stay until dismissed and are announced politely; critical information is always also shown in place. | The brief forbids toasts that vanish before a slow reader is done. | decided |
+| 62 | Date format setting defaults to day-first for both languages. | English is en-GB by decision 29; American users set month-first once. | decided |
+| 63 | `sources` and `notes` stay free text; `customFields` render as labelled rows in the details panel. | As briefed; no structured citations. | decided |
+| 64 | Playwright uses the sandbox's pre-installed Chromium only when `PLAYWRIGHT_SANDBOX_CHROMIUM=1`; CI installs the matching browser. | The sandbox browser revision differs from the Playwright release; CI must not depend on sandbox paths. | decided |
+

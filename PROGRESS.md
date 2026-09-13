@@ -1,7 +1,15 @@
 # Progress
 
-Current status (2026-09-13): **technical and design plans approved; stage (a) is next.**
-No application code exists yet.
+Current status (2026-09-13): **stage (a) complete; stage (b) (canvas) is next.**
+
+Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
+dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
+validation, cycle-safe graph utilities and the migration frame, the Zustand store with Immer-patch
+undo/redo (batched, capped at 50, in memory only), persistence with corrupt-data recovery, quota
+handling and the multi-tab edit lock, the project list, the outline list view with search and a
+read-only details panel, the Data view (backup, storage meter, language, date format), the
+sample-family fixture (48 people) and the 500-person performance fixture, the CI + Pages workflow,
+the bundle budget script, README and LICENSE. 89 unit tests and 20 Playwright tests pass.
 
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
@@ -12,7 +20,7 @@ screenshot jobs green, every string present in `de` and `en`, verified at 360×6
 deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status report sent.
 
 - [x] **Plan** — technical plan and design plan written and approved (repo stays `pedigree`, Atkinson Hyperlegible Next, cards 220 × 84/124/164/280, chunk-level font embedding, light theme only, eight-entry historical list)
-- [ ] **(a)** design tokens, fonts, i18n + ESLint rule, data model, validation, graph utilities, migration frame, store + undo/redo, persistence (recovery, quota, multi-tab lock), project list, outline list view, sample fixture, CI + Pages pipeline, bundle budget, README, LICENSE
+- [x] **(a)** design tokens, fonts, i18n + ESLint rule, data model, validation, graph utilities, migration frame, store + undo/redo, persistence (recovery, quota, multi-tab lock), project list, outline list view, sample fixture, CI + Pages pipeline, bundle budget, README, LICENSE — screenshots in `docs/screenshots/stage-a/`
 - [ ] **(b)** SVG canvas, viewport, person cards (four variants), union junctions, connectors, selection, drag, error boundary, search, focus/filter
 - [ ] **(c)** person/union forms, date field with echo, context actions, delete with impact preview, union delete choices, merge, duplicates, warnings, undo buttons, multi-select
 - [ ] **(d)** auto-layout with generations and clusters, null-position placement, re-arrange selection, snap-to-grid, alignment guides, jump-to-cluster
@@ -22,6 +30,14 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [ ] **(h)** first-run screen, wizard, inline hints, help page, printable quick start
 - [ ] **(i)** manifest, service worker, update banner, install entry, offline verification
 - [ ] **(j)** final accessibility audit, 500-person performance pass, README numbers, network-tab verification
+
+## Known open points after stage (a)
+
+- The Pages deployment has not run yet: the workflow triggers on push to `main`, and all work so far is on the feature branch. Once merged, set **Pages → Source: GitHub Actions** in the repository settings and check the published URL.
+- Undo/redo exists in the store with tests, but the visible Undo/Redo buttons arrive with the first editing UI in stage (c) (nothing is editable yet in stage a apart from project names).
+- The bottom navigation shows only the modes that exist (List, Data, Family trees); Tree, Timeline and Statistics are added as they are built rather than as placeholders.
+- The first-run screen is the plain project list for now; the designed first-run experience with the wizard is stage (h).
+- The storage capacity is measured lazily the first time the Data view opens (a short probe write); until then the meter assumes 5 MB.
 
 ## Pending items that need the user
 

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createProject, createPerson } from '@/model/types';
+import type { Project } from '@/model/types';
 import { KEY } from '@/store/storage';
 import { loadProject, saveProject, readIndex, listRecoveryKeys, upsertIndex, metaOf } from '@/store/persistence';
 import { openProject, transact, undoLast, redoLast, useAppStore, flushSave, closeProject, __resetForTests } from '@/store/store';
@@ -52,18 +53,18 @@ describe('persistence', () => {
     const r = loadProject(p.id);
     expect(r.status).toBe('newer');
     expect(r.status === 'newer' && r.fileVersion).toBe(99);
-    expect(JSON.parse(localStorage.getItem(KEY.project(p.id))!).schemaVersion).toBe(99);
+    expect((JSON.parse(localStorage.getItem(KEY.project(p.id))!) as Project).schemaVersion).toBe(99);
     expect(openProject(p.id)).toBe('newer');
   });
 
   it('reports a quota error and leaves the previous copy intact', () => {
     const { p } = storedProject('Q');
     const before = localStorage.getItem(KEY.project(p.id));
-    const original = Storage.prototype.setItem;
+    const original = localStorage.setItem.bind(localStorage);
     const quota = new DOMException('quota', 'QuotaExceededError');
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key: string, value: string) {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation((key: string, value: string) => {
       if (key === KEY.project(p.id)) throw quota;
-      return original.call(this, key, value);
+      original(key, value);
     });
     try {
       const w = saveProject({ ...p, name: 'changed' });
@@ -72,15 +73,15 @@ describe('persistence', () => {
       // via the store: state stays in memory and saveState reports the problem
       vi.restoreAllMocks();
       openProject(p.id);
-      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key: string, value: string) {
+      vi.spyOn(Storage.prototype, 'setItem').mockImplementation((key: string, value: string) => {
         if (key === KEY.project(p.id)) throw quota;
-        return original.call(this, key, value);
+        original(key, value);
       });
       transact('rename', (d) => void (d.name = 'in memory'));
       flushSave();
       expect(useAppStore.getState().saveState).toBe('quota');
       expect(useAppStore.getState().project?.name).toBe('in memory');
-      expect(JSON.parse(localStorage.getItem(KEY.project(p.id))!).name).toBe('Q');
+      expect((JSON.parse(localStorage.getItem(KEY.project(p.id))!) as Project).name).toBe('Q');
     } finally {
       vi.restoreAllMocks();
     }
@@ -104,7 +105,7 @@ describe('store: transact / undo / redo', () => {
     vi.advanceTimersByTime(600);
     s = useAppStore.getState();
     expect(s.saveState).toBe('saved');
-    expect(Object.keys(JSON.parse(localStorage.getItem(KEY.project(p.id))!).persons)).toHaveLength(2);
+    expect(Object.keys((JSON.parse(localStorage.getItem(KEY.project(p.id))!) as Project).persons)).toHaveLength(2);
     undoLast();
     expect(Object.keys(useAppStore.getState().project!.persons)).toHaveLength(1);
     redoLast();
