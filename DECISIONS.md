@@ -83,3 +83,17 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 63 | `sources` and `notes` stay free text; `customFields` render as labelled rows in the details panel. | As briefed; no structured citations. | decided |
 | 64 | Playwright uses the sandbox's pre-installed Chromium only when `PLAYWRIGHT_SANDBOX_CHROMIUM=1`; CI installs the matching browser. | The sandbox browser revision differs from the Playwright release; CI must not depend on sandbox paths. | decided |
 
+## Stage (b) (2026-09-13)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 65 | Dragging the empty canvas pans, on every pointer type; space+drag and middle mouse pan as well. Rubber-band selection (stage c) will use Shift+drag. | For the audience, "drag the picture to move it" is the expectation; hiding pan behind a modifier would be a hidden gesture. | decided |
+| 66 | Touch never drags cards; a tap selects, a one-finger drag pans, two fingers pinch. | The brief makes dragging on phones optional and a drag-or-pan ambiguity on touch is a common source of accidental moves. | decided |
+| 67 | People without a stored position get a provisional row placement computed on the fly and not written to the data. | The data keeps `position: null` ("not yet laid out") until the user moves a card or runs auto-layout in stage (d). | decided |
+| 68 | Search selects the person and centres the viewport on them; there is no separate highlight style. | One visual state for "this is the person" is easier to learn than two. | decided |
+| 69 | A double line is drawn as an 8 px ink stroke with a 4 px background stroke on top. | Works for any orthogonal path without offsetting geometry; the print module reuses it with the paper colour. | decided |
+| 70 | The warning marker on a card is shown for every validation warning about that person, not only cycles. | Cycles must be marked; marking the other warnings the same way costs nothing and is consistent. | decided |
+| 71 | Minimum zoom is 5 %, maximum 300 %. | The provisional layout of a large tree is wide; 10 % could not fit it on a phone. | decided |
+| 72 | Mode, selection and filter changes are written to storage immediately; viewport changes are debounced. | A second tab or a reload must land where the user is; the viewport changes on every pan frame. | decided |
+| 73 | Card text on screen is measured with a 2D canvas using the real font, with a per-glyph estimate as fallback (tests, font not yet loaded). | SVG has no automatic wrapping; measured widths keep truncation honest, and the fallback keeps the unit tests deterministic. | decided |
+

@@ -55,7 +55,7 @@ test('no network requests after the initial load', async ({ page }) => {
     if (u.hostname !== '127.0.0.1') external.push(r.url());
   });
   await openSample(page);
-  await page.getByRole('button', { name: 'Data' }).click();
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
   await page.waitForTimeout(500);
   expect(external).toEqual([]);
 });

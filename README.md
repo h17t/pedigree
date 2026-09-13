@@ -3,9 +3,9 @@
 A fully client-side family tree editor for the browser. Create, edit, print and export a family
 tree without a server, an account or any network traffic. **All data stays on the device.**
 
-Status: **stage (a) of (j) complete** — data model, storage, the outline list view and the
-project list work; the canvas, editing forms, GEDCOM, timeline, printing, onboarding and offline
-support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
+Status: **stage (b) of (j) complete** — data model, storage, the tree canvas, the outline list
+view and the project list work; editing forms, auto-layout, GEDCOM, timeline, printing, onboarding
+and offline support follow in the next stages. See `PROGRESS.md` for the checklist and `DECISIONS.md` for
 every design and technical decision.
 
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `docs/screenshots/`.
@@ -13,6 +13,10 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 ## Using the app
 
 - Open the site. Choose **Start an empty tree**, **Look at the sample family** or **Restore a backup file**.
+- **Tree** draws the family as cards and lines. Drag the picture to move around, pinch or use the
+  buttons to zoom, tap or click a card to select it, type a name to jump to a person, and use
+  "Show only" to see just the ancestors or descendants of the selected person. On a laptop you can
+  drag cards; their positions are saved.
 - **List** shows every family as an indented outline; choose a person to see their details.
 - **Data** holds the backup buttons, the storage meter, the language and the date-format setting.
 - Save a backup file (a `.json` file) regularly. The browser can delete site data at any time; the
@@ -66,15 +70,15 @@ the PWA manifest's `start_url`/`scope` and the service-worker registration path 
 ## Bundle budget
 
 Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Measured by
-`npm run budget` after the stage (a) build:
+`npm run budget` after the stage (b) build:
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 94.8 KB | 250.0 KB |
-| Initial CSS | 3.6 KB | — |
+| Initial JS (entry + static imports) | 106.6 KB | 250.0 KB |
+| Initial CSS | 4.1 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 123.1 KB | 500.0 KB |
+| **Initial payload** | 135.4 KB | 500.0 KB |
 
 The sample family loads lazily (4.2 KB). The GEDCOM module, the timeline/statistics views and the
 print/export module will be lazy chunks as well.

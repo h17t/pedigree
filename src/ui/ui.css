@@ -13,7 +13,8 @@
 .badge-warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
 
 .shell-body { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
-.shell-main { flex: 1 1 auto; padding-bottom: calc(var(--touch-primary) + var(--sp-8)); min-width: 0; }
+.shell-main { flex: 1 1 auto; padding-bottom: calc(var(--touch-primary) + var(--sp-8)); min-width: 0; display: flex; flex-direction: column; }
+.shell-main > .tree-view { flex: 1 1 auto; margin-bottom: calc(-1 * (var(--touch-primary) + var(--sp-8))); }
 .shell-plain .shell-main { padding-bottom: var(--sp-8); }
 .shell-main:focus { outline: none; }
 .shell-nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paper); border-top: 1px solid var(--rule); z-index: 20; padding-bottom: env(safe-area-inset-bottom); }

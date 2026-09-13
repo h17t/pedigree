@@ -6,7 +6,8 @@ import type { Mode } from '../router';
 import { Banners } from './Banners';
 import { StatusMessages } from '../components/StatusMessages';
 
-const NAV: { mode: Mode; key: 'nav.list' | 'nav.data' }[] = [
+const NAV: { mode: Mode; key: 'nav.tree' | 'nav.list' | 'nav.data' }[] = [
+  { mode: 'tree', key: 'nav.tree' },
   { mode: 'list', key: 'nav.list' },
   { mode: 'data', key: 'nav.data' },
 ];
@@ -82,6 +83,15 @@ export function AppShell({ children, aside }: { children: ReactNode; aside?: Rea
 function NavIcon({ mode }: { mode: Mode }) {
   const common = { width: 24, height: 24, viewBox: '0 0 24 24', 'aria-hidden': true, fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   switch (mode) {
+    case 'tree':
+      return (
+        <svg {...common}>
+          <rect x="9" y="3" width="6" height="4" rx="1" />
+          <rect x="3" y="17" width="6" height="4" rx="1" />
+          <rect x="15" y="17" width="6" height="4" rx="1" />
+          <path d="M12 7v5M6 17v-5h12v5" />
+        </svg>
+      );
     case 'list':
       return (
         <svg {...common}>

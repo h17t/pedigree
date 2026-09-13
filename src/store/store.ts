@@ -211,7 +211,17 @@ function afterChange(project: Project, changeCount: number): void {
 export function updateUi(patch: Partial<ProjectUiMeta>): void {
   const s = useAppStore.getState();
   useAppStore.setState({ ui: { ...s.ui, ...patch } });
-  scheduleUiSave();
+  // Mode and selection changes are written at once so another tab (or a reload a moment
+  // later) lands where the user is; frequent changes such as the viewport are debounced.
+  if ('mode' in patch || 'selectedPersonId' in patch || 'filter' in patch) flushUiSave();
+  else scheduleUiSave();
+}
+
+function flushUiSave(): void {
+  if (uiTimer) clearTimeout(uiTimer);
+  uiTimer = null;
+  const { projectId, ui } = useAppStore.getState();
+  if (projectId) saveUiMeta(projectId, ui);
 }
 
 export function markBackedUp(): void {
@@ -243,6 +253,7 @@ export function flushSave(): void {
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = null;
   const s = useAppStore.getState();
+  if (s.projectId && s.lockState === 'owner') saveUiMeta(s.projectId, s.ui);
   if (!s.project || s.lockState !== 'owner' || s.saveState === 'saved') return;
   const w = saveProject(s.project);
   if (w.ok) {
@@ -252,7 +263,6 @@ export function flushSave(): void {
     // The previous good copy is untouched; the unsaved changes stay in memory.
     useAppStore.setState({ saveState: w.reason === 'quota' ? 'quota' : 'error' });
   }
-  if (s.projectId) saveUiMeta(s.projectId, useAppStore.getState().ui);
 }
 
 /** Test hook: reset module state between tests. */

@@ -27,7 +27,7 @@ export function ProjectsView() {
 
   const open = (id: string) => {
     openProject(id);
-    go('list');
+    go('tree');
   };
   const storageFailed = () => announce(t('data.storageFull'), 'danger');
 

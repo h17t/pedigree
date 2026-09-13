@@ -46,7 +46,7 @@ export function DataView() {
     if (r.ok) {
       announce(t('data.backupLoaded', { name: r.name }));
       openProject(r.id);
-      go('list');
+      go('tree');
     } else if (r.reason === 'newer') announce(t('data.backupNewer', { fileVersion: r.fileVersion ?? 0, appVersion: SCHEMA_VERSION }), 'danger');
     else if (r.reason === 'invalid') announce(t('data.backupInvalid'), 'danger');
     else announce(t('data.storageFull'), 'danger');

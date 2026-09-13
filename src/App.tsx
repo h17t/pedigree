@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
-import { useAppStore, openProject } from '@/store/store';
+import { useAppStore, openProject, updateUi } from '@/store/store';
 import { useSettings } from '@/store/settings';
 import { useRouter } from './ui/router';
 import { AppShell } from './ui/shell/AppShell';
 import { ProjectsView } from './ui/ProjectsView';
 import { RecoveryView } from './ui/RecoveryView';
 import { ListView } from './ui/list/ListView';
+import { TreeView } from './ui/tree/TreeView';
 import { DataView } from './ui/data/DataView';
 import { StatusMessages } from './ui/components/StatusMessages';
 import { listProjects } from './store/projects';
@@ -30,8 +31,8 @@ export default function App() {
     const target = lastOpen && projects.some((p) => p.id === lastOpen) ? lastOpen : null;
     if (target) {
       const r = openProject(target);
-      if (r === 'ready' && mode === 'projects') go('list');
-      if (r === 'ready' && useAppStore.getState().ui.mode === 'data' && location.hash === '') go('data');
+      if (r === 'ready' && mode === 'projects') go((useAppStore.getState().ui.mode as 'tree' | 'list' | 'data') || 'tree');
+      if (r === 'ready' && location.hash === '') go((useAppStore.getState().ui.mode as 'tree' | 'list' | 'data') || 'tree');
     } else if (mode !== 'projects') {
       go('projects');
     }
@@ -44,7 +45,7 @@ export default function App() {
 
   // Remember the mode per project.
   useEffect(() => {
-    if (status === 'ready' && mode !== 'projects') useAppStore.setState((s) => ({ ui: { ...s.ui, mode } }));
+    if (status === 'ready' && mode !== 'projects') updateUi({ mode });
   }, [mode, status]);
 
   if (mode === 'projects' || status === 'idle' || status === 'missing') {
@@ -67,5 +68,5 @@ export default function App() {
       </div>
     );
   }
-  return <AppShell>{mode === 'data' ? <DataView /> : <ListView />}</AppShell>;
+  return <AppShell>{mode === 'data' ? <DataView /> : mode === 'list' ? <ListView /> : <TreeView />}</AppShell>;
 }

@@ -24,7 +24,7 @@ export function RecoveryView() {
     const r = importBackupText(text);
     if (r.ok) {
       openProject(r.id);
-      go('list');
+      go('tree');
     } else announce(r.reason === 'invalid' ? t('data.backupInvalid') : r.reason === 'newer' ? t('data.backupNewer', { fileVersion: r.fileVersion ?? 0, appVersion: SCHEMA_VERSION }) : t('data.storageFull'), 'danger');
   };
 
@@ -62,7 +62,7 @@ export function RecoveryView() {
             if (r.ok) {
               announce(t('recovery.startedFresh'));
               openProject(r.id);
-              go('list');
+              go('tree');
             } else announce(t('data.storageFull'), 'danger');
           }}
         >

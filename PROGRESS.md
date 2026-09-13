@@ -1,6 +1,6 @@
 # Progress
 
-Current status (2026-09-13): **stage (a) complete; stage (b) (canvas) is next.**
+Current status (2026-09-13): **stage (b) complete; stage (c) (editor forms, context actions, delete and merge) is next.**
 
 Stage (a) delivered: Vite/React/TypeScript scaffold with bundled fonts, design tokens, typed de/en
 dictionary with the `no-bare-jsx-strings` ESLint rule, the complete data model with date parsing,
@@ -9,7 +9,19 @@ undo/redo (batched, capped at 50, in memory only), persistence with corrupt-data
 handling and the multi-tab edit lock, the project list, the outline list view with search and a
 read-only details panel, the Data view (backup, storage meter, language, date format), the
 sample-family fixture (48 people) and the 500-person performance fixture, the CI + Pages workflow,
-the bundle budget script, README and LICENSE. 89 unit tests and 20 Playwright tests pass.
+the bundle budget script, README and LICENSE.
+
+Stage (b) delivered: the SVG canvas with pan (drag, middle mouse, space+drag, one finger), zoom
+(wheel, pinch, buttons, Ctrl+0, keyboard), fit, the person card in all four fixed height variants
+with truncation, sex markers, † and slate border for deceased, branch stripe with label and
+warning marker, union junctions and the labelled "Parents unknown" box, orthogonal connectors
+(double line, struck double line, dashed, child line styles by relation type), selection by
+click/tap/keyboard, card drag with persisted positions on pointer devices, search that jumps to
+and selects a person (Ctrl+F), the focus filter (ancestors, descendants, close family) with a
+visible "Showing…" bar, the legend, the card-detail selector, an error boundary around the
+canvas, the phone selection bar and the laptop details column. Provisional placement gives every
+person without a position a deterministic spot until the real layout arrives in stage (d).
+109 unit tests and 31 Playwright tests pass.
 
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
@@ -21,7 +33,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 
 - [x] **Plan** — technical plan and design plan written and approved (repo stays `pedigree`, Atkinson Hyperlegible Next, cards 220 × 84/124/164/280, chunk-level font embedding, light theme only, eight-entry historical list)
 - [x] **(a)** design tokens, fonts, i18n + ESLint rule, data model, validation, graph utilities, migration frame, store + undo/redo, persistence (recovery, quota, multi-tab lock), project list, outline list view, sample fixture, CI + Pages pipeline, bundle budget, README, LICENSE — screenshots in `docs/screenshots/stage-a/`
-- [ ] **(b)** SVG canvas, viewport, person cards (four variants), union junctions, connectors, selection, drag, error boundary, search, focus/filter
+- [x] **(b)** SVG canvas, viewport, person cards (four variants), union junctions, connectors, selection, drag, error boundary, search, focus/filter — screenshots in `docs/screenshots/stage-b/`
 - [ ] **(c)** person/union forms, date field with echo, context actions, delete with impact preview, union delete choices, merge, duplicates, warnings, undo buttons, multi-select
 - [ ] **(d)** auto-layout with generations and clusters, null-position placement, re-arrange selection, snap-to-grid, alignment guides, jump-to-cluster
 - [ ] **(e)** GEDCOM import (new / merge) and export, encodings, import report, raw preservation toggle
@@ -31,7 +43,12 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [ ] **(i)** manifest, service worker, update banner, install entry, offline verification
 - [ ] **(j)** final accessibility audit, 500-person performance pass, README numbers, network-tab verification
 
-## Known open points after stage (a)
+## Known open points after stage (b)
+
+- Cards without a stored position are placed by a provisional row layout (one row per generation, partners adjacent, components side by side). It is deliberately wide and does not reduce crossings; stage (d) replaces it with the real layout, cluster packing and placement into free space. Until then "Fit" on a phone shows a very small tree, and the search jump is the practical way to a person.
+- Multi-select, rubber band and group move come with stage (c), together with the first editing UI and the visible Undo/Redo buttons.
+- Snap-to-grid and alignment guides are wired in the canvas (`snapToGrid` prop) but switched off until the toolbar control arrives with stage (d).
+- Black-and-white rendering of the branch stripes is implemented as SVG patterns and used by print in stage (g).
 
 - The Pages deployment has not run yet: the workflow triggers on push to `main`, and all work so far is on the feature branch. Once merged, set **Pages → Source: GitHub Actions** in the repository settings and check the published URL.
 - Undo/redo exists in the store with tests, but the visible Undo/Redo buttons arrive with the first editing UI in stage (c) (nothing is editable yet in stage a apart from project names).

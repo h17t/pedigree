@@ -4,8 +4,8 @@
  */
 import { create } from 'zustand';
 
-export type Mode = 'projects' | 'list' | 'data';
-const MODES: Mode[] = ['projects', 'list', 'data'];
+export type Mode = 'projects' | 'tree' | 'list' | 'data';
+const MODES: Mode[] = ['projects', 'tree', 'list', 'data'];
 
 function fromHash(hash: string): Mode | null {
   const m = hash.replace(/^#\/?/, '').split(/[/?]/)[0] as Mode;
@@ -18,7 +18,7 @@ interface RouterState {
 }
 
 export const useRouter = create<RouterState>((set) => ({
-  mode: (typeof location !== 'undefined' && fromHash(location.hash)) || 'list',
+  mode: (typeof location !== 'undefined' && fromHash(location.hash)) || 'tree',
   go: (mode) => {
     set({ mode });
     if (typeof location !== 'undefined' && location.hash !== `#/${mode}`) history.pushState(null, '', `#/${mode}`);

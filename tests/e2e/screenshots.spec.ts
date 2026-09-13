@@ -13,6 +13,14 @@ test('stage screenshots', async ({ page }, testInfo) => {
   await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-projects.png`, fullPage: true });
   await openSample(page);
   await expectNoHorizontalScroll(page);
+  await page.getByRole('button', { name: 'Tree', exact: true }).click();
+  await page.waitForTimeout(400);
+  await expectNoHorizontalScroll(page);
+  await page.getByLabel('Type a name to jump to a person').fill('karl');
+  await page.getByRole('button', { name: /Karl Weber, 1878/ }).first().click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-tree.png`, fullPage: false });
+  await page.getByRole('button', { name: 'List', exact: true }).click();
   await page.getByRole('button', { name: /Karl Weber/ }).first().click();
   await page.waitForTimeout(300);
   await expectNoHorizontalScroll(page);
@@ -21,7 +29,7 @@ test('stage screenshots', async ({ page }, testInfo) => {
     await page.getByRole('button', { name: 'Back' }).click();
     await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-list.png`, fullPage: false });
   }
-  await page.getByRole('button', { name: 'Data' }).click();
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
   await page.waitForTimeout(300);
   await expectNoHorizontalScroll(page);
   await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-data.png`, fullPage: true });

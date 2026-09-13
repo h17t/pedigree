@@ -115,16 +115,22 @@ export interface ProjectUiMeta {
   lastBackupAt: number | null;
   backupBannerDismissedAt: number | null;
   viewport: { x: number; y: number; zoom: number } | null;
+  detailLevel: 'minimal' | 'standard' | 'full';
+  filter: { kind: 'ancestors'; personId: string } | { kind: 'descendants'; personId: string } | { kind: 'around'; personId: string; generations: number } | null;
+  legendOpen: boolean;
 }
 
 export const defaultUiMeta = (): ProjectUiMeta => ({
-  mode: 'list',
+  mode: 'tree',
   selectedPersonId: null,
   expanded: [],
   changesSinceBackup: 0,
   lastBackupAt: null,
   backupBannerDismissedAt: null,
   viewport: null,
+  detailLevel: 'standard',
+  filter: null,
+  legendOpen: false,
 });
 
 export function loadUiMeta(id: string): ProjectUiMeta {

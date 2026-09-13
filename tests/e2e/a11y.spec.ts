@@ -26,18 +26,18 @@ test('list view and details have no accessibility violations', async ({ page }) 
 
 test('data view has no accessibility violations', async ({ page }) => {
   await openSample(page);
-  await page.getByRole('button', { name: 'Data' }).click();
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Data and settings' })).toBeVisible();
   await expectNoViolations(page, 'data view');
 });
 
 test('language switch reaches German everywhere', async ({ page }) => {
   await openSample(page);
-  await page.getByRole('button', { name: 'Data' }).click();
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
   await page.getByLabel('Language').selectOption('de');
   await expect(page.getByRole('heading', { name: 'Daten und Einstellungen' })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
-  await page.getByRole('button', { name: 'Liste' }).click();
+  await page.getByRole('button', { name: 'Liste', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Familienliste' })).toBeVisible();
   await expectNoViolations(page, 'German list view');
 });
