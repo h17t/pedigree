@@ -1,8 +1,9 @@
 import type { en, PluralForms } from './en';
+export type { Locale } from './locales';
 
 /**
  * Structural type of the dictionary: every leaf becomes `string` or `PluralForms` so that
- * `de` can be typed against the shape of `en` without needing identical literal values.
+ * the other languages can be typed against the shape of `en` without identical values.
  */
 type Widen<T> = T extends string
   ? string
@@ -19,6 +20,5 @@ type PathsOf<T, P extends string = ''> = {
 }[keyof T & string];
 export type TKey = PathsOf<Dictionary>;
 
-export type Locale = 'en' | 'de';
 export type DateFormat = 'dayFirst' | 'monthFirst';
 export type TParams = Record<string, string | number>;

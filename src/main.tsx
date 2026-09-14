@@ -7,11 +7,15 @@ import './ui/tree/tree.css';
 import './ui/print/print.css';
 import App from './App';
 import { registerApp } from './pwa/register';
+import { startLocale } from './store/settings';
 
 registerApp();
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+// The chosen language's dictionary is a separate chunk; wait for it so nothing flashes in English.
+void startLocale().finally(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+});

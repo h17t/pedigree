@@ -8,38 +8,75 @@
  */
 import { create } from 'zustand';
 import { en } from './en';
-import { de } from './de';
 import type { Dictionary, Locale, TKey, TParams } from './types';
 import type { PluralForms } from './en';
+import { LOCALES, intlTag, isLocale } from './locales';
+import { useNameOrder } from '@/model/nameOrder';
 
 export type { Locale, DateFormat, TKey, TParams } from './types';
+export { LANGUAGES, LOCALES, intlTag, languageName, surnameFirstDefault, isLocale } from './locales';
 
-export const dictionaries: Record<Locale, Dictionary> = { en, de };
+/**
+ * English is bundled (it is the fallback); every other dictionary is its own chunk, loaded
+ * when the language is chosen, so the initial payload does not carry twelve translations.
+ */
+const loaders: Record<Locale, () => Promise<Dictionary>> = {
+  en: () => Promise.resolve(en),
+  de: () => import('./de').then((m) => m.de),
+  fr: () => import('./fr').then((m) => m.fr),
+  es: () => import('./es').then((m) => m.es),
+  it: () => import('./it').then((m) => m.it),
+  pt: () => import('./pt').then((m) => m.pt),
+  nl: () => import('./nl').then((m) => m.nl),
+  pl: () => import('./pl').then((m) => m.pl),
+  ru: () => import('./ru').then((m) => m.ru),
+  tr: () => import('./tr').then((m) => m.tr),
+};
+const loaded: Partial<Record<Locale, Dictionary>> = { en };
 
-/** BCP 47 tags used for Intl formatting. English means en-GB, day first. */
-export const intlTag: Record<Locale, string> = { en: 'en-GB', de: 'de-DE' };
+export async function loadLocale(locale: Locale): Promise<Dictionary> {
+  const have = loaded[locale];
+  if (have) return have;
+  const dict = await loaders[locale]();
+  loaded[locale] = dict;
+  return dict;
+}
 
+/** For tests and tools: every dictionary at once. */
+export async function loadAllLocales(): Promise<Record<Locale, Dictionary>> {
+  for (const l of LOCALES) await loadLocale(l);
+  return loaded as Record<Locale, Dictionary>;
+}
+
+export function isLocaleLoaded(locale: Locale): boolean {
+  return loaded[locale] !== undefined;
+}
+
+/** The best available language for a browser language tag, English when none fits. */
 export function detectLocale(navigatorLanguage: string | undefined): Locale {
-  return navigatorLanguage?.toLowerCase().startsWith('de') ? 'de' : 'en';
+  const base = navigatorLanguage?.toLowerCase().split(/[-_]/)[0];
+  return isLocale(base) ? base : 'en';
 }
 
 interface LocaleState {
   locale: Locale;
-  setLocale: (l: Locale) => void;
+  /** Switches once the dictionary is loaded; resolves when the switch is done. */
+  setLocale: (l: Locale) => Promise<void>;
 }
 export const useLocaleStore = create<LocaleState>((set) => ({
   locale: 'en',
-  setLocale: (locale) => {
+  setLocale: async (locale) => {
+    await loadLocale(locale);
     set({ locale });
     if (typeof document !== 'undefined') document.documentElement.lang = locale;
   },
 }));
 
 const pluralRules: Partial<Record<Locale, Intl.PluralRules>> = {};
-function pluralCategory(locale: Locale, n: number): 'zero' | 'one' | 'other' {
+type Category = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other';
+function pluralCategory(locale: Locale, n: number): Category {
   const rules = (pluralRules[locale] ??= new Intl.PluralRules(intlTag[locale]));
-  const cat = rules.select(n);
-  return cat === 'one' ? 'one' : cat === 'zero' ? 'zero' : 'other';
+  return rules.select(n);
 }
 
 function lookup(dict: Dictionary, key: string): string | PluralForms | undefined {
@@ -63,15 +100,14 @@ function interpolate(template: string, params?: TParams): string {
 
 /** Translate with an explicit locale (for non-React code such as reports). */
 export function translate(locale: Locale, key: TKey, params?: TParams): string {
-  const leaf = lookup(dictionaries[locale], key) ?? lookup(dictionaries.en, key);
+  const leaf = lookup(loaded[locale] ?? en, key) ?? lookup(en, key);
   if (leaf === undefined) {
     if (import.meta.env.DEV) console.warn(`Missing i18n key: ${key}`);
     return key;
   }
   if (typeof leaf === 'string') return interpolate(leaf, params);
   const count = typeof params?.count === 'number' ? params.count : Number(params?.count ?? 0);
-  const cat = pluralCategory(locale, count);
-  const form = (cat === 'zero' && leaf.zero) || (cat === 'one' ? leaf.one : leaf.other);
+  const form = leaf[pluralCategory(locale, count)] ?? leaf.other;
   return interpolate(form, { ...params, count: formatNumber(locale, count) });
 }
 
@@ -83,6 +119,8 @@ export function t(key: TKey, params?: TParams): string {
 /** React hook: returns a `t` bound to the active locale and re-renders on change. */
 export function useT(): { t: (key: TKey, params?: TParams) => string; locale: Locale } {
   const locale = useLocaleStore((s) => s.locale);
+  // Name order is part of how text reads; components re-render when it changes.
+  useNameOrder((s) => s.surnameFirst);
   return { t: (key, params) => translate(locale, key, params), locale };
 }
 

@@ -67,8 +67,12 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   orientation, margins, "fit on one page" or "spread across several sheets", detail level, title
   and legend, a to-scale preview, and buttons to print, to save an SVG file (fonts embedded) or a
   PNG image. See "Printing large trees" below.
-- **Data → Settings** holds the language, the date convention and the **Appearance**: same as
-  the device (default), light or dark. Every colour comes from one token set with a light and a
+- **Data → Settings** holds the language (English, German, French, Spanish, Italian, Portuguese,
+  Dutch, Polish, Russian and Turkish, each complete; the browser language is the default), the
+  date convention, the **order of names** (as usual for the language, given names first, or
+  surname first) and the **Appearance**: same as the device (default), light or dark. Dates can
+  be typed in the chosen language ("vers 1923", "14 de marzo de 1923", "около 1923", "1923'ten
+  önce") and are shown with the language's own formatting. Every colour comes from one token set with a light and a
   dark palette; prints, SVG and PNG files and the family sheet are always light.
 - **Data → GEDCOM files** imports a `.ged` file (GEDCOM 5.5.1; UTF-8, UTF-16, ANSEL and
   Windows-1252 are recognised) as a new tree or into the open tree, shows an import report, and

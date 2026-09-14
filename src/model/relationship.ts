@@ -96,16 +96,21 @@ export function relationTerm(rel: Relation, b: Person, t: T, locale: Locale): st
   const sx = sexKey(b);
   const great = (n: number, base: string) => {
     if (n <= 0) return base;
-    if (locale === 'de') {
-      // "die Urgroßmutter", "der Ururgroßvater": the prefix joins the lowercased noun after the article.
-      const g = t('relation.great');
-      const prefix = g + g.toLowerCase().repeat(n - 1);
-      const i = base.lastIndexOf(' ');
-      const article = i >= 0 ? base.slice(0, i + 1) : '';
-      const noun = i >= 0 ? base.slice(i + 1) : base;
-      return `${article}${prefix}${noun.charAt(0).toLowerCase()}${noun.slice(1)}`;
-    }
-    return t('relation.great').repeat(n) + base;
+    // The prefix joins the last word (the noun); an article before it stays: "la arrière-grand-mère"
+    // becomes "l’arrière-grand-mère", "der Urgroßvater" keeps its article, "el tatarabuelo" too.
+    // Languages with a special word for the second step ("tatara", "高") supply `great2`.
+    const g = t('relation.great');
+    let prefix = n === 2 ? t('relation.great2') : locale === 'de' ? g + g.toLowerCase().repeat(n - 1) : g.repeat(n);
+    const i = base.lastIndexOf(' ');
+    let article = i >= 0 ? base.slice(0, i + 1) : '';
+    let noun = i >= 0 ? base.slice(i + 1) : base;
+    if (locale === 'de') noun = noun.charAt(0).toLowerCase() + noun.slice(1);
+    if (locale === 'fr' && /^l[ea] $/.test(article) && /^[aeiouâàéè]/i.test(prefix)) article = 'l’';
+    if (locale === 'it' && /^(il|la|lo) $/.test(article) && /^[aeiou]/i.test(prefix)) article = 'l’';
+    // "tatara" + "abuelo" → "tatarabuelo", "bis" + "avô" stays: Romance prefixes merge a doubled vowel.
+    if ((locale === 'es' || locale === 'pt' || locale === 'it') && /[aeiou]$/.test(prefix) && noun.charAt(0).toLowerCase() === prefix.slice(-1)) prefix = prefix.slice(0, -1);
+    if (prefix.endsWith(' ') && noun === '') prefix = prefix.trimEnd();
+    return `${article}${prefix}${noun}`;
   };
   switch (rel.kind) {
     case 'partner':

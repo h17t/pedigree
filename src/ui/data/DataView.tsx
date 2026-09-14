@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useT, formatBytes, formatDateTime, formatNumber } from '@/i18n';
+import { useT, formatBytes, formatDateTime, formatNumber, LANGUAGES } from '@/i18n';
 import type { Locale, DateFormat, TKey } from '@/i18n';
 import type { Theme } from '@/design/tokens';
 import { useAppStore } from '@/store/store';
 import { useSettings, setLocale } from '@/store/settings';
+import type { NameOrder } from '@/store/settings';
 import { storageSummary, listRecoveryKeys } from '@/store/persistence';
 import { probeCapacity, removeItem } from '@/store/storage';
 import { backupStatus } from '@/store/backupReminder';
@@ -147,9 +148,25 @@ export function DataView() {
         <div className="field">
           <label htmlFor="language-select">{t('data.language')}</label>
           <select id="language-select" className="select" value={settings.locale} onChange={(e) => setLocale(e.target.value as Locale)}>
-            <option value="en">{t('data.languageName.en')}</option>
-            <option value="de">{t('data.languageName.de')}</option>
+            {LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code} lang={l.code}>
+                {l.name}
+              </option>
+            ))}
           </select>
+        </div>
+        <div className="field">
+          <label htmlFor="nameorder-select">{t('data.nameOrder')}</label>
+          <select id="nameorder-select" className="select" value={settings.nameOrder} onChange={(e) => settings.update({ nameOrder: e.target.value as NameOrder })} aria-describedby="nameorder-hint">
+            {(['auto', 'givenFirst', 'surnameFirst'] as NameOrder[]).map((v) => (
+              <option key={v} value={v}>
+                {t(`data.nameOrderValue.${v}` as TKey)}
+              </option>
+            ))}
+          </select>
+          <p className="hint" id="nameorder-hint">
+            {t('data.nameOrderHint')}
+          </p>
         </div>
         <div className="field">
           <label htmlFor="dateformat-select">{t('dates.formatSetting')}</label>

@@ -233,6 +233,22 @@ print root re-declares the light variables). The browser theme colour follows. A
 every view in dark mode (list, details, editor, canvas with legend, print dialog, data,
 timeline, statistics), on phone and desktop; dark screenshots in `docs/screenshots/stage-n/`.
 
+Stage (n), languages batch 1 (2026-09-14): French, Spanish, Italian, Portuguese, Dutch, Polish,
+Russian and Turkish as complete typed dictionaries (`src/i18n/<code>.ts`, each typed against the
+English shape and checked by the parity test for keys, placeholders and empty leaves). English
+stays in the initial bundle; every other dictionary is its own lazy chunk loaded before the first
+render, so the initial JavaScript did not grow. The language list on the Data page is generated
+from the registry in `src/i18n/locales.ts` (code, Intl tag, native name, default name order);
+plural forms use the full Intl.PluralRules categories (Polish and Russian carry few/many). Dates:
+month names, qualifier words (before/after the date) and range words for all eight languages,
+plus East Asian forms (1923年3月14日, 1923년, 頃/约/경) ready for batch 2; formatting through Intl
+per language. Relationship sentences compose "great" prefixes per language (arrière-, tatara-,
+tris-, overover-, prapra-, прапра-, büyük büyük) with article and vowel handling. A **name order**
+setting (language default / given first / surname first) drives cards, lists and reports through
+one `joinName` helper; GEDCOM keeps given /surname/. Cyrillic text uses Noto Sans Cyrillic chunks
+(7–22 KB each) declared under the same family name and loaded only when such text appears, because
+Atkinson Hyperlegible Next has no Cyrillic glyphs; the SVG export embeds those chunks when used.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist

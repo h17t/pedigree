@@ -39,18 +39,30 @@ export interface DateParseError {
   ok: false;
 }
 
-const QUALIFIER_WORDS: Record<string, DateQualifier> = {
-  // English
-  about: 'about', abt: 'about', approx: 'about', approximately: 'about', circa: 'about', ca: 'about', c: 'about',
-  before: 'before', bef: 'before',
-  after: 'after', aft: 'after',
-  estimated: 'estimated', est: 'estimated',
-  // German
-  um: 'about', ungefähr: 'about', ungefaehr: 'about', etwa: 'about', zirka: 'about',
-  vor: 'before',
-  nach: 'after',
-  geschätzt: 'estimated', geschaetzt: 'estimated', gesch: 'estimated',
-};
+/** Qualifier words that precede a date, per language ("about 1923", "vers 1923", "около 1923"). */
+const PREFIX_WORDS: [string[], DateQualifier][] = [
+  [['about', 'abt', 'approx', 'approximately', 'circa', 'ca', 'c', 'um', 'ungefähr', 'ungefaehr', 'etwa', 'zirka', 'vers', 'environ', 'env', 'hacia', 'aprox', 'aproximadamente', 'cerca de', 'por volta de', 'verso', 'omstreeks', 'rond', 'ongeveer', 'około', 'ok', 'около', 'ок', 'примерно', 'приблизительно', 'yaklaşık', 'yakl', '约', '大约', '約', '약'], 'about'],
+  [['before', 'bef', 'vor', 'avant', 'antes de', 'antes', 'prima del', 'prima di', 'prima', 'voor', 'vóór', 'przed', 'до', 'ранее'], 'before'],
+  [['after', 'aft', 'nach', 'après', 'apres', 'después de', 'despues de', 'después', 'despues', 'depois de', 'depois', 'dopo il', 'dopo', 'na', 'po', 'после', 'позже'], 'after'],
+  [['estimated', 'est', 'geschätzt', 'geschaetzt', 'gesch', 'estimé', 'estime', 'estimado', 'estimada', 'stimato', 'geschat', 'szacunkowo', 'оценочно', 'tahmini', '推定', '估计', '추정'], 'estimated'],
+];
+/** Qualifier words that follow a date ("1923'ten önce", "1923年頃", "1923년경"). */
+const SUFFIX_WORDS: [string[], DateQualifier][] = [
+  [['civarı', 'civarında', 'dolaylarında', '頃', 'ごろ', '左右', '前后', '경', '쯤'], 'about'],
+  [['önce', 'öncesi', '以前', '之前', '이전'], 'before'],
+  [['sonra', 'sonrası', '以降', '以後', '之后', '以后', '이후'], 'after'],
+];
+const escapeRe = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// East Asian words need no space after them ("约1923年"); every other word does.
+const cjkWord = (w: string) => /[\u3000-\u9fff\uac00-\ud7af]/.test(w);
+const PREFIX_RE = PREFIX_WORDS.map(([words, q]) => {
+  const sorted = [...words].sort((a, b) => b.length - a.length);
+  const spaced = sorted.filter((w) => !cjkWord(w)).map(escapeRe).join('|');
+  const tight = sorted.filter(cjkWord).map(escapeRe).join('|');
+  const alt = [spaced && `(?:${spaced})\\.?\\s+`, tight && `(?:${tight})\\s*`].filter(Boolean).join('|');
+  return [new RegExp(`^(?:${alt})(.*)$`, 'u'), q] as const;
+});
+const SUFFIX_RE = SUFFIX_WORDS.map(([words, q]) => [new RegExp(`^(.*?)\\s*(?:'\\w+\\s+)?(?:${words.map(escapeRe).join('|')})$`, 'u'), q] as const);
 
 const MONTHS: Record<string, number> = {
   // English
@@ -60,7 +72,33 @@ const MONTHS: Record<string, number> = {
   // German
   januar: 1, jän: 1, jänner: 1, februar: 2, märz: 3, maerz: 3, mär: 3, mrz: 3, mai: 5, juni: 6, juli: 7, okt: 10, oktober: 10,
   dez: 12, dezember: 12,
+  // French
+  janvier: 1, janv: 1, février: 2, fevrier: 2, févr: 2, mars: 3, avril: 4, avr: 4, juin: 6, juillet: 7, juil: 7, août: 8, aout: 8,
+  septembre: 9, octobre: 10, novembre: 11, décembre: 12, decembre: 12, déc: 12,
+  // Spanish
+  enero: 1, ene: 1, febrero: 2, marzo: 3, abril: 4, abr: 4, mayo: 5, junio: 6, julio: 7, agosto: 8, ago: 8, septiembre: 9, setiembre: 9, set: 9,
+  octubre: 10, noviembre: 11, diciembre: 12, dic: 12,
+  // Italian
+  gennaio: 1, gen: 1, febbraio: 2, aprile: 4, maggio: 5, mag: 5, giugno: 6, giu: 6, luglio: 7, lug: 7, settembre: 9, ottobre: 10, ott: 10, dicembre: 12,
+  // Portuguese
+  janeiro: 1, fevereiro: 2, fev: 2, março: 3, marco: 3, maio: 5, junho: 6, julho: 7, setembro: 9, outubro: 10, out: 10, novembro: 11, dezembro: 12,
+  // Dutch
+  januari: 1, februari: 2, maart: 3, mrt: 3, mei: 5, augustus: 8,
+  // Polish
+  stycznia: 1, styczeń: 1, sty: 1, lutego: 2, luty: 2, lut: 2, marca: 3, marzec: 3, kwietnia: 4, kwiecień: 4, kwi: 4, maja: 5, maj: 5,
+  czerwca: 6, czerwiec: 6, cze: 6, lipca: 7, lipiec: 7, lip: 7, sierpnia: 8, sierpień: 8, sie: 8, września: 9, wrzesień: 9, wrz: 9,
+  października: 10, październik: 10, paź: 10, listopada: 11, listopad: 11, lis: 11, grudnia: 12, grudzień: 12, gru: 12,
+  // Russian
+  января: 1, январь: 1, янв: 1, февраля: 2, февраль: 2, фев: 2, марта: 3, март: 3, мар: 3, апреля: 4, апрель: 4, апр: 4, мая: 5, май: 5,
+  июня: 6, июнь: 6, июн: 6, июля: 7, июль: 7, июл: 7, августа: 8, август: 8, авг: 8, сентября: 9, сентябрь: 9, сен: 9, сент: 9,
+  октября: 10, октябрь: 10, окт: 10, ноября: 11, ноябрь: 11, ноя: 11, декабря: 12, декабрь: 12, дек: 12,
+  // Turkish
+  ocak: 1, oca: 1, şubat: 2, şub: 2, mart: 3, nisan: 4, nis: 4, mayıs: 5, haziran: 6, haz: 6, temmuz: 7, tem: 7, ağustos: 8, ağu: 8,
+  eylül: 9, eyl: 9, ekim: 10, eki: 10, kasım: 11, kas: 11, aralık: 12, ara: 12,
 };
+
+/** Filler words between day, month and year ("14 de marzo de 1923", "14 марта 1923 г."). */
+const FILLERS = /\s+(?:de|del|di|do|da|of|г\.?|року|r\.)(?=\s|$)/gu;
 
 function daysInMonth(y: number, m: number): number {
   return new Date(Date.UTC(y, m, 0)).getUTCDate();
@@ -84,8 +122,12 @@ function make(y: number, m?: number, d?: number): PartialDate {
 }
 
 const RANGE_WORDS = [
-  { re: /^(?:between|zwischen|bet\.?)\s+(.+?)\s+(?:and|und)\s+(.+)$/, q: 'between' as const },
-  { re: /^(?:from|von)\s+(.+?)\s+(?:to|bis)\s+(.+)$/, q: 'from' as const },
+  { re: /^(?:between|zwischen|bet\.?|entre|tra|fra|tussen|między|pomiędzy|между|between)\s+(.+?)\s+(?:and|und|et|y|e|en|a|и)\s+(.+)$/u, q: 'between' as const },
+  { re: /^(.+?)\s+(?:ile|와|과)\s+(.+?)\s*(?:arasında|사이)$/u, q: 'between' as const },
+  { re: /^(.+?)\s*[和至]\s*(.+?)\s*之间$/u, q: 'between' as const },
+  { re: /^(?:from|von|de|da|van|od|с|從|从)\s+(.+?)\s+(?:to|bis|à|a|tot|do|по|到)\s+(.+)$/u, q: 'from' as const },
+  { re: /^从\s*(.+?)\s*到\s*(.+)$/u, q: 'from' as const },
+  { re: /^(.+?)\s*(?:から|부터)\s*(.+?)\s*(?:まで|까지)$/u, q: 'from' as const },
   // "1920–1925", "1920 - 1925", "1920..1925", "1920-1925" (two full years only)
   { re: /^(.+?)\s*(?:–|—|\.\.|\s-\s)\s*(.+)$/, q: 'between' as const },
   { re: /^(\d{4})-(\d{4})$/, q: 'between' as const },
@@ -118,18 +160,38 @@ function parseSingle(input: string, format: DateFormat): DateParseResult | DateP
     qualifier = sym[1] === '~' ? 'about' : sym[1] === '<' ? 'before' : 'after';
     s = sym[2]!;
   } else {
-    // Keyword prefix
-    const kw = s.match(/^([a-zäöü.]+)\s+(.*)$/);
-    const word = kw?.[1]?.replace(/\.+$/, '');
-    if (kw && word !== undefined && QUALIFIER_WORDS[word] !== undefined) {
-      qualifier = QUALIFIER_WORDS[word]!;
-      s = kw[2]!;
+    // Keyword before the date ("about 1923", "vers 1923", "около 1923") or after it ("1923 civarı", "1923年頃").
+    let matched = false;
+    for (const [re, q] of PREFIX_RE) {
+      const kw = s.match(re);
+      if (kw) {
+        qualifier = q;
+        s = kw[1]!;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      for (const [re, q] of SUFFIX_RE) {
+        const kw = s.match(re);
+        if (kw && kw[1]!.trim() !== '') {
+          qualifier = q;
+          s = kw[1]!;
+          break;
+        }
+      }
     }
   }
-  s = s.replace(/[.,]+$/, '').trim();
+  s = s.replace(FILLERS, '').replace(/[.,]+$/, '').trim();
   if (s === '') return { ok: false };
 
   let m: RegExpMatchArray | null;
+
+  // East Asian forms: 1923年3月14日, 1923年3月, 1923년 3월 14일
+  if ((m = s.match(/^(\d{4})\s*[年년](?:\s*(\d{1,2})\s*[月월](?:\s*(\d{1,2})\s*[日일])?)?$/u))) {
+    const y = Number(m[1]), mo = m[2] ? Number(m[2]) : undefined, d = m[3] ? Number(m[3]) : undefined;
+    return valid(y, mo, d) ? { ok: true, value: { date: make(y, mo, d), qualifier, dateEnd: null }, alternative: null } : { ok: false };
+  }
 
   // Year only
   if ((m = s.match(/^(\d{1,4})$/))) {
@@ -144,7 +206,7 @@ function parseSingle(input: string, format: DateFormat): DateParseResult | DateP
   }
 
   // Month name forms: "14 mar 1923", "14. märz 1923", "mar 14 1923", "march 1923", "14 march, 1923"
-  if ((m = s.match(/^(?:(\d{1,2})\.?\s+)?([a-zäöü]+)\.?,?\s+(\d{1,2})?,?\s*(\d{4})$/)) || (m = s.match(/^([a-zäöü]+)\.?\s+(\d{1,2}),?\s+(\d{4})$/))) {
+  if ((m = s.match(/^(?:(\d{1,2})\.?\s+)?(\p{L}+)\.?,?\s+(\d{1,2})?,?\s*(\d{4})$/u)) || (m = s.match(/^(\p{L}+)\.?\s+(\d{1,2}),?\s+(\d{4})$/u))) {
     let d: number | undefined, mo: number | undefined, y: number;
     if (m.length === 5) {
       // form A: [day] month [day] year
@@ -237,6 +299,7 @@ export function formatPartialDate(locale: Locale, date: PartialDate, style: 'sho
   if (style === 'long') {
     return new Intl.DateTimeFormat(tag, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(utc);
   }
+  // German prints the numeric convention its users expect; every other language uses Intl's short form.
   return locale === 'de'
     ? `${pad(p.d)}.${pad(p.m)}.${p.y}`
     : new Intl.DateTimeFormat(tag, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(utc);

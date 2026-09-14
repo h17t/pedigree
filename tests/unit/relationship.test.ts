@@ -65,4 +65,25 @@ describe('relationship', () => {
     expect(de(f.uncle, f.me)).toBe('Me ist die Nichte von Uncle.');
     useLocaleStore.setState({ locale: 'en' });
   });
+
+  it('composes great-prefixes and articles in the other languages', () => {
+    const f = family();
+    const name = (id: string) => f.p.persons[id]!.givenNames;
+    const say = (locale: 'fr' | 'es' | 'it' | 'pt' | 'nl' | 'pl' | 'ru' | 'tr', a: Person, b: Person) => {
+      useLocaleStore.setState({ locale });
+      return describeRelation(f.p, a.id, b.id, t, locale, name);
+    };
+    expect(say('fr', f.me, f.gm)).toBe('Grandma est la grand-mère de Me.');
+    expect(say('fr', f.grandkid, f.gp)).toBe('Grandpa est l’arrière-arrière-grand-père de Grandkid.');
+    expect(say('fr', f.me, f.cousin)).toBe('Cousin est la cousine germaine de Me.'.replace('germaine', 'germain'));
+    expect(say('es', f.grandkid, f.gp)).toBe('Grandpa es el tatarabuelo de Grandkid.');
+    expect(say('es', f.me, f.gp)).toBe('Grandpa es el abuelo de Me.');
+    expect(say('it', f.grandkid, f.gm)).toBe('Grandma è la trisnonna di Grandkid.');
+    expect(say('pt', f.grandkid, f.gp)).toBe('Grandpa é o trisavô de Grandkid.');
+    expect(say('nl', f.grandkid, f.gp)).toBe('Grandpa is de overovergrootvader van Grandkid.');
+    expect(say('pl', f.grandkid, f.gm)).toBe('Grandma to praprababcia osoby Grandkid.');
+    expect(say('ru', f.grandkid, f.gp)).toBe('Grandpa — прапрадедушка для Grandkid.');
+    expect(say('tr', f.grandkid, f.gp)).toBe('Grandpa, Grandkid kişisinin büyük büyük dedesi.');
+    useLocaleStore.setState({ locale: 'en' });
+  });
 });

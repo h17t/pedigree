@@ -3,6 +3,8 @@
  * migrations. See the brief and DECISIONS.md for the reasoning behind each field.
  */
 
+import { joinName } from './nameOrder';
+
 export const SCHEMA_VERSION = 2;
 
 export type Sex = 'male' | 'female' | 'diverse' | 'unknown';
@@ -261,7 +263,7 @@ export function createProject(name: string, partial: Partial<Project> = {}): Pro
 
 /** Display name: "Given Surname", falling back to whichever part exists. */
 export function personName(p: Pick<Person, 'givenNames' | 'surname' | 'titlePrefix'>): string {
-  return [p.titlePrefix, p.givenNames, p.surname].filter((s) => s.trim() !== '').join(' ').trim();
+  return [p.titlePrefix.trim(), joinName(p.givenNames, p.surname)].filter((s) => s !== '').join(' ').trim();
 }
 
 /** A death date always means deceased; otherwise the explicit field wins. */

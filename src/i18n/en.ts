@@ -191,6 +191,7 @@ export const en = {
     partnerOfRelative: '{b} is the partner of {name}, the {term} of {a}.',
     relativeOfPartner: '{b} is the {term} of {name}, the partner of {a}.',
     great: 'great-',
+    great2: 'great-great-',
     removedOnce: 'once removed',
     removedTwice: 'twice removed',
     removedN: '{n} times removed',
@@ -747,7 +748,9 @@ export const en = {
       'Your last change could not be saved because the browser storage is full. Save a backup file now so nothing is lost, then free space.',
     settings: 'Settings',
     language: 'Language',
-    languageName: { en: 'English', de: 'Deutsch' },
+    nameOrder: 'Order of names',
+    nameOrderValue: { auto: 'As usual for the language', givenFirst: 'Given names first', surnameFirst: 'Surname first' },
+    nameOrderHint: 'How names read on cards, in lists and reports. Files are not affected.',
     theme: 'Appearance',
     themeValue: { system: 'Same as the device', light: 'Light', dark: 'Dark' },
     themeHint: 'Prints and exported files are always light.',
@@ -951,4 +954,4 @@ export const en = {
 } as const;
 
 /** A dictionary leaf: plain text or plural forms. */
-export type PluralForms = { one: string; other: string; zero?: string };
+export type PluralForms = { one: string; other: string; zero?: string; two?: string; few?: string; many?: string };
