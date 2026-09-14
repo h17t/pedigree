@@ -202,6 +202,89 @@ describe('generation compaction and determinism', () => {
   });
 });
 
+describe('family subtrees', () => {
+  const P = (r: { positions: Map<string, { x: number; y: number }> }) => (id: string) => r.positions.get(id)!;
+  const junction = (P: (id: string) => { x: number }, a: string, c: string) => (Math.min(P(a).x, P(c).x) + Math.max(P(a).x, P(c).x) + card.width) / 2;
+
+  it('orders the children of two partnerships by birth and puts each partner on the side of their children', () => {
+    const b = build();
+    const h = b.person('H', born('1900')), w1 = b.person('W1', born('1902')), w2 = b.person('W2', born('1910'));
+    const k1 = b.person('K1', born('1925')), k2 = b.person('K2', born('1928')), k3 = b.person('K3', born('1935')), k4 = b.person('K4', born('1938'));
+    // Entered "backwards": the second wife first, her children older than the first wife's.
+    b.family([h, w2], [k4, k1]);
+    b.family([h, w1], [k3, k2]);
+    const r = layoutComponent(b.project, Object.keys(b.project.persons), 'standard');
+    const p = P(r);
+    // Oldest child leftmost, whichever partnership: K1 (W2) < K2 (W1) < K3 (W1) < K4 (W2).
+    expect(p(k1.id).x).toBeLessThan(p(k2.id).x);
+    expect(p(k2.id).x).toBeLessThan(p(k3.id).x);
+    expect(p(k3.id).x).toBeLessThan(p(k4.id).x);
+    // W2's children are the oldest, so W2 sits left of H and W1 right of H.
+    expect(p(w2.id).x).toBeLessThan(p(h.id).x);
+    expect(p(h.id).x).toBeLessThan(p(w1.id).x);
+    noOverlaps(r.positions, cardHeight('standard'), 'partners');
+  });
+
+  it('gives every sibling\'s family its own space: descendants never interleave', () => {
+    const b = build();
+    const gp = b.person('GP', born('1880')), gm = b.person('GM', born('1882'));
+    const a = b.person('A', born('1905')), sa = b.person('SA'), c = b.person('C', born('1908')), sc = b.person('SC'), e = b.person('E', born('1912'));
+    b.family([gp, gm], [a, c, e]);
+    const aKids = [1, 2, 3].map((i) => b.person(`A${i}`, born(`193${i}`)));
+    const cKids = [1, 2, 3, 4, 5].map((i) => b.person(`C${i}`, born(`193${i}`)));
+    b.family([a, sa], aKids);
+    b.family([c, sc], cKids);
+    const a1Kids = [1, 2, 3, 4].map((i) => b.person(`A1${i}`, born(`196${i}`)));
+    b.family([aKids[0]!], a1Kids);
+    const c5Kids = [1, 2].map((i) => b.person(`C5${i}`, born(`196${i}`)));
+    b.family([cKids[4]!], c5Kids);
+    const r = layoutComponent(b.project, Object.keys(b.project.persons), 'standard');
+    const p = P(r);
+    const right = (ids: string[]) => Math.max(...ids.map((id) => p(id).x + card.width));
+    const left = (ids: string[]) => Math.min(...ids.map((id) => p(id).x));
+    const aTree = [a.id, sa.id, ...aKids.map((k) => k.id), ...a1Kids.map((k) => k.id)];
+    const cTree = [c.id, sc.id, ...cKids.map((k) => k.id), ...c5Kids.map((k) => k.id)];
+    expect(right(aTree)).toBeLessThan(left(cTree));
+    expect(p(sc.id).x + card.width).toBeLessThan(p(e.id).x); // E keeps the sibling order on its row
+    // Each couple is centred over its own children, the grandparents over all three.
+    expect(Math.abs(junction(p, a.id, sa.id) - (left(aKids.map((k) => k.id)) + right(aKids.map((k) => k.id))) / 2)).toBeLessThan(2);
+    expect(Math.abs(junction(p, c.id, sc.id) - (left(cKids.map((k) => k.id)) + right(cKids.map((k) => k.id))) / 2)).toBeLessThan(2);
+    expect(Math.abs(junction(p, gp.id, gm.id) - (p(a.id).x + p(e.id).x + card.width) / 2)).toBeLessThan(2);
+    noOverlaps(r.positions, cardHeight('standard'), 'subtrees');
+  });
+
+  it('places the parents of a partner who married in right above their child', () => {
+    const b = build();
+    const gp = b.person('GP'), gm = b.person('GM');
+    const a = b.person('A', born('1905')), c = b.person('C', born('1908'));
+    b.family([gp, gm], [a, c]);
+    const inLaw1 = b.person('IL1'), inLaw2 = b.person('IL2'), spouse = b.person('S', born('1906'));
+    b.family([inLaw1, inLaw2], [spouse]);
+    b.family([a, spouse], [b.person('K', born('1930'))]);
+    const r = layoutComponent(b.project, Object.keys(b.project.persons), 'standard');
+    const p = P(r);
+    expect(p(inLaw1.id).y).toBe(p(gp.id).y);
+    expect(p(inLaw2.id).x - p(inLaw1.id).x).toBe(card.width + layout.columnGap);
+    // The grandparents stay centred over A and C, so the in-laws take the nearest free place on the row: right beside them.
+    expect(Math.abs(junction(p, gp.id, gm.id) - (p(a.id).x + p(c.id).x + card.width) / 2)).toBeLessThan(2);
+    expect(p(inLaw2.id).x + card.width + 2 * layout.columnGap).toBe(p(gp.id).x);
+    expect(p(spouse.id).x - p(a.id).x).toBe(card.width + layout.columnGap); // the couple stays together
+    noOverlaps(r.positions, cardHeight('standard'), 'in-laws');
+  });
+
+  it('keeps siblings whose parents are unknown side by side', () => {
+    const b = build();
+    const s1 = b.person('S1', born('1850')), s2 = b.person('S2', born('1855')), other = b.person('O', born('1848'));
+    b.family([], [s1, s2]);
+    const kids = [1, 2, 3].map((i) => b.person(`K${i}`, born(`188${i}`)));
+    b.family([other, s1], kids);
+    const r = layoutComponent(b.project, Object.keys(b.project.persons), 'standard');
+    const p = P(r);
+    expect(p(s2.id).y).toBe(p(s1.id).y);
+    expect(Math.abs(p(s2.id).x - p(s1.id).x)).toBeLessThanOrEqual(2 * card.width + 3 * layout.columnGap);
+  });
+});
+
 describe('packBoxes', () => {
   it('rows up to four, then a grid', () => {
     const row = packBoxes([{ w: 100, h: 50 }, { w: 200, h: 80 }, { w: 50, h: 10 }], 10);

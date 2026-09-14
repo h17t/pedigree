@@ -80,9 +80,12 @@ describe('personScales and layout with scaling', () => {
     const rowYs = [...new Set(boxes.map((b) => b.y))].sort((a, b) => a - b);
     expect(rowYs[1]! - rowYs[0]!).toBeLessThan(h);
     expect(rowYs[4]! - rowYs[3]!).toBeGreaterThanOrEqual(h);
-    // The single descendant sits under the middle of the drawing.
+    // The single descendant sits under the middle part of the drawing: the ancestor couples are
+    // placed above their child in turn, shifted sideways only as far as the row above needs.
     const self = boxes.find((b) => b.id === Object.values(project.persons).find((p) => p.givenNames === 'Self')!.id)!;
-    expect(Math.abs(self.x + self.w / 2 - strong.width / 2)).toBeLessThan(card.width);
+    expect(Math.abs(self.x + self.w / 2 - strong.width / 2)).toBeLessThan(strong.width / 4);
+    const parents = boxes.filter((b) => ['F1', 'M1'].includes(project.persons[b.id]!.givenNames));
+    expect(Math.abs((parents[0]!.x + parents[1]!.x + card.width) / 2 - (self.x + self.w / 2))).toBeLessThan(2);
   });
 
   it('layoutAll reads the mode from the tree settings and the schema fills in "off"', () => {

@@ -20,7 +20,11 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
 - **Tree** draws the family as cards and lines. Drag the picture to move around, pinch or use the
   buttons to zoom, tap or click a card to select it, type a name to jump to a person, and use
   "Show only" to see just the ancestors or descendants of the selected person. On a laptop you can
-  drag cards; their positions are saved. **Layout** arranges the whole tree by generation (undoable),
+  drag cards; their positions are saved. **Layout** arranges the whole tree by generation (undoable):
+  every family gets its own space, children sit centred under their parents from the oldest on
+  the left to the youngest on the right (across all of a person's partnerships, and each partner
+  on the side of their children), and the parents of someone who married in are drawn right
+  above them. **Layout** also
   arranges only a selection, toggles snap-to-grid and jumps to each family. **Layout → Balance
   generations** (off by default; gentle or strong) shrinks crowded generations, so a family with
   20 great-grandparents and 6 people today still reads as one balanced drawing on screen and in

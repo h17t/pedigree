@@ -263,6 +263,17 @@ characters fall into; above 5 MB of embedded fonts it says so and points to PNG.
 reads 1923年3月14日 / 1923년 3월 14일 and 頃/约/경 qualifiers. Screenshots (Japanese canvas,
 Russian list) in `docs/screenshots/stage-n/`.
 
+Follow-up: the layout engine's ordering and coordinate steps were replaced by a family subtree
+layout: every couple block hangs below exactly one parent block (a couple with parents on both
+sides goes under the family with more descendants), siblings are ordered by birth across all of
+the parents' partnerships with each partner on the side of their children, every family is packed
+as a subtree with its own horizontal space (no interleaving, no overlaps), every partnership's
+junction is centred over its children, and in-law families are placed above the person they
+married into, shifted sideways only as far as the rows need. Ancestor-heavy trees come out as a
+staircase of ancestor couples above their children rather than a symmetric pedigree; the ancestor
+chart mode remains the symmetric view. Screenshots of the arranged sample at both viewports are in
+`docs/screenshots/follow-ups/`.
+
 Follow-up: the "Select area" toggle in the Tree toolbar makes a plain drag on the background draw
 the selection rectangle (mouse, pen and touch); dragging one of the selected cards moves the whole
 group as one step. Shift+drag still works without the toggle.
@@ -293,7 +304,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 
 ## Known open points after stage (b)
 
-- The layout engine reduces crossings with barycentre sweeps but does not eliminate them; marriages between two documented families still cross, which is inherent to a single-plane drawing.
+- The layout engine draws every family as its own subtree, so lines cross only where a couple has documented parents on both sides (the second family is drawn above its child with a line across), which is inherent to a single-plane drawing.
 - Black-and-white rendering of the branch stripes is implemented as SVG patterns and used by print in stage (g).
 
 - Deployment: the workflow on `main` runs typecheck, lint, unit tests, build, budget and the Playwright suite before publishing; a red check blocks a broken deployment. CI needs Node 22 (jsdom 30 → undici 8) and the preview server bound to 127.0.0.1, both fixed after the first runs.

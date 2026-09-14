@@ -127,12 +127,28 @@ test.describe('desktop only', () => {
     await expect(select).toHaveAttribute('aria-pressed', 'true');
     const canvas = page.getByRole('group', { name: /Family tree canvas/ });
     const c = (await canvas.boundingBox())!;
-    const bottom = Math.min(c.y + c.height, page.viewportSize()!.height) - 20;
-    // A rectangle over most of the canvas (started on empty background at the bottom left, away
-    // from the hint callout at the top) catches Otto and his neighbours.
-    await page.mouse.move(c.x + 20, bottom);
+    const vh = page.viewportSize()!.height;
+    // Start on empty background (not on a card, frame label or the hint callout): scan the canvas
+    // from the bottom left for a point whose element is the canvas itself.
+    const start = await page.evaluate(
+      ({ x, y, w, h }) => {
+        for (let yy = y + h - 20; yy > y + 20; yy -= 40) {
+          for (let xx = x + 20; xx < x + w - 20; xx += 40) {
+            const el = document.elementFromPoint(xx, yy);
+            if (el && el.closest('svg.tree-canvas') && !el.closest('[data-person-id]') && !el.closest('.cluster-frame')) return { x: xx, y: yy };
+          }
+        }
+        return null;
+      },
+      { x: c.x, y: c.y, w: c.width, h: Math.min(c.height, vh - c.y) },
+    );
+    expect(start).not.toBeNull();
+    // A rectangle from there to the opposite corner catches Otto (centred) and his neighbours.
+    const farX = start!.x < c.x + c.width / 2 ? c.x + c.width - 10 : c.x + 10;
+    const farY = start!.y < c.y + Math.min(c.height, vh - c.y) / 2 ? Math.min(c.y + c.height, vh) - 10 : c.y + 10;
+    await page.mouse.move(start!.x, start!.y);
     await page.mouse.down();
-    await page.mouse.move(c.x + c.width - 20, c.y + 20, { steps: 10 });
+    await page.mouse.move(farX, farY, { steps: 10 });
     await expect(page.locator('.rubber-band')).toBeVisible();
     await page.mouse.up();
     const bar = page.getByRole('status').filter({ hasText: /people selected/ });
@@ -140,7 +156,7 @@ test.describe('desktop only', () => {
     const count = Number(/(\d+) people selected/.exec((await bar.textContent()) ?? '')?.[1]);
     expect(count).toBeGreaterThan(1);
     const otto = page.locator('.person-card[data-person-id]').filter({ hasText: 'Otto Weber' });
-    const other = page.locator('.person-card[data-person-id]').filter({ hasText: 'Marie Koch' }).first();
+    const other = page.locator('.person-card-selected[data-person-id]').filter({ hasNotText: 'Otto Weber' }).first();
     const before = (await other.boundingBox())!;
     const box = (await otto.boundingBox())!;
     await page.mouse.move(box.x + 30, box.y + 30);
@@ -155,7 +171,7 @@ test.describe('desktop only', () => {
     const undone = (await other.boundingBox())!;
     expect(Math.round(undone.x - before.x)).toBe(0);
     // A click on the background in select mode clears the selection; the mode is a toggle.
-    await page.mouse.click(c.x + 10, bottom);
+    await page.mouse.click(start!.x, start!.y);
     await expect(bar).toHaveCount(0);
     await select.click();
     await expect(select).toHaveAttribute('aria-pressed', 'false');
