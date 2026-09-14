@@ -155,21 +155,34 @@ test.describe('desktop only', () => {
     await expect(bar).toBeVisible();
     const count = Number(/(\d+) people selected/.exec((await bar.textContent()) ?? '')?.[1]);
     expect(count).toBeGreaterThan(1);
-    const otto = page.locator('.person-card[data-person-id]').filter({ hasText: 'Otto Weber' });
-    const other = page.locator('.person-card-selected[data-person-id]').filter({ hasNotText: 'Otto Weber' }).first();
-    const before = (await other.boundingBox())!;
-    const box = (await otto.boundingBox())!;
+    // Drag the selected card nearest the canvas centre (fully visible, away from the hint) and
+    // check that another selected card moves with it.
+    const selected = page.locator('.person-card-selected[data-person-id]');
+    const boxes = await selected.evaluateAll((els) => els.map((el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }));
+    expect(boxes.length).toBeGreaterThan(1);
+    const cx = c.x + c.width / 2, cy = c.y + Math.min(c.height, vh - c.y) / 2;
+    const dist = (b: { x: number; y: number; w: number; h: number }) => Math.hypot(b.x + b.w / 2 - cx, b.y + b.h / 2 - cy);
+    const dragIndex = boxes.map((b, i) => [dist(b), i] as const).sort((p, q) => p[0] - q[0])[0][1];
+    const otherIndex = dragIndex === 0 ? 1 : 0;
+    const other = selected.nth(otherIndex);
+    const dragId = await selected.nth(dragIndex).getAttribute('data-person-id');
+    const dragged = page.locator(`.person-card[data-person-id="${dragId}"]`);
+    const before = boxes[otherIndex];
+    const box = boxes[dragIndex];
     await page.mouse.move(box.x + 30, box.y + 30);
     await page.mouse.down();
     await page.mouse.move(box.x + 110, box.y + 70, { steps: 8 });
     await page.mouse.up();
+    // Positions are stored in whole canvas units, so allow a pixel of rounding at this zoom.
     const after = (await other.boundingBox())!;
-    expect(Math.round(after.x - before.x)).toBe(80);
-    expect(Math.round(after.y - before.y)).toBe(40);
+    expect(Math.abs(after.x - before.x - 80)).toBeLessThanOrEqual(2);
+    expect(Math.abs(after.y - before.y - 40)).toBeLessThanOrEqual(2);
+    const draggedAfter = (await dragged.boundingBox())!;
+    expect(Math.abs(draggedAfter.x - box.x - 80)).toBeLessThanOrEqual(2);
     // Undo puts the whole group back in one step.
     await page.keyboard.press('Control+z');
     const undone = (await other.boundingBox())!;
-    expect(Math.round(undone.x - before.x)).toBe(0);
+    expect(Math.abs(undone.x - before.x)).toBeLessThanOrEqual(3);
     // A click on the background in select mode clears the selection; the mode is a toggle.
     await page.mouse.click(start!.x, start!.y);
     await expect(bar).toHaveCount(0);
