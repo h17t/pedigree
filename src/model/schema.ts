@@ -93,15 +93,15 @@ function scalingOf(v: unknown): GenerationScaling {
   return v === 'gentle' || v === 'strong' ? v : 'off';
 }
 
+/** Keys that would change an object's prototype instead of adding an entry. */
+const UNSAFE_KEY = new Set(['__proto__', 'constructor', 'prototype']);
+
 /**
  * Coerce one record against the shape of a freshly created record: a field whose type does not
  * match the default is replaced by the default, optional extras (`dateEnd`, `original`) are kept,
  * and keys that would change an object's prototype are dropped. Hand-edited or third-party files
  * therefore cannot put a `null` where the code expects an object.
  */
-/** Keys that would change an object's prototype instead of adding an entry. */
-const UNSAFE_KEY = new Set(['__proto__', 'constructor', 'prototype']);
-
 function coerce<T extends object>(raw: unknown, defaults: T): T {
   const out: Record<string, unknown> = { ...(defaults as Record<string, unknown>) };
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out as T;

@@ -3,7 +3,7 @@ import { PAPER, sheetFor, mmToPx, pxToPt, PX_PER_MM } from '@/print/paper';
 import { fitToSheet, isLegible, smallestTextAt, LEGIBILITY_PT } from '@/print/scale';
 import { tile, sheetCount, MAX_SHEETS } from '@/print/tiling';
 import { pngSize, PNG_MAX_EDGE } from '@/print/png';
-import { chunksFor, fontFaceCss, toBase64 } from '@/print/fonts';
+import { chunksFor, fontFaceCss, fontFaceCssWithSize, toBase64 } from '@/print/fonts';
 
 describe('paper', () => {
   it('knows ISO sizes, orientation and margins', () => {
@@ -88,5 +88,11 @@ describe('font chunks', () => {
     expect(css).toContain('data:font/woff2;base64,AQID');
     expect(css).toContain('unicode-range:U+0000-00FF');
     expect(toBase64(new Uint8Array([255, 0, 128]).buffer)).toBe('/wCA');
+  });
+  it('reports the size the fonts actually add to the file, not the raw bytes', async () => {
+    // 3000 raw bytes embed as 4000 base64 characters; the warning threshold is about the file.
+    const { bytes, css } = await fontFaceCssWithSize(chunksFor('abc', [400]), () => Promise.resolve(new Uint8Array(3000).buffer));
+    expect(bytes).toBe(4000);
+    expect(css.length).toBeGreaterThan(bytes);
   });
 });
