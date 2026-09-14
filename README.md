@@ -68,7 +68,8 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   and legend, a to-scale preview, and buttons to print, to save an SVG file (fonts embedded) or a
   PNG image. See "Printing large trees" below.
 - **Data → Settings** holds the language (English, German, French, Spanish, Italian, Portuguese,
-  Dutch, Polish, Russian and Turkish, each complete; the browser language is the default), the
+  Dutch, Polish, Russian, Turkish, Japanese, Chinese and Korean, each complete; the browser
+  language is the default; Japanese, Chinese and Korean fonts load only when needed), the
   date convention, the **order of names** (as usual for the language, given names first, or
   surname first) and the **Appearance**: same as the device (default), light or dark. Dates can
   be typed in the chosen language ("vers 1923", "14 de marzo de 1923", "около 1923", "1923'ten

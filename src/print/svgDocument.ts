@@ -20,7 +20,9 @@ import { routeUnions } from '@/render/connectors';
 import type { Locale } from '@/i18n';
 import { computeTimeline, sortBars } from '@/timeline/timeline';
 import { computeStatistics } from '@/timeline/statistics';
-import { chunksFor, fontFaceCss } from './fonts';
+import { chunksFor, cjkChunksFor, fontFaceCssWithSize } from './fonts';
+import type { CjkChunkTable } from './fonts';
+import { cjkFamiliesIn, fontStack, useFontState } from '@/design/cjkFonts';
 import type { FontWeight } from './fonts';
 
 export interface Header {
@@ -183,7 +185,7 @@ export function svgDocument(o: SvgDocOptions & { areaPx: { w: number; h: number 
   const contentY = o.marginPx + o.headerPx;
   const contentH = o.areaPx.h - o.headerPx - o.legendPx;
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${o.widthMm}mm" height="${o.heightMm}mm" viewBox="0 0 ${o.sheetPx.w} ${o.sheetPx.h}" font-family="Atkinson Hyperlegible Next, Arial, sans-serif">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${o.widthMm}mm" height="${o.heightMm}mm" viewBox="0 0 ${o.sheetPx.w} ${o.sheetPx.h}" font-family='${fontStack().replace(/"/g, '')}, Arial'>`,
     o.title ? `<title>${esc(o.title)}</title>` : '',
     `<style>${o.fontCss}</style>`,
     `<rect width="${o.sheetPx.w}" height="${o.sheetPx.h}" fill="${color.paper}"/>`,
@@ -193,13 +195,25 @@ export function svgDocument(o: SvgDocOptions & { areaPx: { w: number; h: number 
   ].join('');
 }
 
-/** Font CSS for a text sample, loading chunk files relative to the app base path. */
-export async function fontsFor(text: string, weights: FontWeight[], base: string): Promise<string> {
-  const chunks = chunksFor(text, weights);
-  return fontFaceCss(chunks, async (file) => {
+/** Embedded fonts above this many bytes make an SVG unwieldy; the dialog then suggests PNG. */
+export const LARGE_FONT_BYTES = 5 * 1024 * 1024;
+
+/**
+ * Font CSS for a text sample, loading chunk files relative to the app base path. East Asian
+ * text adds only the Noto chunks its characters fall into (the table is fetched on demand).
+ */
+export async function fontsFor(text: string, weights: FontWeight[], base: string): Promise<{ css: string; bytes: number }> {
+  const load = async (file: string) => {
     const res = await fetch(`${base}${file}`);
     return res.arrayBuffer();
-  });
+  };
+  const chunks = chunksFor(text, weights);
+  const families = cjkFamiliesIn(text, useFontState.getState().preferred ?? 'sc');
+  if (families.length) {
+    const table = (await (await fetch(`${base}fonts/cjk-chunks.json`)).json()) as CjkChunkTable;
+    chunks.push(...cjkChunksFor(text, weights, families, table));
+  }
+  return fontFaceCssWithSize(chunks, load);
 }
 
 // ---- Timeline sheet ----------------------------------------------------------------------

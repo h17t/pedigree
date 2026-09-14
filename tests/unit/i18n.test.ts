@@ -9,11 +9,14 @@ import { nl } from '@/i18n/nl';
 import { pl } from '@/i18n/pl';
 import { ru } from '@/i18n/ru';
 import { tr } from '@/i18n/tr';
+import { ja } from '@/i18n/ja';
+import { zh } from '@/i18n/zh';
+import { ko } from '@/i18n/ko';
 import { translate, detectLocale, formatBytes, LANGUAGES, LOCALES } from '@/i18n';
 import type { Locale } from '@/i18n';
 import type { Dictionary } from '@/i18n/types';
 
-const all: Record<Locale, Dictionary> = { en, de, fr, es, it: itDict, pt, nl, pl, ru, tr };
+const all: Record<Locale, Dictionary> = { en, de, fr, es, it: itDict, pt, nl, pl, ru, tr, ja, zh, ko };
 
 type Node = Record<string, unknown>;
 function keysOf(node: object, prefix = ''): string[] {
@@ -84,6 +87,8 @@ describe('locale key parity', () => {
     expect(translate('fr', 'common.people', { count: 0 })).toBe('0 personne');
     expect(translate('fr', 'common.people', { count: 2 })).toBe('2 personnes');
     expect(translate('tr', 'common.people', { count: 7 })).toBe('7 kişi');
+    expect(translate('ja', 'common.people', { count: 1 })).toBe('1人');
+    expect(translate('ko', 'common.people', { count: 12 })).toBe('12명');
   });
 });
 

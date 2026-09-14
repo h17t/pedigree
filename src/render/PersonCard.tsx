@@ -29,6 +29,8 @@ export interface PersonCardProps {
   /** Accessible name for the card ("Name, years"). */
   ariaLabel: string;
   labels: { née: string; living: string; unknownDate: string; warning: string; private: string };
+  /** Changes when a web font finished loading, so the text is measured again. */
+  textVersion?: number;
   onPointerDown?: (e: PointerEvent<SVGGElement>, id: string) => void;
   onSelect?: (id: string) => void;
   onOpen?: (id: string) => void;
@@ -39,12 +41,13 @@ export interface PersonCardProps {
  * Deceased: † plus a slate border. Sex: square/circle/diamond marker. Branch tag: stripe +
  * label. Rendered identically on screen and in print (only the detail level differs).
  */
-export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, scale = 1, group = null, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
+export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, scale = 1, group = null, ariaLabel, labels, textVersion = 0, onPointerDown, onSelect, onOpen }: PersonCardProps) {
   const color = usePalette();
   const h = cardHeight(level, print);
   const w = card.width;
   const textLevel: DetailLevel = sparse ? 'minimal' : level;
-  const text = useMemo(() => cardText(person, textLevel, locale, print, labels), [person, textLevel, locale, print, labels]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- textVersion only invalidates the measurement
+  const text = useMemo(() => cardText(person, textLevel, locale, print, labels), [person, textLevel, locale, print, labels, textVersion]);
   const border = text.deceased ? color.slate : color.ink;
   const stripe = group ? (blackAndWhite ? `url(#pat-${tagPattern[group.color]})` : tagColor[group.color]) : null;
   const left = card.padding.left + card.stripeWidth;

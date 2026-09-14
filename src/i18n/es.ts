@@ -662,6 +662,7 @@ export const es: Dictionary = {
     pdfHint: 'Para crear un PDF, elige «Guardar como PDF» como impresora en el cuadro de impresión. No hace falta ninguna herramienta de PDF aparte.',
     saveSvg: 'Guardar un archivo SVG',
     saveSvgHint: 'El archivo recomendado para imprentas y tamaños grandes. Las fuentes van incrustadas, así que se ve igual en todas partes.',
+    svgLarge: 'El archivo SVG es grande ({size} de fuentes asiáticas incrustadas). Si es demasiado grande para enviarlo o abrirlo, guarda mejor una imagen PNG.',
     savePng: 'Guardar una imagen PNG',
     pngDpi: 'Resolución',
     pngSize: '{width} × {height} píxeles',

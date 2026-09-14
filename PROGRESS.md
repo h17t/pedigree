@@ -249,6 +249,20 @@ one `joinName` helper; GEDCOM keeps given /surname/. Cyrillic text uses Noto San
 (7–22 KB each) declared under the same family name and loaded only when such text appears, because
 Atkinson Hyperlegible Next has no Cyrillic glyphs; the SVG export embeds those chunks when used.
 
+Stage (n), languages batch 2 (2026-09-14): Japanese, Chinese (simplified) and Korean as complete
+dictionaries with surname-first name order by default (CJK-only names join without a space).
+Fonts: Noto Sans JP/KR/SC (OFL) copied by `scripts/make-cjk-fonts.mjs` as fontsource chunks
+(weights 400 and 700, ~120 unicode-range chunks per weight) into `public/fonts/cjk/` with one
+stylesheet per family; a stylesheet is injected only when the language is ja/zh/ko or the open
+tree's names contain Hangul, kana or Han (`src/design/cjkFonts.ts`), so the initial budget is
+untouched and the browser fetches only the ranges on the page. The preferred family goes first in
+the font stack so shared Han ideographs take the regional form. Text measurement re-runs when a web
+font finishes loading (cards re-measure), and the estimate counts East Asian glyphs as full-width.
+The SVG export fetches the chunk table on demand and embeds only the Noto chunks the drawing's
+characters fall into; above 5 MB of embedded fonts it says so and points to PNG. The date field
+reads 1923年3月14日 / 1923년 3월 14일 and 頃/约/경 qualifiers. Screenshots (Japanese canvas,
+Russian list) in `docs/screenshots/stage-n/`.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -269,7 +283,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(i)** manifest, service worker with prompt-style updates, update and offline notices, install entry with iOS instructions, offline verification — screenshots in `docs/screenshots/stage-i/`
 - [x] **(l)** search and filters, colour groups (schema 2), relationship calculator — screenshots in `docs/screenshots/stage-l/`
 - [x] **(k)** ancestor and descendant charts, family sheet — screenshots in `docs/screenshots/stage-k/`
-- [ ] **(n)** dark theme (done), further languages in two batches (in progress) — screenshots in `docs/screenshots/stage-n/`
+- [x] **(n)** dark theme, eleven further languages in two batches with Cyrillic and lazy East Asian fonts, name order — screenshots in `docs/screenshots/stage-n/`
 - [x] **(m)** privacy flag with hide switches, 200-step session undo, date ranges, GEDCOM 7 import, extended warnings — screenshots in `docs/screenshots/stage-m/`
 - [x] **(j)** final accessibility audit, 500-person performance pass (with three rendering optimisations), README numbers, network verification, screen-reader checklist, deployment note — screenshots in `docs/screenshots/stage-j/`
 

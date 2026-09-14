@@ -5,6 +5,8 @@
 import { create } from 'zustand';
 import { detectLocale, useLocaleStore, surnameFirstDefault, isLocale } from '@/i18n';
 import { setSurnameFirst } from '@/model/nameOrder';
+import { setPreferredCjk } from '@/design/cjkFonts';
+import type { CjkFamily } from '@/design/cjkFonts';
 import type { DateFormat, Locale } from '@/i18n';
 import { darkColor, color } from '@/design/tokens';
 import type { Theme } from '@/design/tokens';
@@ -74,8 +76,11 @@ if (typeof matchMedia === 'function') {
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => applyTheme(useSettings.getState().theme));
 }
 
+const CJK_OF: Partial<Record<string, CjkFamily>> = { ja: 'jp', ko: 'kr', zh: 'sc' };
+
 export function applyNameOrder(locale: Locale, nameOrder: NameOrder): void {
   setSurnameFirst(nameOrder === 'auto' ? surnameFirstDefault[locale] : nameOrder === 'surnameFirst');
+  setPreferredCjk(CJK_OF[locale] ?? null);
 }
 
 /** Loads the dictionary of the stored language and activates it; awaited before the first render. */

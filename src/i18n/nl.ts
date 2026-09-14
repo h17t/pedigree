@@ -662,6 +662,7 @@ export const nl: Dictionary = {
     pdfHint: 'Kies om een PDF te maken „Opslaan als PDF” als printer in het afdrukvenster. Er is geen aparte PDF-tool nodig.',
     saveSvg: 'Een SVG-bestand opslaan',
     saveSvgHint: 'Het aanbevolen bestand voor drukkerijen en grote formaten. De lettertypen zijn ingesloten, dus het ziet er overal hetzelfde uit.',
+    svgLarge: 'Het SVG-bestand is groot ({size} aan ingesloten Oost-Aziatische lettertypen). Als het te groot is om te versturen of te openen, sla dan een PNG-afbeelding op.',
     savePng: 'Een PNG-afbeelding opslaan',
     pngDpi: 'Resolutie',
     pngSize: '{width} × {height} pixels',

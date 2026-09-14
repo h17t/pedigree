@@ -668,6 +668,7 @@ export const en = {
     pdfHint: 'To make a PDF, choose "Save as PDF" as the printer in the print dialog. No separate PDF tool is needed.',
     saveSvg: 'Save an SVG file',
     saveSvgHint: 'The recommended file for print shops and for large sizes. The fonts are embedded, so it looks the same everywhere.',
+    svgLarge: 'The SVG file is large ({size} of embedded East Asian fonts). If it is too big to send or open, save a PNG image instead.',
     savePng: 'Save a PNG image',
     pngDpi: 'Resolution',
     pngSize: '{width} × {height} pixels',

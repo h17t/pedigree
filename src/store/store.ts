@@ -23,6 +23,7 @@ import {
 } from './persistence';
 import type { ProjectUiMeta } from './persistence';
 import { useSettings } from './settings';
+import { ensureCjkFor } from '@/design/cjkFonts';
 
 export type LoadStatus = 'idle' | 'ready' | 'corrupt' | 'newer' | 'missing';
 export type LockState = 'owner' | 'other' | 'lost';
@@ -171,6 +172,7 @@ export function openProject(id: string): LoadStatus {
   });
   const ui = loadUiMeta(id);
   restoreUndoHistory(id, result.project);
+  loadFontsFor(result.project);
   useAppStore.setState({
     ...initial,
     projectId: id,
@@ -251,8 +253,16 @@ function afterChange(project: Project, changeCount: number): void {
   const s = useAppStore.getState();
   const ui = { ...s.ui, changesSinceBackup: s.ui.changesSinceBackup + changeCount };
   useAppStore.setState({ project, ui, warnings: validateProject(project), saveState: 'pending', ...undoFlags() });
+  loadFontsFor(project);
   scheduleSave();
   scheduleUiSave();
+}
+
+/** Names in East Asian scripts need their font family; the stylesheet is injected once. */
+function loadFontsFor(project: Project): void {
+  let text = '';
+  for (const p of Object.values(project.persons)) text += p.givenNames + p.surname + p.birthName;
+  ensureCjkFor(text);
 }
 
 /** Undo bookkeeping is written together with the project (see flushSave). */

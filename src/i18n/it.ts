@@ -662,6 +662,7 @@ export const it: Dictionary = {
     pdfHint: 'Per creare un PDF, scegli «Salva come PDF» come stampante nella finestra di stampa. Non serve nessuno strumento PDF separato.',
     saveSvg: 'Salva un file SVG',
     saveSvgHint: 'Il file consigliato per le tipografie e i grandi formati. I caratteri sono incorporati, quindi si vede uguale ovunque.',
+    svgLarge: 'Il file SVG è grande ({size} di caratteri est-asiatici incorporati). Se è troppo grande da inviare o aprire, salva invece un’immagine PNG.',
     savePng: 'Salva un’immagine PNG',
     pngDpi: 'Risoluzione',
     pngSize: '{width} × {height} pixel',

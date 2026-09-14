@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useT, formatNumber, intlTag } from '@/i18n';
+import { useT, formatNumber, formatBytes, intlTag } from '@/i18n';
 import type { TKey } from '@/i18n';
 import { useAppStore } from '@/store/store';
 import { withoutPrivate } from '@/model/privacy';
@@ -12,7 +12,7 @@ import { fitToSheet, smallestTextAt, isLegible, LEGIBILITY_PT, DRAWING_PAD } fro
 import { tile, MAX_SHEETS } from '@/print/tiling';
 import { pngSize, PNG_DPIS, svgToPngBlob } from '@/print/png';
 import type { PngDpi } from '@/print/png';
-import { treeContent, timelineContent, statisticsContent, headerMarkup, legendMarkup, legendHeight, svgDocument, fontsFor, HEADER_H, CARD_FONT_WEIGHTS } from '@/print/svgDocument';
+import { treeContent, timelineContent, statisticsContent, headerMarkup, legendMarkup, legendHeight, svgDocument, fontsFor, HEADER_H, CARD_FONT_WEIGHTS, LARGE_FONT_BYTES } from '@/print/svgDocument';
 import type { LegendLine } from '@/print/svgDocument';
 import { BASE_PATH } from '@/basePath';
 import { color, card } from '@/design/tokens';
@@ -155,7 +155,7 @@ export function PrintDialog() {
   };
   const wholeDrawingSvg = async () => {
     if (!drawing) return '';
-    const fontCss = await fontsFor(drawing.text + title + subtitle + dateText + legendLines.map((l) => l.text).join(''), CARD_FONT_WEIGHTS, BASE_PATH);
+    const fontCss = (await fontsFor(drawing.text + title + subtitle + dateText + legendLines.map((l) => l.text).join(''), CARD_FONT_WEIGHTS, BASE_PATH)).css;
     // Whole drawing at 100 %: paper size follows the drawing.
     const wPx = drawing.bounds.w + 2 * DRAWING_PAD + 2 * marginPx, hPx = drawing.bounds.h + 2 * DRAWING_PAD + 2 * marginPx + headerPx + legendPx;
     const areaW = wPx - 2 * marginPx, areaH = hPx - 2 * marginPx;
@@ -169,9 +169,11 @@ export function PrintDialog() {
   const onSvg = async () => {
     setBusy(true);
     try {
-      const fontCss = await fontsFor((drawing?.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join(''), CARD_FONT_WEIGHTS, BASE_PATH);
-      const svg = effectiveMode === 'tile' ? await wholeDrawingSvg() : buildSheet(1, fontCss);
+      const fonts = await fontsFor((drawing?.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join(''), CARD_FONT_WEIGHTS, BASE_PATH);
+      const svg = effectiveMode === 'tile' ? await wholeDrawingSvg() : buildSheet(1, fonts.css);
       download(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), `${fileBase()}.svg`);
+      // East Asian fonts can make the file very large; say so and point to PNG.
+      if (fonts.bytes > LARGE_FONT_BYTES) announce(t('print.svgLarge', { size: formatBytes(locale, fonts.bytes) }), 'warn');
     } catch {
       announce(t('print.saveFailed'), 'danger');
     } finally {
@@ -183,8 +185,8 @@ export function PrintDialog() {
     if (!png.allowed) return;
     setBusy(true);
     try {
-      const fontCss = await fontsFor((drawing?.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join(''), CARD_FONT_WEIGHTS, BASE_PATH);
-      const blob = await svgToPngBlob(buildSheet(Math.min(previewSheet, sheetTotal), fontCss), png.width, png.height);
+      const fonts = await fontsFor((drawing?.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join(''), CARD_FONT_WEIGHTS, BASE_PATH);
+      const blob = await svgToPngBlob(buildSheet(Math.min(previewSheet, sheetTotal), fonts.css), png.width, png.height);
       download(blob, `${fileBase()}.png`);
     } catch {
       announce(t('print.saveFailed'), 'danger');

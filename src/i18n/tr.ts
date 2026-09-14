@@ -662,6 +662,7 @@ export const tr: Dictionary = {
     pdfHint: 'PDF yapmak için yazdırma iletişim kutusunda yazıcı olarak „PDF olarak kaydet“i seçin. Ayrı bir PDF aracı gerekmez.',
     saveSvg: 'SVG dosyası kaydet',
     saveSvgHint: 'Matbaalar ve büyük boyutlar için önerilen dosya. Yazı tipleri gömülüdür, bu yüzden her yerde aynı görünür.',
+    svgLarge: 'SVG dosyası büyük ({size} gömülü Doğu Asya yazı tipi). Göndermek ya da açmak için çok büyükse bunun yerine bir PNG görseli kaydedin.',
     savePng: 'PNG görseli kaydet',
     pngDpi: 'Çözünürlük',
     pngSize: '{width} × {height} piksel',

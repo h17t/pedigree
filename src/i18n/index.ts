@@ -31,6 +31,9 @@ const loaders: Record<Locale, () => Promise<Dictionary>> = {
   pl: () => import('./pl').then((m) => m.pl),
   ru: () => import('./ru').then((m) => m.ru),
   tr: () => import('./tr').then((m) => m.tr),
+  ja: () => import('./ja').then((m) => m.ja),
+  zh: () => import('./zh').then((m) => m.zh),
+  ko: () => import('./ko').then((m) => m.ko),
 };
 const loaded: Partial<Record<Locale, Dictionary>> = { en };
 

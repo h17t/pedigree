@@ -664,6 +664,7 @@ export const de: Dictionary = {
     pdfHint: 'Für eine PDF-Datei wählen Sie im Druckdialog „Als PDF speichern“ als Drucker. Ein eigenes PDF-Programm ist nicht nötig.',
     saveSvg: 'SVG-Datei speichern',
     saveSvgHint: 'Die empfohlene Datei für Copyshops und große Formate. Die Schriften sind eingebettet, deshalb sieht sie überall gleich aus.',
+    svgLarge: 'Die SVG-Datei ist groß ({size} eingebettete ostasiatische Schriften). Wenn sie zum Versenden oder Öffnen zu groß ist, speichern Sie stattdessen ein PNG-Bild.',
     savePng: 'PNG-Bild speichern',
     pngDpi: 'Auflösung',
     pngSize: '{width} × {height} Pixel',

@@ -662,6 +662,7 @@ export const pl: Dictionary = {
     pdfHint: 'Aby utworzyć PDF, wybierz w oknie drukowania „Zapisz jako PDF” jako drukarkę. Osobne narzędzie PDF nie jest potrzebne.',
     saveSvg: 'Zapisz plik SVG',
     saveSvgHint: 'Zalecany plik dla drukarni i dużych formatów. Czcionki są osadzone, więc wygląda tak samo wszędzie.',
+    svgLarge: 'Plik SVG jest duży ({size} osadzonych czcionek wschodnioazjatyckich). Jeśli jest za duży do wysłania lub otwarcia, zapisz zamiast tego obraz PNG.',
     savePng: 'Zapisz obraz PNG',
     pngDpi: 'Rozdzielczość',
     pngSize: '{width} × {height} pikseli',

@@ -662,6 +662,7 @@ export const fr: Dictionary = {
     pdfHint: 'Pour créer un PDF, choisissez « Enregistrer au format PDF » comme imprimante dans la boîte de dialogue. Aucun outil PDF séparé n’est nécessaire.',
     saveSvg: 'Enregistrer un fichier SVG',
     saveSvgHint: 'Le fichier recommandé pour les imprimeurs et les grands formats. Les polices sont incorporées, il s’affiche donc partout de la même façon.',
+    svgLarge: 'Le fichier SVG est volumineux ({size} de polices est-asiatiques incorporées). S’il est trop gros pour être envoyé ou ouvert, enregistrez plutôt une image PNG.',
     savePng: 'Enregistrer une image PNG',
     pngDpi: 'Résolution',
     pngSize: '{width} × {height} pixels',

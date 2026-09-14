@@ -92,7 +92,7 @@ export const tagPattern: Record<TagColor, 'solid' | 'hatch' | 'dots' | 'hlines' 
 };
 
 export const fontFamily =
-  '"Atkinson Hyperlegible Next", "Atkinson Hyperlegible", "Source Sans 3", "Segoe UI", system-ui, sans-serif';
+  '"Atkinson Hyperlegible Next", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", "Atkinson Hyperlegible", "Source Sans 3", "Segoe UI", system-ui, sans-serif';
 
 /** Type scale: [font size px, line height px, weight]. */
 export const type = {

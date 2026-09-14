@@ -15,6 +15,9 @@ export const LANGUAGES = [
   { code: 'pl', tag: 'pl-PL', name: 'Polski', surnameFirst: false },
   { code: 'ru', tag: 'ru-RU', name: 'Русский', surnameFirst: false },
   { code: 'tr', tag: 'tr-TR', name: 'Türkçe', surnameFirst: false },
+  { code: 'ja', tag: 'ja-JP', name: '日本語', surnameFirst: true },
+  { code: 'zh', tag: 'zh-CN', name: '中文（简体）', surnameFirst: true },
+  { code: 'ko', tag: 'ko-KR', name: '한국어', surnameFirst: true },
 ] as const;
 
 export type Locale = (typeof LANGUAGES)[number]['code'];

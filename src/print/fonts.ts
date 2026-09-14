@@ -26,9 +26,40 @@ const unicodeRangeOf = (ranges: Range[]) => ranges.map(([a, b]) => (a === b ? `U
 
 export interface FontChunk {
   weight: FontWeight;
-  range: FontRange;
+  /** A FontRange of the main font, or `cjk-<family>` for a Noto chunk. */
+  range: string;
   file: string;
   unicodeRange: string;
+  /** Font family the @font-face declares; Atkinson Hyperlegible Next unless set. */
+  family?: string;
+}
+
+/** The chunk table of the East Asian fonts (public/fonts/cjk-chunks.json). */
+export type CjkChunkTable = Record<string, { family: string; chunks: { weight: number; file: string; unicodeRange: string }[] }>;
+
+function parseUnicodeRange(s: string): Range[] {
+  return s.split(',').map((part) => {
+    const m = part.trim().match(/^U\+([0-9a-f]+)(?:-([0-9a-f]+))?$/i);
+    if (!m) return [0, -1];
+    const a = parseInt(m[1]!, 16);
+    return [a, m[2] ? parseInt(m[2], 16) : a];
+  });
+}
+
+/** The East Asian chunks a text needs from the families listed, per weight (500 falls back to 400). */
+export function cjkChunksFor(text: string, weights: FontWeight[], families: string[], table: CjkChunkTable): FontChunk[] {
+  const out: FontChunk[] = [];
+  const wanted = new Set<number>(weights.map((w) => (w === 500 ? 400 : w)));
+  for (const key of families) {
+    const entry = table[key];
+    if (!entry) continue;
+    for (const c of entry.chunks) {
+      if (!wanted.has(c.weight)) continue;
+      if (!inRanges(text, parseUnicodeRange(c.unicodeRange))) continue;
+      out.push({ weight: c.weight as FontWeight, range: `cjk-${key}`, file: c.file, unicodeRange: c.unicodeRange, family: entry.family });
+    }
+  }
+  return out;
 }
 
 const UNICODE_RANGE: Record<FontRange, string> = { latin: unicodeRangeOf(LATIN_RANGES), 'latin-ext': unicodeRangeOf(LATIN_EXT_RANGES), cyrillic: unicodeRangeOf(CYRILLIC_RANGES), 'cyrillic-ext': unicodeRangeOf(CYRILLIC_EXT_RANGES) };
@@ -52,12 +83,19 @@ export function chunksFor(text: string, weights: FontWeight[]): FontChunk[] {
 
 /** @font-face CSS with base64 data for the given chunks. `load` fetches a file's bytes. */
 export async function fontFaceCss(chunks: FontChunk[], load: (file: string) => Promise<ArrayBuffer>): Promise<string> {
+  return (await fontFaceCssWithSize(chunks, load)).css;
+}
+
+/** Same, also reporting the font bytes embedded (before base64). */
+export async function fontFaceCssWithSize(chunks: FontChunk[], load: (file: string) => Promise<ArrayBuffer>): Promise<{ css: string; bytes: number }> {
   const rules: string[] = [];
+  let bytes = 0;
   for (const c of chunks) {
-    const bytes = await load(c.file);
-    rules.push(`@font-face{font-family:"Atkinson Hyperlegible Next";font-style:normal;font-weight:${c.weight};src:url(data:font/woff2;base64,${toBase64(bytes)}) format("woff2");unicode-range:${c.unicodeRange};}`);
+    const buf = await load(c.file);
+    bytes += buf.byteLength;
+    rules.push(`@font-face{font-family:"${c.family ?? 'Atkinson Hyperlegible Next'}";font-style:normal;font-weight:${c.weight};src:url(data:font/woff2;base64,${toBase64(buf)}) format("woff2");unicode-range:${c.unicodeRange};}`);
   }
-  return rules.join('\n');
+  return { css: rules.join('\n'), bytes };
 }
 
 export function toBase64(buf: ArrayBuffer): string {

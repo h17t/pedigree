@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { openSample, expectNoHorizontalScroll } from './helpers';
 
@@ -93,4 +93,21 @@ test('dark theme screenshots', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Data', exact: true }).click();
   await page.waitForTimeout(300);
   await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-dark-data.png`, fullPage: false });
+});
+
+test('language screenshots', async ({ page }, testInfo) => {
+  const w = page.viewportSize()?.width ?? 0;
+  await openSample(page);
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
+  await page.locator('#language-select').selectOption('ja');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
+  await page.getByRole('button', { name: '系図', exact: true }).click();
+  await page.getByRole('button', { name: '全体表示' }).click();
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-ja-tree.png`, fullPage: false });
+  await page.getByRole('button', { name: 'データ', exact: true }).click();
+  await page.locator('#language-select').selectOption('ru');
+  await page.getByRole('button', { name: 'Список', exact: true }).click();
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-ru-list.png`, fullPage: false });
 });

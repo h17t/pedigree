@@ -3,7 +3,7 @@
  * are computed here. Measurement uses a 2D canvas with the real font when available (browser)
  * and a per-character estimate otherwise (tests, or before the font has loaded).
  */
-import { fontFamily } from '@/design/tokens';
+import { fontStack, useFontState } from '@/design/cjkFonts';
 
 let ctx: CanvasRenderingContext2D | null | undefined;
 const cache = new Map<string, number>();
@@ -19,11 +19,16 @@ function context(): CanvasRenderingContext2D | null {
   return ctx;
 }
 
-/** Rough per-glyph widths (em) for the estimate path. */
-function estimateWidth(text: string, size: number, weight: number): number {
+const FULL_WIDTH = /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff\uff00-\uffef]/u;
+const CYRILLIC = /[\u0400-\u052f]/u;
+
+/** Rough per-glyph widths (em) for the estimate path; East Asian glyphs are full-width. */
+export function estimateWidth(text: string, size: number, weight: number): number {
   let w = 0;
   for (const ch of text) {
-    if (ch === ' ') w += 0.28;
+    if (FULL_WIDTH.test(ch)) w += 1.0;
+    else if (CYRILLIC.test(ch)) w += ch === ch.toUpperCase() ? 0.68 : 0.58;
+    else if (ch === ' ') w += 0.28;
     else if ('iljtfrI.,:;\'!|'.includes(ch)) w += 0.3;
     else if ('mwMW'.includes(ch)) w += 0.85;
     else if (ch >= 'A' && ch <= 'Z') w += 0.66;
@@ -33,15 +38,26 @@ function estimateWidth(text: string, size: number, weight: number): number {
   return w * size * (weight >= 700 ? 1.06 : 1);
 }
 
+let cacheVersion = -1;
+/** Drop measured widths (a web font finished loading, so the same text now measures differently). */
+export function clearMeasureCache(): void {
+  cache.clear();
+}
+
 export function measureText(text: string, size: number, weight = 400): number {
   if (text === '') return 0;
+  const v = useFontState.getState().version;
+  if (v !== cacheVersion) {
+    cacheVersion = v;
+    cache.clear();
+  }
   const key = `${weight}|${size}|${text}`;
   const hit = cache.get(key);
   if (hit !== undefined) return hit;
   const c = context();
   let w: number;
   if (c) {
-    c.font = `${weight} ${size}px ${fontFamily}`;
+    c.font = `${weight} ${size}px ${fontStack()}`;
     const m = c.measureText(text).width;
     // jsdom returns 0 for everything; fall back to the estimate then.
     w = m > 0 ? m : estimateWidth(text, size, weight);
