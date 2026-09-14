@@ -61,7 +61,8 @@ export function PrintDialog() {
     () => [
       { kind: 'marriage', text: t('tree.legendItems.marriage') },
       { kind: 'divorced', text: t('tree.legendItems.divorced') },
-      { kind: 'dashed', text: t('tree.legendItems.partnership') },
+      { kind: 'plain', text: t('tree.legendItems.partnership') },
+      { kind: 'dashed', text: t('tree.legendItems.unknownUnion') },
       { kind: 'biological', text: t('tree.legendItems.biological') },
       { kind: 'adopted', text: t('tree.legendItems.adopted') },
       { kind: 'step', text: t('tree.legendItems.step') },

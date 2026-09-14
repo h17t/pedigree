@@ -323,8 +323,8 @@ export const en = {
     legendItems: {
       marriage: 'Marriage: double line',
       divorced: 'Divorced: double line crossed by two strokes',
-      partnership: 'Partnership or unmarried: dashed line',
-      unknownUnion: 'Relationship not recorded: single line',
+      partnership: 'Partnership or unmarried: single line',
+      unknownUnion: 'Relationship not recorded: dashed line',
       biological: 'Child: solid line',
       adopted: 'Adopted child: dashed line',
       step: 'Step or foster child: dotted line',
@@ -883,7 +883,7 @@ export const en = {
       },
       lines: {
         title: 'Reading the lines',
-        p1: 'A double line joins a married couple; a double line with a strike means divorced. A dashed line is a partnership without marriage, and a single line means the kind of relationship was not recorded.',
+        p1: 'A double line joins a married couple; a double line with a strike means divorced. A single line is a partnership without marriage, and a dashed line means the kind of relationship was not recorded.',
         p2: 'Children hang from the junction between their parents: a solid line for a biological child, a dashed line for an adopted child and a dotted line for a step or foster child.',
         p3: 'A person whose parents are not recorded is shown with a labelled "Parents unknown" box when you ask for it. The legend on the canvas repeats all of this.',
       },

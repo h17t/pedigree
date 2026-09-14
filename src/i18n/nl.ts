@@ -317,8 +317,8 @@ export const nl: Dictionary = {
     legendItems: {
       marriage: 'Huwelijk: dubbele lijn',
       divorced: 'Gescheiden: dubbele lijn met twee streepjes erdoor',
-      partnership: 'Partnerschap of ongehuwd: gestreepte lijn',
-      unknownUnion: 'Relatie niet vastgelegd: enkele lijn',
+      partnership: 'Partnerschap of ongehuwd: enkele lijn',
+      unknownUnion: 'Relatie niet vastgelegd: gestreepte lijn',
       biological: 'Kind: doorgetrokken lijn',
       adopted: 'Geadopteerd kind: gestreepte lijn',
       step: 'Stief- of pleegkind: gestippelde lijn',
@@ -867,7 +867,7 @@ export const nl: Dictionary = {
       },
       lines: {
         title: 'De lijnen lezen',
-        p1: 'Een dubbele lijn verbindt een gehuwd paar; een dubbele lijn met een streep betekent gescheiden. Een gestreepte lijn is een relatie zonder huwelijk, en een enkele lijn betekent dat het soort relatie niet is vastgelegd.',
+        p1: 'Een dubbele lijn verbindt een gehuwd paar; een dubbele lijn met een streep betekent gescheiden. Een enkele lijn is een relatie zonder huwelijk, en een gestreepte lijn betekent dat het soort relatie niet is vastgelegd.',
         p2: 'Kinderen hangen aan het knooppunt tussen hun ouders: een doorgetrokken lijn voor een biologisch kind, een gestreepte lijn voor een geadopteerd kind en een gestippelde lijn voor een stief- of pleegkind.',
         p3: 'Een persoon van wie de ouders niet zijn vastgelegd wordt op verzoek getoond met een vak „Ouders onbekend”. De legenda op het canvas herhaalt dit alles.',
       },

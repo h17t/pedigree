@@ -153,8 +153,8 @@ describe('connector routing', () => {
     const m = b.person('M'), f = b.person('F');
     const u = b.union([m, f], { status: 'divorced' });
     expect(partnerStyle(u)).toBe('divorced');
-    expect(partnerStyle(b.union([m, f], { type: 'unmarried', status: 'partnership' }))).toBe('dashed');
-    expect(partnerStyle(b.union([m, f], { type: 'unknown', status: 'unknown' }))).toBe('plain');
+    expect(partnerStyle(b.union([m, f], { type: 'unmarried', status: 'partnership' }))).toBe('plain');
+    expect(partnerStyle(b.union([m, f], { type: 'unknown', status: 'unknown' }))).toBe('dashed');
   });
   it('places a parents-unknown box above its children and skips unions whose partners are filtered out', () => {
     const b = build();

@@ -38,8 +38,17 @@ test('two existing people can be linked as partners with a stated kind; a second
   await expect(page.getByText(/Johann Lindner · already linked this way/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Link Johann Lindner', exact: true })).toHaveCount(0);
   await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click();
-  // One undo removes the link (on phones the details sheet covers the header first).
+  // Removing the partner from a childless partnership removes the whole partnership: no empty row stays behind.
+  await page.getByRole('group', { name: 'Partnership with Johann Lindner' }).getByRole('button', { name: 'Remove' }).click();
+  await expect(page.getByText('Removed Johann Lindner from the partnership.')).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Partnership with Johann Lindner' })).toHaveCount(0);
+  await expect(page.getByRole('group', { name: /Partnership with partner not recorded/ })).toHaveCount(0);
+  // Two undos: the removal, then the link (on phones the details sheet covers the header first).
   const phone = (page.viewportSize()?.width ?? 0) < 1024;
+  if (phone) await page.getByRole('button', { name: 'Back' }).click();
+  await page.getByRole('button', { name: 'Undo' }).click();
+  if (phone) await page.getByRole('button', { name: /Heinrich Weber/ }).first().click();
+  await expect(page.getByRole('group', { name: 'Partnership with Johann Lindner' })).toBeVisible();
   if (phone) await page.getByRole('button', { name: 'Back' }).click();
   await page.getByRole('button', { name: 'Undo' }).click();
   if (phone) await page.getByRole('button', { name: /Heinrich Weber/ }).first().click();
@@ -89,7 +98,8 @@ test('an existing person can be linked as a parent; a person with two parents ca
   await page.getByLabel('Find the person by name').fill('gertrud');
   await page.getByRole('button', { name: /Link Gertrud Meyer/ }).click();
   await expect(mother).toContainText('Gertrud Meyer');
-  await expect(page.getByRole('group', { name: "Parents' relationship" })).toContainText('not recorded');
+  // Heinrich and Gertrud already have a partnership: Johann joins it instead of a second one of the same pair.
+  await expect(page.getByRole('group', { name: "Parents' relationship" })).toContainText('divorced');
   // Removing the father keeps the mother.
   await father.getByRole('button', { name: 'Remove' }).click();
   await expect(page.getByText(/is no longer recorded as a parent of Johann Lindner/)).toBeVisible();

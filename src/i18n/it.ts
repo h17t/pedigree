@@ -317,8 +317,8 @@ export const it: Dictionary = {
     legendItems: {
       marriage: 'Matrimonio: linea doppia',
       divorced: 'Divorzio: linea doppia barrata da due tratti',
-      partnership: 'Unione o non sposati: linea tratteggiata',
-      unknownUnion: 'Relazione non registrata: linea singola',
+      partnership: 'Unione o non sposati: linea singola',
+      unknownUnion: 'Relazione non registrata: linea tratteggiata',
       biological: 'Figlio: linea continua',
       adopted: 'Figlio adottato: linea tratteggiata',
       step: 'Figlio acquisito o in affido: linea punteggiata',
@@ -867,7 +867,7 @@ export const it: Dictionary = {
       },
       lines: {
         title: 'Leggere le linee',
-        p1: 'Una linea doppia unisce una coppia sposata; una linea doppia barrata significa divorziati. Una linea tratteggiata è un’unione senza matrimonio, e una linea singola significa che il tipo di relazione non è stato registrato.',
+        p1: 'Una linea doppia unisce una coppia sposata; una linea doppia barrata significa divorziati. Una linea singola è un’unione senza matrimonio, e una linea tratteggiata significa che il tipo di relazione non è stato registrato.',
         p2: 'I figli pendono dal punto di unione tra i genitori: linea continua per un figlio biologico, tratteggiata per un figlio adottato e punteggiata per un figlio acquisito o in affido.',
         p3: 'Una persona i cui genitori non sono registrati è mostrata con un riquadro «Genitori sconosciuti» quando lo chiedi. La legenda sulla tela ripete tutto questo.',
       },

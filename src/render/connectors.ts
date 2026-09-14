@@ -40,7 +40,8 @@ export interface UnionGeometry {
 export function partnerStyle(u: Union): PartnerStyle {
   if (u.status === 'divorced') return 'divorced';
   if (u.type === 'marriage' || u.status === 'married' || u.status === 'widowed') return 'marriage';
-  if (u.type === 'unmarried' || u.type === 'partnership' || u.status === 'partnership' || u.status === 'separated') return 'dashed';
+  // A recorded partnership without marriage is a single line; only "not recorded" is dashed.
+  if (u.type === 'unknown' && u.status === 'unknown') return 'dashed';
   return 'plain';
 }
 

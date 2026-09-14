@@ -186,6 +186,15 @@ export function canLinkParent(d: Project, childId: string, parentId: string): Li
 export function linkParent(d: P, childId: string, parentId: string): Union {
   let union = parentUnionsOf(d, childId).find((u) => u.partnerIds.length < 2);
   if (union) {
+    // The two parents may already have a partnership (with other children): the child joins it
+    // rather than getting a second partnership of the same pair.
+    const single = union.partnerIds.length === 1 ? union : null;
+    const existing = single ? Object.values(d.unions).find((u) => u.id !== single.id && u.partnerIds.length === 2 && u.partnerIds.includes(parentId) && u.partnerIds.includes(single.partnerIds[0]!)) : undefined;
+    if (single && existing) {
+      for (const l of Object.values(d.childLinks)) if (l.unionId === single.id && l.childId === childId) l.unionId = existing.id;
+      if (!Object.values(d.childLinks).some((l) => l.unionId === single.id)) delete d.unions[single.id];
+      return existing;
+    }
     union.partnerIds.push(parentId);
   } else {
     union = createUnion({ partnerIds: [parentId], type: 'unknown', status: 'unknown' });
@@ -232,5 +241,6 @@ export function unlinkPartner(d: P, unionId: string, personId: string): void {
   const u = d.unions[unionId];
   if (!u) return;
   u.partnerIds = u.partnerIds.filter((p) => p !== personId);
-  if (u.partnerIds.length === 0 && !Object.values(d.childLinks).some((l) => l.unionId === unionId)) delete d.unions[unionId];
+  // A childless partnership with at most one person left is no partnership any more.
+  if (u.partnerIds.length <= 1 && !Object.values(d.childLinks).some((l) => l.unionId === unionId)) delete d.unions[unionId];
 }

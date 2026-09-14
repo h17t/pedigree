@@ -135,7 +135,8 @@ Union junction: a 12 × 12 point on the marriage line. Zero-partner unions rende
 rounded box labelled "Parents unknown" in 15 px medium, `slate` border, dashed.
 
 Connectors: 2 `ink`. Marriage: double line (two 2-unit lines, 4 apart). Divorce: the same double
-line with a short 45° strike at its midpoint. Unmarried/partnership: single dashed line.
+line with a short 45° strike at its midpoint. Unmarried/partnership: single solid line;
+relationship not recorded: single dashed line.
 Child lines drop from the union point: solid for biological, dashed for adopted, dotted for
 step/foster, with the relation type also printed in the legend and in the panel.
 

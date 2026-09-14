@@ -317,8 +317,8 @@ export const tr: Dictionary = {
     legendItems: {
       marriage: 'Evlilik: çift çizgi',
       divorced: 'Boşanma: iki çizgiyle kesilmiş çift çizgi',
-      partnership: 'Birliktelik ya da evli değil: kesik çizgi',
-      unknownUnion: 'İlişki kayıtlı değil: tek çizgi',
+      partnership: 'Birliktelik ya da evli değil: tek çizgi',
+      unknownUnion: 'İlişki kayıtlı değil: kesik çizgi',
       biological: 'Çocuk: düz çizgi',
       adopted: 'Evlatlık çocuk: kesik çizgi',
       step: 'Üvey ya da koruyucu aile çocuğu: noktalı çizgi',
@@ -867,7 +867,7 @@ export const tr: Dictionary = {
       },
       lines: {
         title: 'Çizgileri okumak',
-        p1: 'Çift çizgi evli bir çifti birleştirir; üzeri çizili çift çizgi boşanma demektir. Kesik çizgi evlilik olmayan bir birlikteliktir, tek çizgi ise ilişki türünün kaydedilmediği anlamına gelir.',
+        p1: 'Çift çizgi evli bir çifti birleştirir; üzeri çizili çift çizgi boşanma demektir. Tek çizgi evlilik olmayan bir birlikteliktir, kesik çizgi ise ilişki türünün kaydedilmediği anlamına gelir.',
         p2: 'Çocuklar anne babanın arasındaki kavşaktan sarkar: öz çocuk için düz çizgi, evlatlık için kesik çizgi, üvey ya da koruyucu aile çocuğu için noktalı çizgi.',
         p3: 'Anne babası kayıtlı olmayan bir kişi, istediğinizde etiketli bir „Anne baba bilinmiyor“ kutusuyla gösterilir. Tuvaldeki açıklama tüm bunları yineler.',
       },

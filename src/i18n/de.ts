@@ -319,8 +319,8 @@ export const de: Dictionary = {
     legendItems: {
       marriage: 'Ehe: Doppellinie',
       divorced: 'Geschieden: Doppellinie mit zwei Querstrichen',
-      partnership: 'Partnerschaft oder unverheiratet: gestrichelte Linie',
-      unknownUnion: 'Beziehung nicht erfasst: einfache Linie',
+      partnership: 'Partnerschaft oder unverheiratet: einfache Linie',
+      unknownUnion: 'Beziehung nicht erfasst: gestrichelte Linie',
       biological: 'Kind: durchgezogene Linie',
       adopted: 'Adoptivkind: gestrichelte Linie',
       step: 'Stief- oder Pflegekind: gepunktete Linie',
@@ -883,7 +883,7 @@ export const de: Dictionary = {
       },
       lines: {
         title: 'Die Linien lesen',
-        p1: 'Eine Doppellinie verbindet ein verheiratetes Paar; eine durchgestrichene Doppellinie bedeutet geschieden. Eine gestrichelte Linie ist eine Partnerschaft ohne Ehe, eine einfache Linie bedeutet, dass die Art der Beziehung nicht erfasst ist.',
+        p1: 'Eine Doppellinie verbindet ein verheiratetes Paar; eine durchgestrichene Doppellinie bedeutet geschieden. Eine einfache Linie ist eine Partnerschaft ohne Ehe, eine gestrichelte Linie bedeutet, dass die Art der Beziehung nicht erfasst ist.',
         p2: 'Kinder hängen am Knoten zwischen ihren Eltern: durchgezogen für ein leibliches Kind, gestrichelt für ein adoptiertes Kind und gepunktet für ein Stief- oder Pflegekind.',
         p3: 'Eine Person ohne erfasste Eltern erhält auf Wunsch ein beschriftetes Kästchen „Eltern unbekannt“. Die Legende auf der Zeichenfläche wiederholt all das.',
       },

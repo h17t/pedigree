@@ -281,6 +281,13 @@ cleared when a gesture starts, because a press on selected text made the browser
 text drag and cancel the card drag after its first move (both found by the browser tests on the
 CI runner).
 
+Follow-up (user reports): removing a partner from a childless partnership now removes the
+partnership record instead of leaving an empty "partner not recorded" row; linking an existing
+person as the second parent joins the pair's existing partnership rather than creating a second
+one of the same couple; partner lines changed so that a recorded partnership without marriage is
+a solid line and only "relationship not recorded" is dashed (legend, print legend and help
+updated in all languages).
+
 Follow-up: the "Select area" toggle in the Tree toolbar makes a plain drag on the background draw
 the selection rectangle (mouse, pen and touch); dragging one of the selected cards moves the whole
 group as one step. Shift+drag still works without the toggle.

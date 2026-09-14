@@ -317,8 +317,8 @@ export const fr: Dictionary = {
     legendItems: {
       marriage: 'Mariage : double ligne',
       divorced: 'Divorce : double ligne barrée de deux traits',
-      partnership: 'Partenariat ou non mariés : ligne en tirets',
-      unknownUnion: 'Relation non renseignée : ligne simple',
+      partnership: 'Partenariat ou non mariés : ligne simple',
+      unknownUnion: 'Relation non renseignée : ligne en tirets',
       biological: 'Enfant : ligne pleine',
       adopted: 'Enfant adopté : ligne en tirets',
       step: 'Enfant par alliance ou accueilli : ligne pointillée',
@@ -867,7 +867,7 @@ export const fr: Dictionary = {
       },
       lines: {
         title: 'Lire les lignes',
-        p1: 'Une double ligne relie un couple marié ; une double ligne barrée signifie divorcé. Une ligne en tirets est une union sans mariage, et une ligne simple signifie que le type de relation n’a pas été renseigné.',
+        p1: 'Une double ligne relie un couple marié ; une double ligne barrée signifie divorcé. Une ligne simple est une union sans mariage, et une ligne en tirets signifie que le type de relation n’a pas été renseigné.',
         p2: 'Les enfants pendent au point de jonction entre leurs parents : ligne pleine pour un enfant biologique, en tirets pour un enfant adopté et pointillée pour un enfant par alliance ou accueilli.',
         p3: 'Une personne dont les parents ne sont pas renseignés est montrée avec un cadre « Parents inconnus » quand vous le demandez. La légende du canevas reprend tout cela.',
       },

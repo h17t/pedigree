@@ -317,8 +317,8 @@ export const pt: Dictionary = {
     legendItems: {
       marriage: 'Casamento: linha dupla',
       divorced: 'Divórcio: linha dupla cortada por dois traços',
-      partnership: 'União de facto ou sem casar: linha tracejada',
-      unknownUnion: 'Relação não registada: linha simples',
+      partnership: 'União de facto ou sem casar: linha simples',
+      unknownUnion: 'Relação não registada: linha tracejada',
       biological: 'Filho: linha contínua',
       adopted: 'Filho adotado: linha tracejada',
       step: 'Enteado ou filho de acolhimento: linha pontilhada',
@@ -867,7 +867,7 @@ export const pt: Dictionary = {
       },
       lines: {
         title: 'Ler as linhas',
-        p1: 'Uma linha dupla une um casal casado; uma linha dupla cortada significa divorciados. Uma linha tracejada é uma união sem casamento, e uma linha simples significa que o tipo de relação não foi registado.',
+        p1: 'Uma linha dupla une um casal casado; uma linha dupla cortada significa divorciados. Uma linha simples é uma união sem casamento, e uma linha tracejada significa que o tipo de relação não foi registado.',
         p2: 'Os filhos pendem do ponto de junção entre os pais: linha contínua para um filho biológico, tracejada para um filho adotado e pontilhada para um enteado ou filho de acolhimento.',
         p3: 'Uma pessoa cujos pais não estão registados é mostrada com uma caixa «Pais desconhecidos» quando o pedir. A legenda na tela repete tudo isto.',
       },

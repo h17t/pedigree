@@ -129,10 +129,28 @@ describe('linking existing people', () => {
     const p5 = produce(p4, (d) => unlinkPartner(d, u.id, x.id));
     expect(p5.persons[x.id]).toBeDefined();
     expect(p5.unions[u.id]!.partnerIds).toEqual([a.id]);
-    // An empty union with no children disappears when the last partner leaves.
+    // A childless partnership disappears as soon as one partner leaves: nothing is left to show.
     const p6 = produce(p5, (d) => unlinkPartner(d, cu.id, c.id));
-    const p7 = produce(p6, (d) => unlinkPartner(d, cu.id, Object.values(p6.unions[cu.id]!.partnerIds)[0]!));
-    expect(p7.unions[cu.id]).toBeUndefined();
+    expect(p6.unions[cu.id]).toBeUndefined();
+    expect(p6.persons[c.id]).toBeDefined();
+  });
+
+  it('linkParent puts the child into the pair\'s existing partnership instead of creating a second one', () => {
+    const b = build();
+    const dad = b.person('Dad'), mum = b.person('Mum');
+    const first = b.person('First', born('1930')), kid = b.person('Kid', born('1935'));
+    const u = b.family([dad, mum], [first]);
+    // Kid was added to Dad alone, then Mum is linked as the other parent.
+    const p1 = produce(b.project, (d) => void linkParent(d, kid.id, dad.id));
+    expect(parentUnionsOf(p1, kid.id)[0]!.partnerIds).toEqual([dad.id]);
+    const p2 = produce(p1, (d) => void linkParent(d, kid.id, mum.id));
+    const pairUnions = Object.values(p2.unions).filter((x) => x.partnerIds.includes(dad.id) && x.partnerIds.includes(mum.id));
+    expect(pairUnions).toHaveLength(1);
+    expect(pairUnions[0]!.id).toBe(u.id);
+    expect(parentUnionsOf(p2, kid.id).map((x) => x.id)).toEqual([u.id]);
+    expect(Object.values(p2.childLinks).filter((l) => l.unionId === u.id).map((l) => l.childId).sort()).toEqual([first.id, kid.id].sort());
+    // The single-parent union is gone; siblings under Dad alone would have kept it.
+    expect(Object.values(p2.unions)).toHaveLength(1);
   });
 });
 

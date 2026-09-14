@@ -317,8 +317,8 @@ export const es: Dictionary = {
     legendItems: {
       marriage: 'Matrimonio: línea doble',
       divorced: 'Divorcio: línea doble cruzada por dos trazos',
-      partnership: 'Pareja de hecho o sin casarse: línea discontinua',
-      unknownUnion: 'Relación no registrada: línea simple',
+      partnership: 'Pareja de hecho o sin casarse: línea simple',
+      unknownUnion: 'Relación no registrada: línea discontinua',
       biological: 'Hijo: línea continua',
       adopted: 'Hijo adoptado: línea discontinua',
       step: 'Hijastro o hijo de acogida: línea de puntos',
@@ -867,7 +867,7 @@ export const es: Dictionary = {
       },
       lines: {
         title: 'Cómo leer las líneas',
-        p1: 'Una línea doble une a una pareja casada; una línea doble tachada significa divorcio. Una línea discontinua es una unión sin matrimonio, y una línea simple significa que el tipo de relación no se registró.',
+        p1: 'Una línea doble une a una pareja casada; una línea doble tachada significa divorcio. Una línea simple es una unión sin matrimonio, y una línea discontinua significa que el tipo de relación no se registró.',
         p2: 'Los hijos cuelgan del punto de unión entre sus padres: línea continua para un hijo biológico, discontinua para un hijo adoptado y de puntos para un hijastro o hijo de acogida.',
         p3: 'Una persona cuyos padres no están registrados se muestra con un recuadro «Padres desconocidos» cuando lo pides. La leyenda del lienzo repite todo esto.',
       },

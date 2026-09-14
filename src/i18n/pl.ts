@@ -317,8 +317,8 @@ export const pl: Dictionary = {
     legendItems: {
       marriage: 'Małżeństwo: podwójna linia',
       divorced: 'Rozwód: podwójna linia przekreślona dwiema kreskami',
-      partnership: 'Związek partnerski lub bez ślubu: linia przerywana',
-      unknownUnion: 'Związek niezapisany: pojedyncza linia',
+      partnership: 'Związek partnerski lub bez ślubu: pojedyncza linia',
+      unknownUnion: 'Związek niezapisany: linia przerywana',
       biological: 'Dziecko: linia ciągła',
       adopted: 'Dziecko adoptowane: linia przerywana',
       step: 'Dziecko przybrane lub zastępcze: linia kropkowana',
@@ -867,7 +867,7 @@ export const pl: Dictionary = {
       },
       lines: {
         title: 'Odczytywanie linii',
-        p1: 'Podwójna linia łączy małżeństwo; podwójna linia z przekreśleniem oznacza rozwód. Linia przerywana to związek bez ślubu, a pojedyncza linia oznacza, że rodzaj związku nie został zapisany.',
+        p1: 'Podwójna linia łączy małżeństwo; podwójna linia z przekreśleniem oznacza rozwód. Pojedyncza linia to związek bez ślubu, a linia przerywana oznacza, że rodzaj związku nie został zapisany.',
         p2: 'Dzieci zwisają z punktu połączenia między rodzicami: linia ciągła dla dziecka biologicznego, przerywana dla adoptowanego i kropkowana dla przybranego lub zastępczego.',
         p3: 'Osoba, której rodzice nie są zapisani, jest na życzenie pokazywana z ramką „Rodzice nieznani”. Legenda na płótnie powtarza to wszystko.',
       },
