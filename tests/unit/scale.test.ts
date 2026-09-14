@@ -15,9 +15,10 @@ function ancestorChart(gens: number): { project: Project; self: Person } {
   let current: Person[] = [self];
   for (let g = 1; g <= gens; g++) {
     const next: Person[] = [];
-    for (const c of current) {
-      const f = b.person(`F${g}`, born(String(1990 - 30 * g)));
-      const m = b.person(`M${g}`, born(String(1992 - 30 * g)));
+    for (const [i, c] of current.entries()) {
+      // Distinct names: the layout breaks ties by name before id, so the drawing is the same on every machine.
+      const f = b.person(`F${g}${i}`, born(String(1990 - 30 * g)));
+      const m = b.person(`M${g}${i}`, born(String(1992 - 30 * g)));
       b.family([f, m], [c]);
       next.push(f, m);
     }
@@ -84,7 +85,7 @@ describe('personScales and layout with scaling', () => {
     // placed above their child in turn, shifted sideways only as far as the row above needs.
     const self = boxes.find((b) => b.id === Object.values(project.persons).find((p) => p.givenNames === 'Self')!.id)!;
     expect(Math.abs(self.x + self.w / 2 - strong.width / 2)).toBeLessThan(strong.width / 4);
-    const parents = boxes.filter((b) => ['F1', 'M1'].includes(project.persons[b.id]!.givenNames));
+    const parents = boxes.filter((b) => ['F10', 'M10'].includes(project.persons[b.id]!.givenNames));
     expect(Math.abs((parents[0]!.x + parents[1]!.x + card.width) / 2 - (self.x + self.w / 2))).toBeLessThan(2);
   });
 

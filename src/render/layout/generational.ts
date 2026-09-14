@@ -150,12 +150,14 @@ export function layoutComponent(project: Project, membersIn: string[], level: De
   if (membersIn.length === 0) return { positions, width: 0, height: 0, rows: 0 };
   const adj = adjIn ?? buildAdjacency(project, breakCycles(project).ignoredLinks);
   const birth = (id: string) => toOrdinal(project.persons[id]?.birth.date ?? null) ?? Number.MAX_SAFE_INTEGER;
+  /** Plain code-point order: the drawing must not depend on the machine's collation rules. */
+  const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
   const nameKey = (id: string) => {
     const p = project.persons[id];
     return p ? `${p.surname}\u0001${p.givenNames}\u0001${id}` : id;
   };
   /** Deterministic: birth date first, then name, then id, whatever order the data came in. */
-  const byBirthThenName = (a: string, b: string) => birth(a) - birth(b) || nameKey(a).localeCompare(nameKey(b));
+  const byBirthThenName = (a: string, b: string) => birth(a) - birth(b) || cmp(nameKey(a), nameKey(b));
   const members = [...membersIn].sort(byBirthThenName);
 
   /** Sortable text for a day ordinal (ordinals before 1970 are negative). */
@@ -165,7 +167,7 @@ export function layoutComponent(project: Project, membersIn: string[], level: De
     (adj.partnerUnions.get(id) ?? [])
       .map((u) => project.unions[u]!)
       .filter(Boolean)
-      .sort((a, b) => unionKey(a).localeCompare(unionKey(b)));
+      .sort((a, b) => cmp(unionKey(a), unionKey(b)));
   const childrenOfUnion = (uid: string) => (adj.unionChildren.get(uid) ?? []).map((l) => l.childId).filter((c) => memberSet.has(c)).sort(byBirthThenName);
 
   // ---- 1. Ranks and per-row scale --------------------------------------------------------
@@ -216,7 +218,7 @@ export function layoutComponent(project: Project, membersIn: string[], level: De
   }
   // "Parents unknown" unions keep their children side by side as siblings.
   const virtualOf = new Map<string, Block>();
-  for (const u of Object.values(project.unions).sort((a, b) => a.id.localeCompare(b.id))) {
+  for (const u of Object.values(project.unions).sort((a, b) => cmp(a.id, b.id))) {
     if (u.partnerIds.some((p) => memberSet.has(p))) continue;
     const kids = childrenOfUnion(u.id);
     if (!kids.length) continue;
@@ -268,7 +270,7 @@ export function layoutComponent(project: Project, membersIn: string[], level: De
     const candidates: { parent: Block; child: string }[] = [];
     for (const m of b.members) for (const pb of parentBlocksOf(m)) if (pb.block !== b && !candidates.some((c) => c.parent === pb.block && c.child === m)) candidates.push({ parent: pb.block, child: m });
     if (!candidates.length) continue;
-    candidates.sort((p, q) => weightOf(q.parent) - weightOf(p.parent) || byBirthThenName(p.child, q.child) || p.parent.key.localeCompare(q.parent.key));
+    candidates.sort((p, q) => weightOf(q.parent) - weightOf(p.parent) || byBirthThenName(p.child, q.child) || cmp(p.parent.key, q.parent.key));
     owner.set(b, candidates[0]!);
   }
   const ownedChildren = new Map<Block, Block[]>();
@@ -381,7 +383,7 @@ export function layoutComponent(project: Project, membersIn: string[], level: De
   // sideways by the least amount that keeps its own space; families without such a link go beside
   // the drawing on the side their links point to.
   const roots = blocks.filter((b) => !owner.has(b) && (b.members.length || ownedChildren.get(b)!.length));
-  const rootKey = (p: Block, q: Block) => weightOf(q) + q.members.length - (weightOf(p) + p.members.length) || p.key.localeCompare(q.key);
+  const rootKey = (p: Block, q: Block) => weightOf(q) + q.members.length - (weightOf(p) + p.members.length) || cmp(p.key, q.key);
   const subtrees = new Map<Block, Subtree>();
   for (const b of roots) subtrees.set(b, placeSubtree(b));
   const treeOf = new Map<string, Block>();
@@ -390,7 +392,7 @@ export function layoutComponent(project: Project, membersIn: string[], level: De
   const anchorOf = (b: Block, placed: Map<string, number>): { from: string; child: string; unionId: string } | null => {
     const found: { from: string; child: string; unionId: string }[] = [];
     for (const id of subtrees.get(b)!.x.keys()) for (const u of unionsOf(id)) for (const c of childrenOfUnion(u.id)) if (treeOf.get(c) !== b && placed.has(c)) found.push({ from: id, child: c, unionId: u.id });
-    found.sort((p, q) => (rank.get(q.from) ?? 0) - (rank.get(p.from) ?? 0) || byBirthThenName(p.child, q.child) || p.unionId.localeCompare(q.unionId));
+    found.sort((p, q) => (rank.get(q.from) ?? 0) - (rank.get(p.from) ?? 0) || byBirthThenName(p.child, q.child) || cmp(p.unionId, q.unionId));
     return found[0] ?? null;
   };
   /** Any family link between the tree and people placed already (for families without an anchor). */
@@ -500,9 +502,9 @@ function orderBlock(
   nameKey: (id: string) => string,
 ): string[] {
   if (group.length <= 2) return group.length === 2 ? sortCouple(group as [string, string], unionsOf) : group;
-  const hub = [...group].sort((a, b) => unionsOf(b).length - unionsOf(a).length || nameKey(a).localeCompare(nameKey(b)))[0]!;
+  const hub = [...group].sort((a, b) => unionsOf(b).length - unionsOf(a).length || (nameKey(a) < nameKey(b) ? -1 : nameKey(a) > nameKey(b) ? 1 : 0))[0]!;
   const partners = unionsOf(hub)
-    .sort((a, b) => unionOrderKey(a).localeCompare(unionOrderKey(b)))
+    .sort((a, b) => (unionOrderKey(a) < unionOrderKey(b) ? -1 : unionOrderKey(a) > unionOrderKey(b) ? 1 : 0))
     .flatMap((u) => u.partnerIds.filter((p) => p !== hub && memberSet.has(p) && group.includes(p)));
   const unique = [...new Set(partners)];
   const left = unique.slice(0, Math.ceil(unique.length / 2)).reverse();
