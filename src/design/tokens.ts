@@ -86,5 +86,7 @@ export type CardVariant = keyof typeof card.height;
 
 /** Layout spacing on the canvas (SVG user units). */
 export const layout = { grid: 20, columnGap: 40, generationGap: 80, clusterGutter: 160 } as const;
+/** Gaps of the automatic arrangement per spacing setting (column gap between cards, gap between generations). */
+export const spacingGaps = { compact: { columnGap: 16, generationGap: 56 }, normal: { columnGap: 40, generationGap: 80 }, wide: { columnGap: 80, generationGap: 120 } } as const;
 
 export const motion = { fast: 120, sheet: 200, glide: 250 } as const;

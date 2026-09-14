@@ -11,8 +11,8 @@
  *
  * Works on one connected component. Cycle-safe (uses the cycle-broken adjacency).
  */
-import type { GenerationScaling, Position, Project } from '@/model/types';
-import { card, layout } from '@/design/tokens';
+import type { GenerationScaling, Position, Project, Spacing } from '@/model/types';
+import { card, spacingGaps } from '@/design/tokens';
 import { breakCycles, buildAdjacency } from '@/model/graph';
 import type { Adjacency } from '@/model/graph';
 import { toOrdinal } from '@/model/dates';
@@ -28,9 +28,6 @@ export interface LayoutResult {
   rows: number;
 }
 
-const COL = card.width + layout.columnGap;
-/** Extra gap between unrelated blocks on a row, so families read as groups. */
-const BLOCK_GAP = layout.columnGap;
 
 /**
  * Generation ranks of one family: longest path from the roots, partners equalised to the same
@@ -123,7 +120,11 @@ export function rankMembers(project: Project, members: string[], adj: Adjacency)
   return rank;
 }
 
-export function layoutComponent(project: Project, membersIn: string[], level: DetailLevel, adjIn?: Adjacency, mode: GenerationScaling = 'off'): LayoutResult {
+export function layoutComponent(project: Project, membersIn: string[], level: DetailLevel, adjIn?: Adjacency, mode: GenerationScaling = 'off', spacing: Spacing = 'normal'): LayoutResult {
+  const gaps = spacingGaps[spacing];
+  const COL = card.width + gaps.columnGap;
+  /** Extra gap between unrelated blocks on a row, so families read as groups. */
+  const BLOCK_GAP = gaps.columnGap;
   const positions = new Map<string, Position>();
   const memberSet = new Set(membersIn);
   if (membersIn.length === 0) return { positions, width: 0, height: 0, rows: 0 };
@@ -347,7 +348,7 @@ export function layoutComponent(project: Project, membersIn: string[], level: De
   let yCursor = 0;
   for (let r = 0; r <= maxRank; r++) {
     rowY[r] = yCursor;
-    yCursor += cardHeight(level) * (scales[r] ?? 1) + layout.generationGap;
+    yCursor += cardHeight(level) * (scales[r] ?? 1) + gaps.generationGap;
   }
   let minX = Infinity, maxX = -Infinity;
   for (const id of members) {
@@ -355,7 +356,7 @@ export function layoutComponent(project: Project, membersIn: string[], level: De
     maxX = Math.max(maxX, (x.get(id) ?? 0) + cardW(id));
   }
   for (const id of members) positions.set(id, { x: Math.round((x.get(id) ?? 0) - minX), y: Math.round(rowY[rank.get(id) ?? 0] ?? 0) });
-  return { positions, width: maxX - minX, height: yCursor - layout.generationGap, rows: maxRank + 1 };
+  return { positions, width: maxX - minX, height: yCursor - gaps.generationGap, rows: maxRank + 1 };
 }
 
 /** Keep the row order monotone: a block that jumped left of its predecessor is pushed back. */

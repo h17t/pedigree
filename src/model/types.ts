@@ -130,12 +130,16 @@ export interface ChildLink {
 
 /** How strongly crowded generations are shrunk so the drawing stays balanced. */
 export type GenerationScaling = 'off' | 'gentle' | 'strong';
+/** Gap between cards and between generations. */
+export type Spacing = 'compact' | 'normal' | 'wide';
 
 export interface ProjectSettings {
   /** Whether unknown GEDCOM data is kept for round-trips (it costs storage). */
   preserveRawGedcom: boolean;
   /** Per-generation card scaling ("Balance generations"); off by default. */
   generationScaling: GenerationScaling;
+  /** Card and generation gaps of the automatic arrangement; normal by default. */
+  spacing: Spacing;
 }
 
 export interface Project {
@@ -237,7 +241,7 @@ export function createProject(name: string, partial: Partial<Project> = {}): Pro
     unions: {},
     childLinks: {},
     rawRecords: [],
-    settings: { preserveRawGedcom: true, generationScaling: 'off' },
+    settings: { preserveRawGedcom: true, generationScaling: 'off', spacing: 'normal' },
     groups: [],
     ...partial,
   };

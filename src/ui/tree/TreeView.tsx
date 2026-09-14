@@ -7,10 +7,10 @@ import { useAppStore, updateUi, transact } from '@/store/store';
 import { addPerson } from '@/model/edits';
 import { Canvas } from '@/render/Canvas';
 import { CanvasErrorBoundary } from '@/render/CanvasErrorBoundary';
-import { layoutAll, layoutSubset, placeUnpositioned, scalingOf } from '@/render/layout';
+import { layoutAll, layoutSubset, placeUnpositioned, scalingOf, spacingOf } from '@/render/layout';
 import { personScales } from '@/render/layout/scale';
 import { buildChart, ANCESTOR_GENERATIONS, DESCENDANT_DEPTH } from '@/render/charts';
-import type { GenerationScaling } from '@/model/types';
+import type { GenerationScaling, Spacing } from '@/model/types';
 import { clusterFrames } from '@/render/layout/clusters';
 import type { ClusterFrame } from '@/render/layout/clusters';
 import { announce } from '../status';
@@ -205,6 +205,18 @@ export function TreeView() {
         if (p) p.position = m.pos;
       }
     });
+  };
+  const setSpacing = (spacing: Spacing) => {
+    const next = layoutAll(project, level, scaling, spacing);
+    transact(t('layout.spacing'), (d) => {
+      d.settings.spacing = spacing;
+      for (const [id, pos] of next) {
+        const p = d.persons[id];
+        if (p) p.position = pos;
+      }
+    });
+    announce(t('layout.spacingDone', { mode: t(`layout.spacingValue.${spacing}` as TKey) }));
+    updateUi({ viewport: null });
   };
   const setBalance = (mode: GenerationScaling) => {
     // Card sizes change, so the tree is arranged again in the same undo step.
@@ -420,6 +432,19 @@ export function TreeView() {
               </div>
               <p className="hint">{t('layout.autoHint')}</p>
               {placement.provisional.size > 0 && <p className="hint">{t('layout.unplacedHint')}</p>}
+              <div className="field">
+                <label htmlFor="spacing-select">{t('layout.spacing')}</label>
+                <select id="spacing-select" className="select select-inline" value={spacingOf(project)} onChange={(e) => setSpacing(e.target.value as Spacing)} aria-describedby="spacing-hint">
+                  {(['compact', 'normal', 'wide'] as Spacing[]).map((m) => (
+                    <option key={m} value={m}>
+                      {t(`layout.spacingValue.${m}` as TKey)}
+                    </option>
+                  ))}
+                </select>
+                <p className="hint" id="spacing-hint">
+                  {t('layout.spacingHint')}
+                </p>
+              </div>
               <div className="field">
                 <label htmlFor="balance-select">{t('layout.balance')}</label>
                 <select id="balance-select" className="select select-inline" value={scaling} onChange={(e) => setBalance(e.target.value as GenerationScaling)} aria-describedby="balance-hint">

@@ -199,6 +199,11 @@ uncles, nieces, nephews, cousins of any degree with removals, partners, partner 
 relative of the partner) with plain-language sentences composed per language, including German
 articles and "Ur"-prefixes. 214 unit tests and 104 Playwright tests pass.
 
+Spacing (2026-09-14, after user feedback on wide families): a per-tree spacing setting in the
+Layout panel (compact 16/56, normal 40/80, wide 80/120 pixels between cards / between generations;
+default normal) that re-arranges the tree in one undo step and is stored with the tree; charts use
+the same gaps. Sibling runs stay centred under their parents' junction in every setting.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist

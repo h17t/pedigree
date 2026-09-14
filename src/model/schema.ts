@@ -4,7 +4,7 @@
  * Backing up the pre-migration payload is the persistence layer's job (it has the raw string).
  */
 import { SCHEMA_VERSION } from './types';
-import type { ColourGroup, GenerationScaling, Project, Tag } from './types';
+import type { ColourGroup, GenerationScaling, Project, Spacing, Tag } from './types';
 import { newId } from './types';
 
 export interface MigrationResult {
@@ -83,6 +83,10 @@ export function migrateProject(input: unknown): MigrationResult | MigrationRefus
  * Fills in any missing optional collections so that older or hand-edited files never
  * produce `undefined` where the code expects an object or array.
  */
+function spacingOf(v: unknown): Spacing {
+  return v === 'compact' || v === 'wide' ? v : 'normal';
+}
+
 function scalingOf(v: unknown): GenerationScaling {
   return v === 'gentle' || v === 'strong' ? v : 'off';
 }
@@ -96,7 +100,7 @@ export function normalizeProject(data: Record<string, unknown>): Project {
     unions: p.unions ?? {},
     childLinks: p.childLinks ?? {},
     rawRecords: Array.isArray(p.rawRecords) ? p.rawRecords : [],
-    settings: { preserveRawGedcom: p.settings?.preserveRawGedcom ?? true, generationScaling: scalingOf(p.settings?.generationScaling) },
+    settings: { preserveRawGedcom: p.settings?.preserveRawGedcom ?? true, generationScaling: scalingOf(p.settings?.generationScaling), spacing: spacingOf(p.settings?.spacing) },
     groups: Array.isArray(p.groups) ? p.groups.filter((g) => g && typeof g.id === 'string' && typeof g.name === 'string').slice(0, 8) : [],
     createdAt: typeof p.createdAt === 'number' ? p.createdAt : Date.now(),
     modifiedAt: typeof p.modifiedAt === 'number' ? p.modifiedAt : Date.now(),

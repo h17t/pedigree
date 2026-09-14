@@ -175,6 +175,31 @@ describe('generation compaction and determinism', () => {
     expect(Math.abs(centre(kids2.map((k) => k.id)) - junction(p2.id, s2.id))).toBeLessThan(2);
     noOverlaps(r.positions, cardHeight('standard'), 'runs');
   });
+
+  it('draws large families narrower with compact spacing and keeps the runs centred', () => {
+    const b = build();
+    const p = b.person('P', born('1900')), s = b.person('S');
+    const kids = [1, 2, 3, 4, 5, 6].map((i) => b.person(`K${i}`, born(`193${i}`)));
+    b.family([p, s], kids);
+    const ids = Object.keys(b.project.persons);
+    const compact = layoutComponent(b.project, ids, 'standard', undefined, 'off', 'compact');
+    const normal = layoutComponent(b.project, ids, 'standard', undefined, 'off', 'normal');
+    const wide = layoutComponent(b.project, ids, 'standard', undefined, 'off', 'wide');
+    expect(compact.width).toBeLessThan(normal.width);
+    expect(normal.width).toBeLessThan(wide.width);
+    expect(compact.height).toBeLessThan(normal.height);
+    for (const r of [compact, normal, wide]) {
+      const P = (id: string) => r.positions.get(id)!;
+      const xs = kids.map((k) => P(k.id).x);
+      const centre = (Math.min(...xs) + Math.max(...xs) + card.width) / 2;
+      const junction = (Math.min(P(p.id).x, P(s.id).x) + Math.max(P(p.id).x, P(s.id).x) + card.width) / 2;
+      expect(Math.abs(centre - junction)).toBeLessThan(2);
+      noOverlaps(r.positions, cardHeight('standard'), 'spacing');
+    }
+    // Neighbouring siblings keep the compact gap, never less.
+    const xs = kids.map((k) => compact.positions.get(k.id)!.x).sort((a, b2) => a - b2);
+    for (let i = 1; i < xs.length; i++) expect(xs[i]! - xs[i - 1]!).toBeGreaterThanOrEqual(card.width + 16);
+  });
 });
 
 describe('packBoxes', () => {

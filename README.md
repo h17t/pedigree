@@ -24,7 +24,9 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   arranges only a selection, toggles snap-to-grid and jumps to each family. **Layout → Balance
   generations** (off by default; gentle or strong) shrinks crowded generations, so a family with
   20 great-grandparents and 6 people today still reads as one balanced drawing on screen and in
-  print; the scale depends only on how many people each generation holds.
+  print; the scale depends only on how many people each generation holds. **Layout → Spacing**
+  (compact, normal, wide) sets the room between cards and between generations, so a large family
+  with many siblings can be drawn narrower; children always sit centred below their parents.
 - **List** is everyone in the tree, alphabetical by surname, with search; choose a person to see
   their details.
 - Below a person's name sits the **Family** panel: father, mother, the parents' relationship, each

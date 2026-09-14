@@ -5,7 +5,7 @@
  *  - `placeUnpositioned`: effective positions for display, placing `position: null` people
  *    into free space without touching anyone else (replaces the stage b provisional layout).
  */
-import type { GenerationScaling, Position, Project } from '@/model/types';
+import type { GenerationScaling, Position, Project, Spacing } from '@/model/types';
 import { card, layout } from '@/design/tokens';
 import { personScales } from './scale';
 import { breakCycles, buildAdjacency, connectedComponents } from '@/model/graph';
@@ -24,10 +24,15 @@ export function scalingOf(project: Project): GenerationScaling {
   return project.settings.generationScaling ?? 'off';
 }
 
-export function layoutAll(project: Project, level: DetailLevel, mode: GenerationScaling = scalingOf(project)): Map<string, Position> {
+/** The tree's spacing setting (older stored trees may lack the field). */
+export function spacingOf(project: Project): Spacing {
+  return project.settings.spacing ?? 'normal';
+}
+
+export function layoutAll(project: Project, level: DetailLevel, mode: GenerationScaling = scalingOf(project), spacing: Spacing = spacingOf(project)): Map<string, Position> {
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
   const comps = connectedComponents(project);
-  const results = comps.map((ids) => layoutComponent(project, ids, level, adj, mode));
+  const results = comps.map((ids) => layoutComponent(project, ids, level, adj, mode, spacing));
   const offsets = packBoxes(results.map((r) => ({ w: r.width, h: r.height })));
   const out = new Map<string, Position>();
   results.forEach((r, i) => {
@@ -90,7 +95,7 @@ export function placeUnpositioned(project: Project, level: DetailLevel): Placeme
     const missing = comp.filter((id) => unplaced.has(id));
     if (missing.length === 0) continue;
     const placedMembers = comp.filter((id) => !unplaced.has(id));
-    const laid = layoutComponent(project, comp, level, adj, mode);
+    const laid = layoutComponent(project, comp, level, adj, mode, spacingOf(project));
     if (placedMembers.length === 0) {
       pending.push({ w: laid.width, h: laid.height, positions: laid.positions });
       continue;

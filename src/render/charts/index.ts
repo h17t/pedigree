@@ -12,7 +12,7 @@
  *    are drawn exactly as on the main canvas.
  */
 import type { Position, Project } from '@/model/types';
-import { card, layout } from '@/design/tokens';
+import { card, spacingGaps } from '@/design/tokens';
 import { breakCycles, buildAdjacency, childrenOf, parentsOf } from '@/model/graph';
 import type { DetailLevel } from '../geometry';
 import { cardHeight } from '../geometry';
@@ -50,7 +50,7 @@ function pedigree(project: Project, personId: string, generations: number, level
   if (!project.persons[personId]) return { positions, visible: new Set(), lines, useUnions: false, width: 0, height: 0 };
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
   const h = cardHeight(level);
-  const rowStep = h + layout.generationGap / 2;
+  const rowStep = h + spacingGaps[project.settings.spacing ?? 'normal'].generationGap / 2;
   const colStep = card.width + H_GAP;
   let nextRow = 0;
   const rowOf = new Map<string, number>();
@@ -131,7 +131,7 @@ function descendants(project: Project, personId: string, depth: number, level: D
     unions,
     childLinks: Object.fromEntries(Object.entries(project.childLinks).filter(([, l]) => members.has(l.childId) && project.unions[l.unionId]?.partnerIds.some((p) => members.has(p)))),
   };
-  const r = layoutComponent(sub, [...members], level, undefined, 'off');
+  const r = layoutComponent(sub, [...members], level, undefined, 'off', project.settings.spacing ?? 'normal');
   for (const [id, p] of r.positions) positions.set(id, p);
   return { positions, visible: new Set(members), lines: [], useUnions: true, width: r.width, height: r.height };
 }
