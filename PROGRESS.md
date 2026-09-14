@@ -274,6 +274,13 @@ staircase of ancestor couples above their children rather than a symmetric pedig
 chart mode remains the symmetric view. Screenshots of the arranged sample at both viewports are in
 `docs/screenshots/follow-ups/`.
 
+Follow-up: the canvas reads the drag positions and the rubber band from refs on pointer up, so a
+burst of pointer moves followed by the pointer up on a slow device no longer drops the move or
+the selection; text cannot be selected inside the canvas and any selection left on the page is
+cleared when a gesture starts, because a press on selected text made the browser start a native
+text drag and cancel the card drag after its first move (both found by the browser tests on the
+CI runner).
+
 Follow-up: the "Select area" toggle in the Tree toolbar makes a plain drag on the background draw
 the selection rectangle (mouse, pen and touch); dragging one of the selected cards moves the whole
 group as one step. Shift+drag still works without the toggle.

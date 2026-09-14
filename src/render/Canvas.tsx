@@ -229,7 +229,17 @@ export function Canvas(props: CanvasProps) {
     return { x: e.clientX - (r?.left ?? 0), y: e.clientY - (r?.top ?? 0) };
   };
 
+  /**
+   * A text selection left on the page (a rubber band or a pan drawn across a label) would turn
+   * the next press on that text into a native drag of the selection: the browser then cancels
+   * the pointer and the card drag dies after its first move. Every canvas gesture starts clean.
+   */
+  const clearTextSelection = () => {
+    const sel = typeof window !== 'undefined' ? window.getSelection() : null;
+    if (sel && !sel.isCollapsed) sel.removeAllRanges();
+  };
   const onBackgroundPointerDown = (e: ReactPointerEvent<SVGSVGElement>) => {
+    clearTextSelection();
     const g = gestureRef.current;
     if (e.pointerType === 'touch' && g.kind === 'pan') {
       // Second finger: switch to pinch.
@@ -298,6 +308,7 @@ export function Canvas(props: CanvasProps) {
     };
   });
   const onCardPointerDown = useCallback((e: ReactPointerEvent<SVGGElement>, id: string) => {
+    clearTextSelection();
     const { positions, readOnly, viewport, multiSelected, onMultiSelect, selectMode } = latest.current;
     const g = gestureRef.current;
     if (g.kind !== 'none') return;
