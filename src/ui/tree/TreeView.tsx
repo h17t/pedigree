@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { TKey } from '@/i18n';
-import { useT, formatNumber } from '@/i18n';
+import { formatNumber, intlTag, useT } from '@/i18n';
 import type { Position } from '@/model/types';
 import { displayName, personName } from '@/model/types';
 import { useAppStore, updateUi, transact } from '@/store/store';
@@ -100,6 +100,11 @@ export function TreeView() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // A dialog takes the keyboard for itself, and the search shortcuts must not fire while
+      // the user is typing into a field somewhere else on the page.
+      if (document.querySelector('dialog[open]')) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) && target !== searchRef.current) return;
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
         e.preventDefault();
         setSearchOpen(true);
@@ -279,7 +284,7 @@ export function TreeView() {
     openEditor({ kind: 'person', id, isNew: true });
   };
 
-  const matches = query.trim() ? searchPersons(project, query).slice(0, 8) : [];
+  const matches = query.trim() ? searchPersons(project, query, intlTag[locale]).slice(0, 8) : [];
   const nameOf = (id: string) => displayName(project.persons[id] ?? { givenNames: '', surname: '', titlePrefix: '', birthName: '' }, t('person.née'));
   const filterLabel = ui.filter
     ? ui.filter.kind === 'ancestors'

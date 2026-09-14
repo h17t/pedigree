@@ -183,7 +183,7 @@ export function canLinkParent(d: Project, childId: string, parentId: string): Li
  * Link an existing person as a parent: joins the child's parent union when it has a free
  * slot (a single parent or a "Parents unknown" group), otherwise creates a new one.
  */
-export function linkParent(d: P, childId: string, parentId: string): Union {
+export function linkParent(d: P, childId: string, parentId: string, relationType: RelationType = 'biological'): Union {
   let union = parentUnionsOf(d, childId).find((u) => u.partnerIds.length < 2);
   if (union) {
     // The two parents may already have a partnership (with other children): the child joins it
@@ -199,7 +199,7 @@ export function linkParent(d: P, childId: string, parentId: string): Union {
   } else {
     union = createUnion({ partnerIds: [parentId], type: 'unknown', status: 'unknown' });
     d.unions[union.id] = union;
-    const link = createChildLink(union.id, childId, 'biological');
+    const link = createChildLink(union.id, childId, relationType);
     d.childLinks[link.id] = link;
   }
   return union;

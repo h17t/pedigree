@@ -126,6 +126,7 @@ export const es: Dictionary = {
     title: 'Hoja familiar',
     open: 'Hoja familiar',
     intro: 'Una página con todo lo registrado sobre esta persona y su familia más cercana.',
+    privateHint: 'Las personas marcadas como privadas se omiten.',
     print: 'Imprimir',
     saveHtml: 'Guardar como archivo HTML',
     saved: 'Hoja familiar guardada como {file}.',

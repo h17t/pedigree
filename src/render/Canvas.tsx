@@ -164,6 +164,27 @@ export function Canvas(props: CanvasProps) {
   // committed the state set by the moves, and the move or the selection would be lost.
   const dragPosRef = useRef<Map<string, Position> | null>(null);
   const bandRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
+  // A pointer device reports many moves per frame. Drawing each one would re-route every
+  // connector in the tree for nothing, so the drawing is done once per frame from the latest
+  // position; the refs above keep the exact values the pointer-up handler commits.
+  const frameRef = useRef<number | null>(null);
+  const pendingRef = useRef<(() => void) | null>(null);
+  const drawSoon = (apply: () => void) => {
+    pendingRef.current = apply;
+    if (frameRef.current !== null) return;
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = null;
+      const run = pendingRef.current;
+      pendingRef.current = null;
+      run?.();
+    });
+  };
+  const cancelDraw = () => {
+    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+    frameRef.current = null;
+    pendingRef.current = null;
+  };
+  useEffect(() => cancelDraw, []);
   const spaceDown = useRef(false);
 
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -414,9 +435,11 @@ export function Canvas(props: CanvasProps) {
         }
         next.set(gid, { x, y });
       }
-      setGuides({ x: gx, y: gy });
       dragPosRef.current = next;
-      setDragPos(next);
+      drawSoon(() => {
+        setGuides({ x: gx, y: gy });
+        setDragPos(next);
+      });
     } else if (g.kind === 'band' && g.pointerId === e.pointerId) {
       g.moved = true;
       const rect = {
@@ -426,7 +449,7 @@ export function Canvas(props: CanvasProps) {
         h: Math.abs(p.y - g.startY),
       };
       bandRef.current = rect;
-      setBand(rect);
+      drawSoon(() => setBand(rect));
     } else if (g.kind === 'pinch' && g.pointers.has(e.pointerId)) {
       g.pointers.set(e.pointerId, p);
       const [a, b] = [...g.pointers.values()] as [{ x: number; y: number }, { x: number; y: number }];
@@ -444,6 +467,7 @@ export function Canvas(props: CanvasProps) {
 
   const endGesture = (e: ReactPointerEvent<SVGSVGElement>) => {
     const g = gestureRef.current;
+    cancelDraw(); // a frame still queued would draw the gesture again after it ended
     if (g.kind === 'pan' && g.pointerId === e.pointerId) {
       if (!g.moved) onSelect(g.tapTarget);
       gestureRef.current = { kind: 'none' };

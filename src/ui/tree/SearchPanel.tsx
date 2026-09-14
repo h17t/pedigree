@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useT } from '@/i18n';
+import { intlTag, useT } from '@/i18n';
 import type { Project } from '@/model/types';
 import { displayName } from '@/model/types';
 import { emptyCriteria, isEmptyCriteria, searchAll } from '@/model/search';
@@ -7,14 +7,14 @@ import type { SearchCriteria } from '@/model/search';
 
 /** Search across all fields plus the completeness filters; results jump to a person or restrict the canvas. */
 export function SearchPanel({ project, onJump, onShowOnly, onClose }: { project: Project; onJump: (id: string) => void; onShowOnly: (ids: string[]) => void; onClose: () => void }) {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [c, setC] = useState<SearchCriteria>(emptyCriteria);
   const first = useRef<HTMLInputElement>(null);
   useEffect(() => {
     first.current?.focus();
   }, []);
   const set = <K extends keyof SearchCriteria>(k: K, v: SearchCriteria[K]) => setC((prev) => ({ ...prev, [k]: v }));
-  const results = useMemo(() => (isEmptyCriteria(c) ? null : searchAll(project, c)), [project, c]);
+  const results = useMemo(() => (isEmptyCriteria(c) ? null : searchAll(project, c, intlTag[locale])), [project, c, locale]);
   const name = (id: string) => displayName(project.persons[id]!, t('person.née')) || t('person.unnamed');
   return (
     <section className="filter-bar layout-panel panel search-panel" aria-label={t('search.title')}>

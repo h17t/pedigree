@@ -126,6 +126,7 @@ export const tr: Dictionary = {
     title: 'Aile sayfası',
     open: 'Aile sayfası',
     intro: 'Bu kişi ve en yakın ailesi hakkında kayıtlı her şeyi içeren tek sayfa.',
+    privateHint: 'Özel olarak işaretlenen kişiler dışarıda bırakılır.',
     print: 'Yazdır',
     saveHtml: 'HTML dosyası olarak kaydet',
     saved: 'Aile sayfası {file} olarak kaydedildi.',

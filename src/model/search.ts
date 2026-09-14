@@ -40,7 +40,7 @@ export function haystack(p: Project['persons'][string]): string {
   );
 }
 
-export function searchAll(project: Project, c: SearchCriteria): string[] {
+export function searchAll(project: Project, c: SearchCriteria, locale?: string): string[] {
   const words = normalizeForSearch(c.text.trim()).split(/\s+/).filter(Boolean);
   const place = normalizeForSearch(c.place.trim());
   const from = c.bornFrom.trim() ? Number(c.bornFrom.trim()) : null;
@@ -66,6 +66,6 @@ export function searchAll(project: Project, c: SearchCriteria): string[] {
       }
       return true;
     })
-    .sort((a, b) => personName(a).localeCompare(personName(b)))
+    .sort((a, b) => personName(a).localeCompare(personName(b), locale))
     .map((p) => p.id);
 }

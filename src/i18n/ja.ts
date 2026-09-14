@@ -126,6 +126,7 @@ export const ja: Dictionary = {
     title: '家族シート',
     open: '家族シート',
     intro: 'この人物と最も近い家族について記録されたすべてを1ページにまとめます。',
+    privateHint: '非公開の人物は含まれません。',
     print: '印刷',
     saveHtml: 'HTMLファイルとして保存',
     saved: '家族シートを{file}として保存しました。',

@@ -180,7 +180,11 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
       raw.push(...nodeToLines(c));
     }
     p.rawGedcom = options.preserve ? raw : [];
-    persons.set(rec.xref ?? newId(), p);
+    const key = rec.xref ?? newId();
+    // Two records sharing one id: the second would take over every FAMS/FAMC/CHIL pointer and
+    // the first would silently lose its family, so the import says so.
+    if (rec.xref && persons.has(rec.xref)) report.problems.push(`${rec.line}: duplicate record id ${rec.xref}`);
+    persons.set(key, p);
     project.persons[p.id] = p;
     report.individuals++;
   }

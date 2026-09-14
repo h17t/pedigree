@@ -5,6 +5,7 @@ import { intlTag } from '@/i18n';
 import { useAppStore } from '@/store/store';
 import { downloadText } from '@/store/projects';
 import { buildFamilySheet, familySheetBody, familySheetHtml, SHEET_CSS } from '@/report/familySheet';
+import { privateIds, withoutPrivate } from '@/model/privacy';
 import type { SheetLabels } from '@/report/familySheet';
 import { Dialog } from '../components/Dialog';
 import { closeEditor } from '../edit/editorStore';
@@ -32,7 +33,14 @@ export function FamilySheetDialog({ id }: { id: string }) {
     }),
     [t, locale],
   );
-  const sheet = useMemo(() => buildFamilySheet(project, id, locale, t), [project, id, locale, t]);
+  // Like every other output, the sheet leaves people marked private out; the person it is about is always shown.
+  const source = useMemo(() => {
+    const subject = project.persons[id];
+    if (!subject) return project;
+    return withoutPrivate(subject.isPrivate ? { ...project, persons: { ...project.persons, [id]: { ...subject, isPrivate: false } } } : project);
+  }, [project, id]);
+  const othersHidden = useMemo(() => [...privateIds(project)].some((pid) => pid !== id), [project, id]);
+  const sheet = useMemo(() => buildFamilySheet(source, id, locale, t), [source, id, locale, t]);
   const body = useMemo(() => (sheet ? familySheetBody(sheet, labels) : ''), [sheet, labels]);
 
   useEffect(() => {
@@ -59,7 +67,10 @@ export function FamilySheetDialog({ id }: { id: string }) {
   return (
     <Dialog open title={t('sheet.title')} onClose={closeEditor} wide>
       <div className="stack">
-        <p className="muted">{t('sheet.intro')}</p>
+        <p className="muted">
+          {t('sheet.intro')}
+          {othersHidden && <> {t('sheet.privateHint')}</>}
+        </p>
         <div className="btn-row">
           <button type="button" className="btn btn-primary" onClick={() => setPrinting(true)}>
             {t('sheet.print')}

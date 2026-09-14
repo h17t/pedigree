@@ -126,6 +126,7 @@ export const zh: Dictionary = {
     title: '家庭表',
     open: '家庭表',
     intro: '一页纸汇总此人及其至亲的全部记录。',
+    privateHint: '标记为私密的人物不包含在内。',
     print: '打印',
     saveHtml: '保存为 HTML 文件',
     saved: '家庭表已保存为{file}。',

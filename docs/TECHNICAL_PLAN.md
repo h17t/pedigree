@@ -8,7 +8,7 @@ are also listed in `DECISIONS.md`.
 
 | Concern | Choice | Why |
 |---|---|---|
-| Framework | React 19 + TypeScript 5 (strict) + Vite 7 | As briefed. Vite 7 needs Node ≥ 20.19, which current Node 20 LTS satisfies. CI pins Node 20. |
+| Framework | React 19 + TypeScript 5 (strict) + Vite 7 | As briefed. Vite 7 needs Node ≥ 20.19; the unit tests (jsdom 30 → undici 8) need Node 22.19, so CI pins Node 22 LTS. |
 | Package manager | npm, committed `package-lock.json` | As briefed. |
 | State | Zustand (≈1 KB) holding a normalized `Project`, plus a custom undo stack built on Immer `produceWithPatches` | Zustand gives selector-based subscriptions, so a drag frame re-renders one card, not all 500. It has no action/reducer boilerplate. Immer patches make each undo step a few bytes instead of a full copy of the tree. A custom reducer store would need its own subscription layer; Redux adds nothing we need. |
 | Immutability / undo | `immer` (`produceWithPatches`, `applyPatches`) | Brief requires patch-based undo. Every mutation goes through `store.transact(label, draft => …)`; bulk operations wrap many edits in one `transact`, so they are one undo step by construction. |

@@ -39,12 +39,32 @@ function namesOf(p: Person): { full: string; surnames: string[]; given: string }
   return { full: normalizeName(`${p.givenNames} ${p.surname}`), surnames, given };
 }
 
+/**
+ * Comparing every pair is quadratic, so a very large tree is bucketed by first letter of the
+ * given name first: two people whose given names differ in that letter are never a pair here
+ * (the edit-distance rule allows one typo elsewhere in the name), and the scan stays quick.
+ */
+const BUCKET_FROM = 800;
+
 export function findDuplicates(project: Project, maxYearGap = 2): DuplicatePair[] {
   const people = Object.values(project.persons);
   const out: DuplicatePair[] = [];
   const meta = people.map((p) => ({ p, n: namesOf(p), year: yearOf(p.birth.date) }));
+  const buckets = new Map<string, number[]>();
+  if (meta.length >= BUCKET_FROM) {
+    meta.forEach((m, i) => {
+      const key = m.n.given.slice(0, 1);
+      const arr = buckets.get(key) ?? [];
+      arr.push(i);
+      buckets.set(key, arr);
+    });
+  }
+  const partners = (i: number): number[] => {
+    if (meta.length < BUCKET_FROM) return Array.from({ length: meta.length - i - 1 }, (_, k) => i + 1 + k);
+    return (buckets.get(meta[i]!.n.given.slice(0, 1)) ?? []).filter((j) => j > i);
+  };
   for (let i = 0; i < meta.length; i++) {
-    for (let j = i + 1; j < meta.length; j++) {
+    for (const j of partners(i)) {
       const A = meta[i]!, B = meta[j]!;
       if (!A.n.given || !B.n.given) continue;
       const reasons: DuplicatePair['reasons'] = [];

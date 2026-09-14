@@ -112,3 +112,27 @@ describe('family sheet', () => {
     expect(html).not.toContain('<script');
   });
 });
+
+describe('ancestor chart with a repeated ancestor', () => {
+  it('keeps the couple in one column and draws the line to where the card is', () => {
+    const b = build();
+    const me = b.person('Me');
+    const dad = b.person('Dad', { sex: 'male' }), mum = b.person('Mum', { sex: 'female' });
+    b.family([dad, mum], [me]);
+    // X is Dad's father and also Mum's mother's father: reached at two different depths.
+    const x = b.person('X', { sex: 'male' }), xw = b.person('XW', { sex: 'female' });
+    b.family([x, b.person('DadMum', { sex: 'female' })], [dad]);
+    const mumMum = b.person('MumMum', { sex: 'female' });
+    b.family([b.person('MumDad', { sex: 'male' }), mumMum], [mum]);
+    b.family([x, xw], [mumMum]);
+    const c = buildChart(b.project, { kind: 'ancestors', personId: me.id, generations: 5 }, 'standard');
+    const px = c.positions.get(x.id)!, pxw = c.positions.get(xw.id)!;
+    expect(pxw.x).toBe(px.x); // the couple shares a column
+    // Every line ends on the left edge of a card that is actually there.
+    const xs = new Set([...c.positions.values()].map((p) => p.x));
+    for (const l of c.lines) {
+      const end = Number(/H(-?\d+(?:\.\d+)?)$/.exec(l.d)![1]);
+      expect(xs.has(end), l.d).toBe(true);
+    }
+  });
+});

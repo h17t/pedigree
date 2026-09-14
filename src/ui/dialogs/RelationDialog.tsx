@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useT } from '@/i18n';
+import { intlTag, useT } from '@/i18n';
 import { displayName } from '@/model/types';
 import { useAppStore } from '@/store/store';
 import { describeRelation } from '@/model/relationship';
@@ -19,7 +19,7 @@ export function RelationDialog({ aId }: { aId: string }) {
     const p = project.persons[id];
     return p ? displayName(p, t('person.née')) || t('person.unnamed') : t('common.unknown');
   };
-  const matches = query.trim() ? searchPersons(project, query).filter((id) => id !== aId).slice(0, 8) : [];
+  const matches = query.trim() ? searchPersons(project, query, intlTag[locale]).filter((id) => id !== aId).slice(0, 8) : [];
   return (
     <Dialog open title={t('relation.title', { name: name(aId) })} onClose={closeEditor}>
       <div className="stack">

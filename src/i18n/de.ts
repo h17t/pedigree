@@ -127,6 +127,7 @@ export const de: Dictionary = {
     title: 'Familienblatt',
     open: 'Familienblatt',
     intro: 'Eine Seite mit allem, was zu dieser Person und ihrer engsten Familie erfasst ist.',
+    privateHint: 'Als privat markierte Personen werden weggelassen.',
     print: 'Drucken',
     saveHtml: 'Als HTML-Datei speichern',
     saved: 'Familienblatt gespeichert als {file}.',

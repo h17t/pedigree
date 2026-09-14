@@ -281,6 +281,21 @@ cleared when a gesture starts, because a press on selected text made the browser
 text drag and cancel the card drag after its first move (both found by the browser tests on the
 CI runner).
 
+Review pass (2026-09-14): a full read of the code by area (model and store, rendering and
+layout, UI, GEDCOM and security, configuration and documentation). Fixed: a hand-edited or
+third-party project file could crash the app instead of reaching the recovery screen (every
+record is now checked and repaired on load, and a record keyed like a prototype is dropped);
+the ancestor chart drew a repeated ancestor's partner a column away with the connector missing
+the card; adding an existing person as a child kept the chosen relationship only when the family
+already existed; two dialogs mounted at once shared one heading id; renaming a colour group cost
+one undo step per keystroke; the tree's keyboard shortcuts fired while typing in a dialog;
+deleting the last child of a "parents unknown" group left the empty group behind; a GEDCOM value
+starting with "@" was written unescaped; the SVG font-size warning measured the fonts before
+base64; search and outline sorted by the machine's language instead of the app's; a project blob
+could survive a failed index write as storage nobody can see. Added a content security policy,
+a duplicate-record-id note in the import report, and frame-coalesced canvas dragging (one redraw
+per frame instead of one per pointer event). 344 unit tests and 132 Playwright tests pass.
+
 Follow-up (user reports): removing a partner from a childless partnership now removes the
 partnership record instead of leaving an empty "partner not recorded" row; linking an existing
 person as the second parent joins the pair's existing partnership rather than creating a second

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { importGedcomBytes, importGedcomText, exportGedcom, decodeGedcom, parseGedcomDate, formatGedcomDate } from '@/gedcom';
 import { lex } from '@/gedcom/lexer';
+import { lineFor } from '@/gedcom/parse';
 import { decodeAnsel } from '@/gedcom/ansel';
 import { migrateProject } from '@/model/schema';
 import sample from '@/fixtures/sample-family.json';
@@ -305,5 +306,17 @@ describe('round trip', () => {
     expect(report.notes).toContain('preservationOff');
     expect(text).not.toContain('0 @S1@ SOUR');
     expect(text).not.toContain('1 SOUR @S1@');
+  });
+});
+
+describe('values that look like GEDCOM syntax survive a round trip', () => {
+  it('escapes a leading @ and reads it back, and never lets a value split the line', () => {
+    const written = lineFor(1, null, 'NOTE', '@work — kept\r\nsecond line');
+    expect(written[0]).toBe('1 NOTE @@work — kept');
+    expect(written[1]).toBe('2 CONT second line');
+    expect(written.every((l) => !/[\r]/.test(l))).toBe(true);
+    const read = lex(written.join('\r\n'));
+    expect(read.problems).toEqual([]);
+    expect(read.lines[0]!.value).toBe('@work — kept\nsecond line');
   });
 });

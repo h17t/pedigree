@@ -1,8 +1,8 @@
 /**
  * Deletion rules (see the brief, "Deletion and merge rules"):
  *  - Deleting a person removes the person and their child links. A union is kept if it still
- *    has at least one partner or one child; a union left with neither is removed. Children
- *    never disappear.
+ *    has children (the other partner stays as a single parent); a childless union with at most
+ *    one partner left is removed. Children never disappear.
  *  - Deleting a union: "keep the people and their children as unconnected" (default) or
  *    "remove the connection to the children too". People are never deleted.
  * `previewDeletePerson` describes exactly what will happen, for the confirmation dialog.
@@ -29,7 +29,8 @@ export function previewDeletePerson(project: Project, personId: string): DeleteP
     .map((union) => {
       const children = links.filter((l) => l.unionId === union.id);
       const otherPartnerIds = union.partnerIds.filter((p) => p !== personId);
-      const outcome: 'removed' | 'kept' = otherPartnerIds.length > 0 || children.length > 0 ? 'kept' : 'removed';
+      // A childless partnership with at most one partner left is removed (same rule as unlinkPartner).
+      const outcome: 'removed' | 'kept' = otherPartnerIds.length > 1 || children.length > 0 ? 'kept' : 'removed';
       return { union, outcome, childCount: children.length, otherPartnerIds };
     });
   const childrenLeftWithoutParents: string[] = [];
@@ -48,7 +49,11 @@ export function deletePerson(d: Draft<Project>, personId: string): void {
     if (!u.partnerIds.includes(personId)) continue;
     u.partnerIds = u.partnerIds.filter((p) => p !== personId);
     const hasChildren = Object.values(d.childLinks).some((l) => l.unionId === u.id);
-    if (u.partnerIds.length === 0 && !hasChildren) delete d.unions[u.id];
+    if (u.partnerIds.length <= 1 && !hasChildren) delete d.unions[u.id];
+  }
+  // A "parents unknown" sibling group whose last child has gone holds nothing any more.
+  for (const u of Object.values(d.unions)) {
+    if (u.partnerIds.length === 0 && !Object.values(d.childLinks).some((l) => l.unionId === u.id)) delete d.unions[u.id];
   }
   delete d.persons[personId];
 }

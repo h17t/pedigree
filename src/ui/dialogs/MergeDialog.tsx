@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useT } from '@/i18n';
+import { intlTag, useT } from '@/i18n';
 import type { TKey } from '@/i18n';
 import { personName } from '@/model/types';
 import { transact, updateUi, useAppStore } from '@/store/store';
@@ -21,7 +21,7 @@ const FIELD_LABEL: Record<MergeField, TKey> = {
  * can be kept in the notes; everything from both records is re-pointed to the survivor.
  */
 export function MergeDialog({ aId, bId }: { aId: string; bId: string | null }) {
-  const { t } = useT();
+  const { t, locale } = useT();
   const project = useAppStore((s) => s.project)!;
   const [query, setQuery] = useState('');
   const [choices, setChoices] = useState<Partial<Record<MergeField, MergeChoice>>>({});
@@ -32,7 +32,7 @@ export function MergeDialog({ aId, bId }: { aId: string; bId: string | null }) {
   const name = (p: typeof a) => personName(p) || t('person.unnamed');
 
   if (!b) {
-    const matches = query.trim() ? searchPersons(project, query).filter((id) => id !== aId).slice(0, 8) : [];
+    const matches = query.trim() ? searchPersons(project, query, intlTag[locale]).filter((id) => id !== aId).slice(0, 8) : [];
     return (
       <Dialog open title={t('edit.mergeTitle')} onClose={closeEditor}>
         <div className="stack">

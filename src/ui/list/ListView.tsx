@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useT } from '@/i18n';
+import { intlTag, useT } from '@/i18n';
 import type { Project } from '@/model/types';
 import { displayName } from '@/model/types';
 import { formatYearWithQualifier } from '@/model/dates';
@@ -52,7 +52,7 @@ export function ListView() {
     updateUi({ selectedPersonId: id });
     if (!isDesktop) setSheetOpen(true);
   };
-  const matches = query.trim() ? searchPersons(project, query) : null;
+  const matches = query.trim() ? searchPersons(project, query, intlTag[locale]) : null;
   const total = Object.keys(project.persons).length;
 
   const details = <DetailsHost project={project} person={selected} onSelect={select} />;

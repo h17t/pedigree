@@ -132,7 +132,8 @@ export interface Union {
   gedcomXref?: string;
 }
 
-export type RelationType = 'biological' | 'adopted' | 'step' | 'foster' | 'unknown';
+export const RELATION_TYPES = ['biological', 'adopted', 'step', 'foster', 'unknown'] as const;
+export type RelationType = (typeof RELATION_TYPES)[number];
 
 export interface ChildLink {
   id: string;

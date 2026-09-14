@@ -131,6 +131,7 @@ export const en = {
     title: 'Family sheet',
     open: 'Family sheet',
     intro: 'One page with everything recorded about this person and their closest family.',
+    privateHint: 'People marked private are left out.',
     print: 'Print',
     saveHtml: 'Save as HTML file',
     saved: 'Family sheet saved as {file}.',

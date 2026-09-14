@@ -157,6 +157,11 @@ Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Mea
 | Fonts loaded at startup | 24.3 KB | — |
 | **Initial payload** | 179.5 KB | 500.0 KB |
 
+The budget covers what the page loads to become usable. The service worker then precaches the
+whole build in the background so everything works offline, and the East Asian font chunks are
+about 15 MB of that: they are never on the critical path, but a first visit does fetch them
+afterwards.
+
 The sample family, the GEDCOM module, the timeline/statistics views, the guided start, the help
 page and the print dialog load lazily and do not count.
 
@@ -216,8 +221,10 @@ proportions in any case.
 There is no server, no account, no analytics, and no network request after the page has loaded
 (verified by a Playwright test that records every request; the service worker only serves the
 app's own files from its cache). Data lives in the browser's
-`localStorage` for this site only. Fonts are bundled with the app (Atkinson Hyperlegible Next,
-SIL Open Font License, see `public/fonts/OFL.txt`).
+`localStorage` for this site only. Fonts are bundled with the app (Atkinson Hyperlegible Next for
+Latin, Noto Sans for Cyrillic and Noto Sans JP/KR/SC for East Asian scripts, all under the SIL
+Open Font License, see `public/fonts/OFL.txt`). The page also declares a content security policy
+that allows same-origin resources only.
 
 ## Licence
 

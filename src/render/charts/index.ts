@@ -64,12 +64,17 @@ function pedigree(project: Project, personId: string, generations: number, level
     if (rowOf.has(id)) return rowOf.get(id)!; // repeated ancestor: reuse
     const parents = col + 1 < generations ? orderedParents(id) : [];
     const parentRows: number[] = [];
+    // The same ancestor can be reached from two branches at different depths (cousins who
+    // married, for instance). The first placement wins, and their partner joins them in that
+    // same column, so a couple is never split across two columns.
+    const placedParent = parents.map((p) => positions.get(p)).find((pos) => pos !== undefined);
+    const parentCol = placedParent ? Math.round(placedParent.x / colStep) : col + 1;
     for (const p of parents) {
       if (rowOf.has(p)) {
         parentRows.push(rowOf.get(p)!);
         continue;
       }
-      parentRows.push(place(p, col + 1));
+      parentRows.push(place(p, parentCol));
     }
     const row = parentRows.length ? parentRows.reduce((a, b) => a + b, 0) / parentRows.length : nextRow++;
     // A person with parents sits between them; keep the stacking cursor below the deepest row used.
@@ -80,8 +85,11 @@ function pedigree(project: Project, personId: string, generations: number, level
       const bus = cx + H_GAP / 2;
       const cy = Math.round(row * rowStep) + h / 2;
       for (const p of parents) {
-        const py = Math.round(rowOf.get(p)! * rowStep) + h / 2;
-        lines.push({ d: `M${cx} ${cy} H${bus} V${py} H${(col + 1) * colStep}` });
+        const pos = positions.get(p);
+        if (!pos) continue;
+        const py = pos.y + h / 2;
+        // Reach the card where it actually is: a repeated ancestor may sit further left.
+        lines.push({ d: `M${cx} ${cy} H${bus} V${py} H${pos.x}` });
       }
     }
     return row;

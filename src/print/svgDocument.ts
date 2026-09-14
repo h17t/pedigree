@@ -195,7 +195,8 @@ export function svgDocument(o: SvgDocOptions & { areaPx: { w: number; h: number 
   ].join('');
 }
 
-/** Embedded fonts above this many bytes make an SVG unwieldy; the dialog then suggests PNG. */
+/** Embedded fonts adding more than this to the file make an SVG unwieldy; the dialog then suggests PNG.
+ *  Measured as written, i.e. after base64 (see `fontFaceCssWithSize`). */
 export const LARGE_FONT_BYTES = 5 * 1024 * 1024;
 
 /**

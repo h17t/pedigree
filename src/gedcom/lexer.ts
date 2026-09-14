@@ -1,6 +1,7 @@
 /**
  * GEDCOM line lexer. Tolerates CR, LF and CRLF, a BOM, leading whitespace, over-long lines,
- * and joins CONC/CONT continuation lines into the value of the preceding line.
+ * and joins CONC/CONT continuation lines into the value of the preceding line. A value written
+ * "@@…" carries a literal "@" and is unescaped here (see `lineFor` for the writing side).
  */
 export interface GedLine {
   level: number;
@@ -32,7 +33,8 @@ export function lex(text: string): LexResult {
     }
     const level = Number(m[1]);
     const tag = m[3]!.toUpperCase();
-    const value = m[4] ?? '';
+    // "@@" at the start of a value is the escape for a literal "@" (a lone "@" would read as a pointer).
+    const value = (m[4] ?? '').replace(/^@@/, '@');
     const prev = out[out.length - 1];
     if ((tag === 'CONC' || tag === 'CONT') && prev && level === prev.level + 1 && !m[2]) {
       prev.value += tag === 'CONT' ? `\n${value}` : value;

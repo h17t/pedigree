@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useT } from '@/i18n';
+import { intlTag, useT } from '@/i18n';
 import type { TKey } from '@/i18n';
 import type { RelationType, UnionStatus } from '@/model/types';
 import { displayName } from '@/model/types';
@@ -21,7 +21,7 @@ const RELATIONS: RelationType[] = ['biological', 'adopted', 'step', 'foster', 'u
  * who cannot take the role are listed with the reason instead of being hidden.
  */
 export function LinkDialog({ personId, role, unionId: presetUnion }: { personId: string; role: LinkRole; unionId?: string }) {
-  const { t } = useT();
+  const { t, locale } = useT();
   const project = useAppStore((s) => s.project)!;
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<UnionStatus>('unknown');
@@ -34,7 +34,7 @@ export function LinkDialog({ personId, role, unionId: presetUnion }: { personId:
     const p = project.persons[id];
     return p ? displayName(p, t('person.née')) || t('person.unnamed') : t('common.unknown');
   };
-  const matches = query.trim() ? searchPersons(project, query).slice(0, 8) : [];
+  const matches = query.trim() ? searchPersons(project, query, intlTag[locale]).slice(0, 8) : [];
 
   const problem = (otherId: string): LinkProblem | null => {
     switch (role) {
@@ -60,12 +60,8 @@ export function LinkDialog({ personId, role, unionId: presetUnion }: { personId:
       else if (role === 'sibling') makeSiblings(d, personId, otherId);
       else {
         // Child: use the chosen family, or create one for a person without partnerships.
-        let target = unionId;
-        if (!target) {
-          const r = linkParent(d, otherId, personId);
-          target = r.id;
-          return;
-        }
+        // linkParent makes the child link itself, so the chosen relation is applied to it.
+        const target = unionId ?? linkParent(d, otherId, personId, relation).id;
         linkChild(d, target, otherId, relation);
       }
     });

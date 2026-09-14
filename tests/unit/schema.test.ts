@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { migrateProject, migrations, normalizeProject } from '@/model/schema';
+import { validateProject } from '@/model/validation';
 import { SCHEMA_VERSION, createProject, createPerson } from '@/model/types';
 
 describe('migrateProject', () => {
@@ -74,5 +75,75 @@ describe('schema 1 → 2: branch tags become colour groups', () => {
     expect(r.project.persons.d!.groupId).toBeNull();
     expect('tag' in r.project.persons.a!).toBe(false);
     expect(r.changes).toContain('Family branch tags became colour groups');
+  });
+});
+
+describe('normalizeProject repairs hand-edited or third-party files', () => {
+  const base = { schemaVersion: SCHEMA_VERSION, id: 'x', name: 'n', createdAt: 1, modifiedAt: 1 };
+  const load = (extra: Record<string, unknown>) => {
+    const m = migrateProject({ ...base, persons: {}, unions: {}, childLinks: {}, ...extra });
+    if (!m.ok) throw new Error('refused');
+    return m.project;
+  };
+
+  it('drops records that are not objects instead of crashing later', () => {
+    const p = load({ unions: { u1: null }, childLinks: { l1: null }, persons: { p1: 'nope' } });
+    expect(Object.keys(p.persons)).toHaveLength(0);
+    expect(Object.keys(p.unions)).toHaveLength(0);
+    expect(Object.keys(p.childLinks)).toHaveLength(0);
+    expect(() => validateProject(p)).not.toThrow();
+  });
+
+  it('fills in missing sub-objects and wrong types with the defaults', () => {
+    const p = load({ persons: { p1: { id: 'p1', givenNames: 'A', surname: 'B', events: 'no', position: { x: 'a', y: 2 }, groupId: 7, birth: null } } });
+    const person = p.persons.p1!;
+    expect(person.birth).toEqual({ date: null, qualifier: 'exact', place: '', note: '' });
+    expect(person.death.cause).toBe('');
+    expect(person.events).toEqual([]);
+    expect(person.position).toBeNull();
+    expect(person.groupId).toBeNull();
+    expect(person.givenNames).toBe('A');
+    expect(() => validateProject(p)).not.toThrow();
+  });
+
+  it('keeps optional range fields and drops dangling references', () => {
+    const p = load({
+      persons: { p1: { id: 'p1', givenNames: 'A', surname: 'B', birth: { date: '1920', qualifier: 'between', dateEnd: '1925', place: '', note: '' } } },
+      unions: { u1: { id: 'u1', partnerIds: ['p1', 'ghost', 'p1'] }, u2: { id: 'u2', partnerIds: ['ghost'] } },
+      childLinks: { l1: { id: 'l1', unionId: 'u1', childId: 'ghost', relationType: 'biological' }, l2: { id: 'l2', unionId: 'gone', childId: 'p1', relationType: 'biological' } },
+    });
+    expect(p.persons.p1!.birth.dateEnd).toBe('1925');
+    expect(p.unions.u1!.partnerIds).toEqual(['p1']);
+    expect(p.unions.u2).toBeUndefined(); // no partner left and no children
+    expect(Object.keys(p.childLinks)).toHaveLength(0);
+  });
+
+  it('never lets a key from the file change an object prototype', () => {
+    const person = JSON.parse('{"id":"p1","givenNames":"A","surname":"B","__proto__":{"polluted":1}}') as Record<string, unknown>;
+    const p = load({ persons: { p1: person } });
+    expect(Object.getPrototypeOf(p.persons.p1!)).toBe(Object.prototype);
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+});
+
+describe('normalizeProject refuses ids and versions that are not data', () => {
+  it('drops a record keyed like a prototype instead of changing the object', () => {
+    const raw = JSON.parse(
+      `{"schemaVersion":${SCHEMA_VERSION},"id":"x","name":"n","persons":{"__proto__":{"id":"__proto__","givenNames":"Ghost","surname":"G"},"p1":{"id":"p1","givenNames":"A","surname":"B"}},"unions":{},"childLinks":{}}`,
+    ) as unknown;
+    const m = migrateProject(raw);
+    expect(m.ok).toBe(true);
+    if (!m.ok) return;
+    expect(Object.keys(m.project.persons)).toEqual(['p1']);
+    expect(Object.getPrototypeOf(m.project.persons)).toBe(Object.prototype);
+    // Without the guard this lookup would inherit "Ghost" from the poisoned prototype.
+    expect((m.project.persons as Record<string, unknown>).givenNames).toBeUndefined();
+  });
+
+  it('refuses a schema version that is not a whole number', () => {
+    for (const v of [NaN, 1.5, -1, Infinity]) {
+      const r = migrateProject({ schemaVersion: v, id: 'x', name: 'n', persons: {}, unions: {}, childLinks: {} });
+      expect(r.ok, String(v)).toBe(false);
+    }
   });
 });

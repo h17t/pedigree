@@ -126,6 +126,7 @@ export const pt: Dictionary = {
     title: 'Ficha familiar',
     open: 'Ficha familiar',
     intro: 'Uma página com tudo o que está registado sobre esta pessoa e a sua família mais próxima.',
+    privateHint: 'As pessoas marcadas como privadas ficam de fora.',
     print: 'Imprimir',
     saveHtml: 'Guardar como ficheiro HTML',
     saved: 'Ficha familiar guardada como {file}.',

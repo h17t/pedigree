@@ -57,9 +57,10 @@ export class UndoStack<T extends object> {
     this.future = data.future.slice(-UNDO_LIMIT);
   }
 
-  /** Drop the oldest half of the history (used when the stored copy does not fit). */
+  /** Drop the oldest half of the longer stack (used when the stored copy does not fit). */
   halve(): void {
-    this.past = this.past.slice(Math.ceil(this.past.length / 2));
+    if (this.future.length > this.past.length) this.future = this.future.slice(Math.ceil(this.future.length / 2));
+    else this.past = this.past.slice(Math.ceil(this.past.length / 2));
   }
 
   /**

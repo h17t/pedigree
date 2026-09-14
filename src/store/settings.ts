@@ -28,7 +28,9 @@ export type NameOrder = 'auto' | 'givenFirst' | 'surnameFirst';
 
 const defaults = (): Settings => {
   const locale = detectLocale(typeof navigator !== 'undefined' ? navigator.language : undefined);
-  return { locale, dateFormat: locale === 'de' ? 'dayFirst' : 'dayFirst', lastOpenProjectId: null, storageCapacity: null, localeChosen: false, theme: 'system', nameOrder: 'auto' };
+  // Day first everywhere: the shipped languages all write the day first, and the field offers
+  // the other reading in one click (the setting on the Data page changes the default).
+  return { locale, dateFormat: 'dayFirst', lastOpenProjectId: null, storageCapacity: null, localeChosen: false, theme: 'system', nameOrder: 'auto' };
 };
 
 function load(): Settings {

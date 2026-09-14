@@ -86,13 +86,13 @@ export async function fontFaceCss(chunks: FontChunk[], load: (file: string) => P
   return (await fontFaceCssWithSize(chunks, load)).css;
 }
 
-/** Same, also reporting the font bytes embedded (before base64). */
+/** Same, also reporting how many bytes the embedded fonts add to the file (base64, as written). */
 export async function fontFaceCssWithSize(chunks: FontChunk[], load: (file: string) => Promise<ArrayBuffer>): Promise<{ css: string; bytes: number }> {
   const rules: string[] = [];
   let bytes = 0;
   for (const c of chunks) {
     const buf = await load(c.file);
-    bytes += buf.byteLength;
+    bytes += Math.ceil(buf.byteLength / 3) * 4;
     rules.push(`@font-face{font-family:"${c.family ?? 'Atkinson Hyperlegible Next'}";font-style:normal;font-weight:${c.weight};src:url(data:font/woff2;base64,${toBase64(buf)}) format("woff2");unicode-range:${c.unicodeRange};}`);
   }
   return { css: rules.join('\n'), bytes };

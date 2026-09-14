@@ -220,8 +220,9 @@ describe('deletePerson', () => {
       deletePerson(d, bb.id);
     });
     expect(gone.unions[cu.id]).toBeUndefined();
-    const prev = previewDeletePerson(produce(c.project, (d) => deletePerson(d, a.id)), bb.id);
-    expect(prev.unions[0]!.outcome).toBe('removed');
+    // A childless partnership goes as soon as one partner is deleted: nothing is left to show.
+    expect(previewDeletePerson(c.project, a.id).unions[0]!.outcome).toBe('removed');
+    expect(produce(c.project, (d) => deletePerson(d, a.id)).unions[cu.id]).toBeUndefined();
   });
 });
 
@@ -257,6 +258,23 @@ describe('deleteUnion', () => {
 });
 
 describe('mergePersons', () => {
+  it('keeps one partnership per pair when both records had one with the same person, and drops a childless self-union', () => {
+    const b = build();
+    const a = b.person('A'), a2 = b.person('A2'), x = b.person('X');
+    const k1 = b.person('K1'), k2 = b.person('K2');
+    const u1 = b.family([a, x], [k1]);
+    const u2 = b.family([a2, x], [k2]);
+    b.union([a, a2]); // the two duplicates were even recorded as partners of each other
+    const next = produce(b.project, (d) => mergePersons(d, { survivorId: a.id, loserId: a2.id, choices: {}, keepConflictsInNotes: false }, { mergedFrom: 'Merged' }));
+    const pair = Object.values(next.unions).filter((u) => u.partnerIds.includes(a.id) && u.partnerIds.includes(x.id));
+    expect(pair).toHaveLength(1);
+    expect(pair[0]!.id).toBe(u1.id);
+    expect(next.unions[u2.id]).toBeUndefined();
+    expect(Object.values(next.childLinks).filter((l) => l.unionId === u1.id).map((l) => l.childId).sort()).toEqual([k1.id, k2.id].sort());
+    expect(Object.values(next.unions).some((u) => u.partnerIds.length === 1 && u.partnerIds[0] === a.id)).toBe(false);
+    expect(Object.keys(next.unions)).toHaveLength(1);
+  });
+
   it('re-points unions and child links, picks values per field, keeps conflicts in notes', () => {
     const b = build();
     const a = b.person('Anna', { surname: 'Weber', occupation: 'Lehrerin', ...born('1923') });
@@ -308,5 +326,30 @@ describe('findDuplicates', () => {
   it('is quiet on the sample family', async () => {
     const sample = (await import('@/fixtures/sample-family.json')).default as unknown as Project;
     expect(findDuplicates(sample)).toEqual([]);
+  });
+});
+
+describe('empty records never pile up', () => {
+  it('removes a "parents unknown" group once its last child is deleted', () => {
+    const b = build();
+    const s1 = b.person('S1'), s2 = b.person('S2');
+    const u = b.family([], [s1, s2]);
+    const one = produce(b.project, (d) => deletePerson(d, s1.id));
+    expect(one.unions[u.id]).toBeDefined();
+    const none = produce(one, (d) => deletePerson(d, s2.id));
+    expect(none.unions[u.id]).toBeUndefined();
+  });
+});
+
+describe('linking an existing person as a child', () => {
+  it('records the chosen relationship even when the family has to be created', () => {
+    const b = build();
+    const parent = b.person('P'), kid = b.person('K');
+    const next = produce(b.project, (d) => void linkParent(d, kid.id, parent.id, 'adopted'));
+    const link = Object.values(next.childLinks).find((l) => l.childId === kid.id)!;
+    expect(link.relationType).toBe('adopted');
+    // The default is unchanged for the "add a parent" path.
+    const plain = produce(b.project, (d) => void linkParent(d, kid.id, parent.id));
+    expect(Object.values(plain.childLinks)[0]!.relationType).toBe('biological');
   });
 });

@@ -126,6 +126,7 @@ export const nl: Dictionary = {
     title: 'Gezinsblad',
     open: 'Gezinsblad',
     intro: 'Eén pagina met alles wat over deze persoon en de naaste familie is vastgelegd.',
+    privateHint: 'Personen die als privé zijn gemarkeerd, worden weggelaten.',
     print: 'Afdrukken',
     saveHtml: 'Opslaan als HTML-bestand',
     saved: 'Gezinsblad opgeslagen als {file}.',

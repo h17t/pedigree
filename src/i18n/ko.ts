@@ -126,6 +126,7 @@ export const ko: Dictionary = {
     title: '가족 기록표',
     open: '가족 기록표',
     intro: '이 인물과 가장 가까운 가족에 대해 기록된 모든 내용을 한 페이지에 담습니다.',
+    privateHint: '비공개로 표시된 인물은 제외됩니다.',
     print: '인쇄',
     saveHtml: 'HTML 파일로 저장',
     saved: '가족 기록표가 {file}(으)로 저장되었습니다.',

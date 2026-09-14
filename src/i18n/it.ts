@@ -126,6 +126,7 @@ export const it: Dictionary = {
     title: 'Scheda familiare',
     open: 'Scheda familiare',
     intro: 'Una pagina con tutto ciò che è registrato su questa persona e la sua famiglia più stretta.',
+    privateHint: 'Le persone contrassegnate come private sono omesse.',
     print: 'Stampa',
     saveHtml: 'Salva come file HTML',
     saved: 'Scheda familiare salvata come {file}.',

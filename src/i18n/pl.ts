@@ -126,6 +126,7 @@ export const pl: Dictionary = {
     title: 'Karta rodziny',
     open: 'Karta rodziny',
     intro: 'Jedna strona ze wszystkim, co zapisano o tej osobie i jej najbliższej rodzinie.',
+    privateHint: 'Osoby oznaczone jako prywatne są pomijane.',
     print: 'Drukuj',
     saveHtml: 'Zapisz jako plik HTML',
     saved: 'Karta rodziny zapisana jako {file}.',

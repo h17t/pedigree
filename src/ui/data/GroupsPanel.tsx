@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useT } from '@/i18n';
 import type { TKey } from '@/i18n';
 import type { TagName } from '@/model/types';
@@ -28,14 +29,7 @@ export function GroupsPanel() {
               </span>
               <div className="field">
                 <label htmlFor={`group-name-${g.id}`}>{t('groups.name')}</label>
-                <input
-                  id={`group-name-${g.id}`}
-                  className="input"
-                  value={g.name}
-                  disabled={readOnly}
-                  onChange={(e) => transact(t('groups.title'), (d) => void (d.groups[i]!.name = e.target.value))}
-                  autoComplete="off"
-                />
+                <GroupNameInput id={g.id} index={i} name={g.name} readOnly={readOnly} />
               </div>
               <div className="field">
                 <label htmlFor={`group-colour-${g.id}`}>{t('groups.colour')}</label>
@@ -85,5 +79,40 @@ export function GroupsPanel() {
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * The name is edited locally and written when the field is left (or on Enter), so renaming a
+ * group is one undo step instead of one per keystroke.
+ */
+function GroupNameInput({ id, index, name, readOnly }: { id: string; index: number; name: string; readOnly: boolean }) {
+  const { t } = useT();
+  const [draft, setDraft] = useState(name);
+  const [stored, setStored] = useState(name);
+  // The stored name changed elsewhere (undo, another edit): take it over.
+  if (stored !== name) {
+    setStored(name);
+    setDraft(name);
+  }
+  const commit = () => {
+    if (draft !== name) transact(t('groups.title'), (d) => void (d.groups[index] && (d.groups[index].name = draft)));
+  };
+  return (
+    <input
+      id={`group-name-${id}`}
+      className="input"
+      value={draft}
+      disabled={readOnly}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          commit();
+        }
+      }}
+      autoComplete="off"
+    />
   );
 }

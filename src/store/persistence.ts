@@ -93,9 +93,13 @@ export function listRecoveryKeys(): { key: string; projectId: string; timestamp:
 }
 
 export function saveProject(project: Project): WriteResult {
+  const known = readIndex().some((m) => m.id === project.id);
   const w = setItem(KEY.project(project.id), JSON.stringify(project));
   if (!w.ok) return w;
   const i = upsertIndex(metaOf(project));
+  // The index is what the project list reads: a new project the index could not take would be
+  // storage nobody can see or remove, so it is rolled back instead.
+  if (!i.ok && !known) removeItem(KEY.project(project.id));
   return i.ok ? { ok: true } : i;
 }
 

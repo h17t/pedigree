@@ -101,5 +101,28 @@ export function mergePersons(d: Draft<Project>, plan: MergePlan, labels: { merge
       }
     }
   }
+  // Both records may have had a partnership with the same person: keep one partnership per pair
+  // (the first, with the children of the others), and drop a childless partnership of one alone.
+  const seen = new Map<string, string>();
+  for (const u of Object.values(d.unions)) {
+    if (!u.partnerIds.includes(a.id)) continue;
+    const hasChildren = () => Object.values(d.childLinks).some((l) => l.unionId === u.id);
+    if (u.partnerIds.length < 2) {
+      if (!hasChildren()) delete d.unions[u.id];
+      continue;
+    }
+    const key = [...u.partnerIds].sort().join('|');
+    const keep = seen.get(key);
+    if (!keep) {
+      seen.set(key, u.id);
+      continue;
+    }
+    for (const l of Object.values(d.childLinks)) {
+      if (l.unionId !== u.id) continue;
+      if (Object.values(d.childLinks).some((x) => x.unionId === keep && x.childId === l.childId)) delete d.childLinks[l.id];
+      else l.unionId = keep;
+    }
+    delete d.unions[u.id];
+  }
   delete d.persons[b.id];
 }

@@ -109,6 +109,11 @@ export function placeUnpositioned(project: Project, level: DetailLevel): Placeme
       const sc = scales.get(id) ?? 1;
       let guard = 0;
       while (overlaps(cand, card.width * sc, h * sc) && guard++ < 200) cand.x += card.width + layout.columnGap;
+      // Still no free space on that line: start a fresh row below everything rather than overlap.
+      if (overlaps(cand, card.width * sc, h * sc)) {
+        cand.x = Math.round(realC.x);
+        cand.y = Math.round(Math.max(...occupied.map((o) => o.y + o.h)) + layout.generationGap);
+      }
       positions.set(id, cand);
       provisional.add(id);
       occupied.push({ ...cand, w: card.width * sc, h: h * sc });

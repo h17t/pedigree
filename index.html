@@ -6,6 +6,15 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#F3F4F2" />
     <meta name="description" content="A family tree editor that keeps all data on your device." />
+    <!--
+      The app talks to nobody: everything is same-origin, and nothing is ever sent anywhere.
+      'unsafe-inline' for styles covers React's style attributes and the inline <style> Vite
+      emits; blob:/data: images are the PNG export and the print preview.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    />
     <title>Pedigree</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
