@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseUserDate, formatPartialDate, formatDateWithQualifier, yearsBetween, toOrdinal, qualifierMark } from '@/model/dates';
+import { parseUserDate, formatPartialDate, formatDateWithQualifier, formatYearWithQualifier, ordinalOf, yearsBetween, toOrdinal, qualifierMark } from '@/model/dates';
 
 const ok = (s: string, f: 'dayFirst' | 'monthFirst' = 'dayFirst') => {
   const r = parseUserDate(s, f);
@@ -35,7 +35,25 @@ describe('parseUserDate – German and English keyword sets', () => {
     ['ca. 1850', '1850', 'about'],
   ])('%s → %s (%s)', (input, date, qualifier) => {
     const r = ok(input);
-    expect(r.value).toEqual({ date, qualifier });
+    expect(r.value).toEqual({ date, qualifier, dateEnd: null });
+  });
+
+  it.each([
+    ['between 1920 and 1925', '1920', '1925', 'between'],
+    ['zwischen 1920 und 1925', '1920', '1925', 'between'],
+    ['bet 1920 and 1925', '1920', '1925', 'between'],
+    ['1920–1925', '1920', '1925', 'between'],
+    ['1920 - 1925', '1920', '1925', 'between'],
+    ['1920-1925', '1920', '1925', 'between'],
+    ['from 1905 to 1962', '1905', '1962', 'from'],
+    ['von 03.1905 bis 14.03.1962', '1905-03', '1962-03-14', 'from'],
+  ])('%s → %s..%s (%s)', (input, date, dateEnd, qualifier) => {
+    expect(ok(input).value).toEqual({ date, qualifier, dateEnd });
+  });
+
+  it('rejects a range whose end lies before its start', () => {
+    expect(parseUserDate('between 1925 and 1920', 'dayFirst').ok).toBe(false);
+    expect(parseUserDate('from 1962 to 1905', 'dayFirst').ok).toBe(false);
   });
 
   it('rejects impossible dates and nonsense', () => {
@@ -70,6 +88,19 @@ describe('parseUserDate – numeric conventions', () => {
 });
 
 describe('formatting', () => {
+  it('formats ranges short, long and as card years', () => {
+    expect(formatDateWithQualifier('en', '1920', 'between', 'short', '1925')).toBe('1920\u20131925');
+    expect(formatDateWithQualifier('en', '1920', 'between', 'long', '1925')).toBe('between 1920 and 1925');
+    expect(formatDateWithQualifier('de', '1920', 'between', 'long', '1925')).toBe('zwischen 1920 und 1925');
+    expect(formatDateWithQualifier('en', '1905', 'from', 'long', '1962')).toBe('from 1905 to 1962');
+    expect(formatDateWithQualifier('de', '1905-03', 'from', 'long', '1962-03-14')).toBe('von März 1905 bis 14. März 1962');
+    expect(formatDateWithQualifier('en', '1905', 'from', 'long', null)).toBe('from 1905');
+    expect(formatYearWithQualifier({ date: '1920', qualifier: 'between', dateEnd: '1925' })).toBe('1920\u20131925');
+    expect(formatYearWithQualifier({ date: '1920-03', qualifier: 'between', dateEnd: '1920-05' })).toBe('1920');
+    expect(formatYearWithQualifier({ date: '1920', qualifier: 'about', dateEnd: null })).toBe('~1920');
+    expect(ordinalOf({ date: '1920', qualifier: 'between', dateEnd: '1925' }, 'end')).toBe(toOrdinal('1925', 'end'));
+    expect(ordinalOf({ date: '1920', qualifier: 'between', dateEnd: '1925' }, 'start')).toBe(toOrdinal('1920', 'start'));
+  });
   it('formats short dates per locale', () => {
     expect(formatPartialDate('de', '1923-03-14')).toBe('14.03.1923');
     expect(formatPartialDate('en', '1923-03-14')).toBe('14 Mar 1923');

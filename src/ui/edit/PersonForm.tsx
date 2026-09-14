@@ -85,7 +85,7 @@ export function PersonForm({ person, isNew, onDone, onDelete }: { person: Person
 
       <fieldset className="form-section">
         <legend>{t('edit.sectionBirth')}</legend>
-        <DateField id="pf-birth" label={t('person.date')} value={p.birth.date} qualifier={p.birth.qualifier} onChange={(v) => set('birth', { ...p.birth, ...v })} />
+        <DateField id="pf-birth" label={t('person.date')} value={p.birth.date} qualifier={p.birth.qualifier} dateEnd={p.birth.dateEnd ?? null} onChange={(v) => set('birth', { ...p.birth, ...v })} />
         <div className="field">
           <label htmlFor="pf-birthplace">{t('person.place')}</label>
           <input id="pf-birthplace" className="input" value={p.birth.place} onChange={(e) => set('birth', { ...p.birth, place: e.target.value })} autoComplete="off" />
@@ -113,6 +113,15 @@ export function PersonForm({ person, isNew, onDone, onDelete }: { person: Person
             </p>
           )}
         </div>
+        <div className="radio-row">
+          <input id="pf-private" type="checkbox" checked={p.isPrivate} onChange={(e) => set('isPrivate', e.target.checked)} aria-describedby="pf-private-hint" />
+          <span>
+            <label htmlFor="pf-private">{t('person.private')}</label>
+            <span className="hint" id="pf-private-hint">
+              {t('person.privateHint')}
+            </span>
+          </span>
+        </div>
         <div className="field">
           <label htmlFor="pf-occupation">{t('person.occupation')}</label>
           <input id="pf-occupation" className="input" value={p.occupation} onChange={(e) => set('occupation', e.target.value)} autoComplete="off" />
@@ -129,7 +138,7 @@ export function PersonForm({ person, isNew, onDone, onDelete }: { person: Person
 
       <fieldset className="form-section">
         <legend>{t('edit.sectionDeath')}</legend>
-        <DateField id="pf-death" label={t('person.date')} value={p.death.date} qualifier={p.death.qualifier} onChange={(v) => set('death', { ...p.death, ...v })} />
+        <DateField id="pf-death" label={t('person.date')} value={p.death.date} qualifier={p.death.qualifier} dateEnd={p.death.dateEnd ?? null} onChange={(v) => set('death', { ...p.death, ...v })} />
         <div className="field">
           <label htmlFor="pf-deathplace">{t('person.place')}</label>
           <input id="pf-deathplace" className="input" value={p.death.place} onChange={(e) => set('death', { ...p.death, place: e.target.value })} autoComplete="off" />
@@ -164,7 +173,7 @@ export function PersonForm({ person, isNew, onDone, onDelete }: { person: Person
                 <input id={`ev-label-${ev.id}`} className="input" value={ev.label} onChange={(e) => set('events', p.events.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} autoComplete="off" />
               </div>
             )}
-            <DateField id={`ev-date-${ev.id}`} label={t('person.date')} value={ev.date} qualifier={ev.qualifier} onChange={(v) => set('events', p.events.map((x, j) => (j === i ? { ...x, ...v } : x)))} />
+            <DateField id={`ev-date-${ev.id}`} label={t('person.date')} value={ev.date} qualifier={ev.qualifier} dateEnd={ev.dateEnd ?? null} onChange={(v) => set('events', p.events.map((x, j) => (j === i ? { ...x, ...v } : x)))} />
             <div className="field">
               <label htmlFor={`ev-place-${ev.id}`}>{t('person.place')}</label>
               <input id={`ev-place-${ev.id}`} className="input" value={ev.place} onChange={(e) => set('events', p.events.map((x, j) => (j === i ? { ...x, place: e.target.value } : x)))} autoComplete="off" />

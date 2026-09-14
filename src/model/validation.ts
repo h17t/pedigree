@@ -4,7 +4,7 @@
  */
 import type { Project } from './types';
 import { effectiveLifeStatus, personName } from './types';
-import { toOrdinal, yearsBetween, todayDate } from './dates';
+import { isRange, ordinalOf, yearsBetween, todayDate } from './dates';
 import { breakCycles, buildAdjacency } from './graph';
 
 export type WarningCode =
@@ -14,6 +14,7 @@ export type WarningCode =
   | 'cycle'
   | 'implausibleAge'
   | 'livingTooOld'
+  | 'parentTooYoung'
   | 'partnerAge';
 
 export interface ValidationWarning {
@@ -23,7 +24,9 @@ export interface ValidationWarning {
   params: Record<string, string>;
 }
 
-const MAX_AGE = 120;
+const MAX_AGE = 115;
+const MIN_PARENT_AGE = 13;
+const MIN_MARRIAGE_AGE = 12;
 const NINE_MONTHS_DAYS = 275;
 
 export function validateProject(project: Project, today = todayDate()): ValidationWarning[] {
@@ -35,9 +38,9 @@ export function validateProject(project: Project, today = todayDate()): Validati
   };
 
   for (const p of persons) {
-    const b = toOrdinal(p.birth.date, 'start');
-    const dEnd = toOrdinal(p.death.date, 'end');
-    const dStart = toOrdinal(p.death.date, 'start');
+    const b = ordinalOf(p.birth, 'start');
+    const dEnd = ordinalOf(p.death, 'end');
+    const dStart = ordinalOf(p.death, 'start');
     if (b !== null && dEnd !== null && dEnd < b) {
       out.push({ code: 'deathBeforeBirth', personIds: [p.id], params: { name: name(p.id) } });
     }
@@ -62,16 +65,22 @@ export function validateProject(project: Project, today = todayDate()): Validati
     const child = project.persons[link.childId];
     const union = project.unions[link.unionId];
     if (!child || !union) continue;
-    const cb = toOrdinal(child.birth.date, 'start');
+    const cb = ordinalOf(child.birth, 'start');
     if (cb === null) continue;
     for (const pid of union.partnerIds) {
       const parent = project.persons[pid];
       if (!parent) continue;
-      const pb = toOrdinal(parent.birth.date, 'end');
+      const pb = ordinalOf(parent.birth, 'end');
+      const blood = link.relationType !== 'step' && link.relationType !== 'foster' && link.relationType !== 'adopted';
       if (pb !== null && cb < pb && link.relationType !== 'step' && link.relationType !== 'foster') {
         out.push({ code: 'childOlderThanParent', personIds: [child.id, parent.id], params: { child: name(child.id), parent: name(parent.id) } });
+      } else if (pb !== null && blood) {
+        // The latest possible birth of the parent, so a range never causes a false alarm.
+        const latest = isRange(parent.birth.qualifier) && parent.birth.dateEnd ? parent.birth.dateEnd : parent.birth.date;
+        const age = yearsBetween(latest, child.birth.date);
+        if (age !== null && age < MIN_PARENT_AGE) out.push({ code: 'parentTooYoung', personIds: [parent.id, child.id], params: { parent: name(parent.id), child: name(child.id) } });
       }
-      const pd = toOrdinal(parent.death.date, 'end');
+      const pd = ordinalOf(parent.death, 'end');
       if (pd !== null && parent.sex === 'male' && link.relationType === 'biological' && cb - pd > NINE_MONTHS_DAYS) {
         out.push({ code: 'birthAfterFatherDeath', personIds: [child.id, parent.id], params: { child: name(child.id), father: name(parent.id) } });
       }
@@ -84,7 +93,7 @@ export function validateProject(project: Project, today = todayDate()): Validati
       const p = project.persons[pid];
       if (!p?.birth.date) continue;
       const age = yearsBetween(p.birth.date, u.marriageDate);
-      if (age !== null && age < 14) out.push({ code: 'partnerAge', personIds: [pid], params: { name: name(pid) } });
+      if (age !== null && age < MIN_MARRIAGE_AGE) out.push({ code: 'partnerAge', personIds: [pid], params: { name: name(pid) } });
     }
   }
   void adj;

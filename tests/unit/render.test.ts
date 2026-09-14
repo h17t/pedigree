@@ -58,7 +58,7 @@ describe('card text and geometry', () => {
   it('minimal shows name and years with marks', () => {
     const t = cardText(p, 'minimal', 'en');
     expect(t.nameLines.join(' ')).toBe('Anna Maria Weber (née Schmidt)');
-    expect(t.lines).toEqual(['1923 – † 2001']);
+    expect(t.lines).toEqual(['* 1923 – † 2001']);
     expect(t.deceased).toBe(true);
   });
   it('standard shows full dates with places and occupation', () => {
@@ -77,9 +77,9 @@ describe('card text and geometry', () => {
   });
   it('uncertain dates carry ~ < > and living people show no death', () => {
     const q = createPerson({ givenNames: 'X', surname: 'Y', lifeStatus: 'living', birth: { date: '1950', qualifier: 'about', place: '', note: '' } });
-    expect(cardText(q, 'minimal', 'en').lines).toEqual(['~1950']);
+    expect(cardText(q, 'minimal', 'en').lines).toEqual(['* ~1950']);
     const r = createPerson({ givenNames: 'X', surname: 'Y', birth: { date: '1950', qualifier: 'before', place: '', note: '' }, death: { date: '2000', qualifier: 'after', place: '', note: '', cause: '' } });
-    expect(cardText(r, 'minimal', 'en').lines).toEqual(['<1950 – † >2000']);
+    expect(cardText(r, 'minimal', 'en').lines).toEqual(['* <1950 – † >2000']);
   });
 });
 

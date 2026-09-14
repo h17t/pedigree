@@ -10,6 +10,8 @@ const MONTH_NAMES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SE
 export interface GedcomDate {
   date: PartialDate;
   qualifier: DateQualifier;
+  /** End of a BET … AND … or FROM … TO … range. */
+  dateEnd?: PartialDate;
   /** Set when the original could not be represented exactly. */
   gedcomDate?: string;
   /** Whether the interpretation is approximate (for the report). */
@@ -24,13 +26,13 @@ function validDay(y: number, m: number, d: number): boolean {
 function simple(s: string): { date: PartialDate; exact: boolean } | null {
   let t = s.trim().toUpperCase();
   let exact = true;
-  // calendar escapes
-  const esc = t.match(/^@#D(\w+)@\s*(.*)$/);
+  // calendar escapes: 5.5.1 "@#DJULIAN@ …", 7 "JULIAN …"
+  const esc = t.match(/^@#D(\w+)@\s*(.*)$/) || t.match(/^(GREGORIAN|JULIAN|FRENCH_R|HEBREW|ROMAN|UNKNOWN)\s+(.*)$/);
   if (esc) {
     if (esc[1] !== 'GREGORIAN') exact = false;
     t = esc[2]!;
   }
-  if (/\bB\.?C\.?$/.test(t)) return { date: null, exact: false };
+  if (/\b(B\.?C\.?|BCE)$/.test(t)) return { date: null, exact: false };
   let m: RegExpMatchArray | null;
   if ((m = t.match(/^(\d{1,2})\s+([A-Z]{3})\s+(\d{3,4})(?:\/(\d{2}))?$/))) {
     const mo = MONTHS[m[2]!];
@@ -66,13 +68,20 @@ export function parseGedcomDate(value: string): GedcomDate {
     if (!s) return { date: null, qualifier: q, gedcomDate: v, uncertain: true };
     return keep(s.date, q, s.exact && m[1] !== 'CAL');
   }
-  if ((m = up.match(/^BET\.?\s+(.+?)\s+AND\s+(.+)$/))) {
-    const s = simple(m[1]!);
-    return { date: s?.date ?? null, qualifier: 'about', gedcomDate: v, uncertain: true };
+  if ((m = up.match(/^BET\.?\s+(.+?)\s+AND\s+(.+)$/)) || (m = up.match(/^FROM\s+(.+?)\s+TO\s+(.+)$/))) {
+    const q: DateQualifier = up.startsWith('BET') ? 'between' : 'from';
+    const a = simple(m[1]!), b = simple(m[2]!);
+    if (a?.date && b?.date && a.exact && b.exact) return { date: a.date, qualifier: q, dateEnd: b.date, uncertain: false };
+    return { date: a?.date ?? null, qualifier: q, dateEnd: b?.date ?? null, gedcomDate: v, uncertain: true };
   }
-  if ((m = up.match(/^FROM\s+(.+?)\s+TO\s+(.+)$/)) || (m = up.match(/^(?:FROM|TO)\s+(.+)$/))) {
+  if ((m = up.match(/^FROM\s+(.+)$/))) {
     const s = simple(m[1]!);
-    return { date: s?.date ?? null, qualifier: 'exact', gedcomDate: v, uncertain: true };
+    if (s?.date && s.exact) return { date: s.date, qualifier: 'from', dateEnd: null, uncertain: false };
+    return { date: s?.date ?? null, qualifier: 'from', gedcomDate: v, uncertain: true };
+  }
+  if ((m = up.match(/^TO\s+(.+)$/))) {
+    const s = simple(m[1]!);
+    return { date: s?.date ?? null, qualifier: 'before', gedcomDate: v, uncertain: true };
   }
   if ((m = up.match(/^INT\.?\s+(.+?)\s*\((.*)\)$/))) {
     const s = simple(m[1]!);
@@ -84,12 +93,18 @@ export function parseGedcomDate(value: string): GedcomDate {
   return keep(s.date, 'exact', s.exact);
 }
 
+function gedcomCore(date: string): string {
+  const [y, mo, d] = date.split('-');
+  return d ? `${Number(d)} ${MONTH_NAMES[Number(mo) - 1]} ${y}` : mo ? `${MONTH_NAMES[Number(mo) - 1]} ${y}` : y!;
+}
+
 /** Internal → GEDCOM date value. Uses the verbatim original when present. */
-export function formatGedcomDate(date: PartialDate, qualifier: DateQualifier, verbatim?: string): string {
+export function formatGedcomDate(date: PartialDate, qualifier: DateQualifier, verbatim?: string, dateEnd: PartialDate = null): string {
   if (verbatim) return verbatim;
   if (!date) return '';
-  const [y, mo, d] = date.split('-');
-  const core = d ? `${Number(d)} ${MONTH_NAMES[Number(mo) - 1]} ${y}` : mo ? `${MONTH_NAMES[Number(mo) - 1]} ${y}` : y!;
+  const core = gedcomCore(date);
+  if (qualifier === 'between') return dateEnd ? `BET ${core} AND ${gedcomCore(dateEnd)}` : `AFT ${core}`;
+  if (qualifier === 'from') return dateEnd ? `FROM ${core} TO ${gedcomCore(dateEnd)}` : `FROM ${core}`;
   const prefix = qualifier === 'about' ? 'ABT ' : qualifier === 'estimated' ? 'EST ' : qualifier === 'before' ? 'BEF ' : qualifier === 'after' ? 'AFT ' : '';
   return prefix + core;
 }

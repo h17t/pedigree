@@ -2,14 +2,15 @@
  * Undo/redo built on Immer patches. Each entry stores the forward and inverse patches of
  * one user-visible step. Nested transactions join the outermost one, so bulk operations
  * (wizard completion, auto-layout, merge-import) become a single step by construction.
- * The stack lives in memory only, is capped at 50 entries and is cleared on project switch.
+ * The stack is capped at 200 entries and cleared on project switch; the store keeps a copy in
+ * sessionStorage so the history survives a reload of the same tab (see `snapshot`/`restore`).
  */
 import { applyPatches, enablePatches, produceWithPatches } from 'immer';
 import type { Draft, Patch } from 'immer';
 
 enablePatches();
 
-export const UNDO_LIMIT = 50;
+export const UNDO_LIMIT = 200;
 
 export interface UndoEntry {
   label: string;
@@ -43,6 +44,22 @@ export class UndoStack<T extends object> {
   clear(): void {
     this.past = [];
     this.future = [];
+  }
+
+  /** Plain copy of the history for storage. */
+  snapshot(): { past: UndoEntry[]; future: UndoEntry[] } {
+    return { past: this.past, future: this.future };
+  }
+
+  /** Replace the history with a stored copy (entries are trusted to match the state). */
+  restore(data: { past: UndoEntry[]; future: UndoEntry[] }): void {
+    this.past = data.past.slice(-UNDO_LIMIT);
+    this.future = data.future.slice(-UNDO_LIMIT);
+  }
+
+  /** Drop the oldest half of the history (used when the stored copy does not fit). */
+  halve(): void {
+    this.past = this.past.slice(Math.ceil(this.past.length / 2));
   }
 
   /**
@@ -83,14 +100,27 @@ export class UndoStack<T extends object> {
   undo(state: T): { state: T; entry: UndoEntry } | null {
     const entry = this.past.pop();
     if (!entry) return null;
-    this.future.push(entry);
-    return { state: applyPatches(state, entry.inversePatches), entry };
+    try {
+      const next = applyPatches(state, entry.inversePatches);
+      this.future.push(entry);
+      return { state: next, entry };
+    } catch {
+      // A stored history that no longer fits the state (edited elsewhere): drop it.
+      this.clear();
+      return null;
+    }
   }
 
   redo(state: T): { state: T; entry: UndoEntry } | null {
     const entry = this.future.pop();
     if (!entry) return null;
-    this.past.push(entry);
-    return { state: applyPatches(state, entry.patches), entry };
+    try {
+      const next = applyPatches(state, entry.patches);
+      this.past.push(entry);
+      return { state: next, entry };
+    } catch {
+      this.clear();
+      return null;
+    }
   }
 }

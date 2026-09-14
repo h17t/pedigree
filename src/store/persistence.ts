@@ -119,6 +119,8 @@ export interface ProjectUiMeta {
   filter: { kind: 'ancestors'; personId: string } | { kind: 'descendants'; personId: string } | { kind: 'around'; personId: string; generations: number } | { kind: 'ids'; ids: string[] } | null;
   legendOpen: boolean;
   snapToGrid: boolean;
+  /** Leave people marked private off the canvas (off by default; print and export have their own switch). */
+  hidePrivate: boolean;
   /** Chart mode of the tree view (pedigree or descendants), or the ordinary canvas. */
   chart: { kind: 'ancestors'; personId: string; generations: number } | { kind: 'descendants'; personId: string; depth: number } | null;
 }
@@ -135,6 +137,7 @@ export const defaultUiMeta = (): ProjectUiMeta => ({
   filter: null,
   legendOpen: false,
   snapToGrid: false,
+  hidePrivate: false,
   chart: null,
 });
 

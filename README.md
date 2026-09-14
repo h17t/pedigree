@@ -37,7 +37,12 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   of partnerships. Nothing about a relationship is assumed: it stays "not recorded" until you set
   it. When choosing an existing person, people who cannot take the role are listed with the reason.
   **Edit** and **Delete** at the top act on the person; deleting explains what else changes, and
-  **Undo** and **Redo** are always in the header.
+  **Undo** and **Redo** are always in the header; the last 200 steps are kept and survive a reload
+  of the same tab. Dates take a year, a partial or full date, a qualifier (~ < > or words) or a
+  range ("between 1920 and 1925", "from 1905 to 1962"); cards show "* 1878 – † 1950". A person
+  can be marked **private**: prints, SVG/PNG files and GEDCOM exports leave private people out
+  while "Hide private people" is on there (it is by default), and a toolbar button hides them on
+  the canvas too.
 - **Charts**: with a person selected, the details column offers an **Ancestor chart** (the person
   on the left, parents to the right, four to eight generations) and a **Descendant chart** (the
   person on top, descendants below, depth selectable). Charts are drawn from the data each time,
@@ -64,7 +69,9 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   PNG image. See "Printing large trees" below.
 - **Data → GEDCOM files** imports a `.ged` file (GEDCOM 5.5.1; UTF-8, UTF-16, ANSEL and
   Windows-1252 are recognised) as a new tree or into the open tree, shows an import report, and
-  exports the tree as GEDCOM 5.5.1 for other programs. GEDCOM 7 files are refused with an explanation.
+  exports the tree as GEDCOM 5.5.1 for other programs. GEDCOM 7 files are read as well (header,
+  people, families, names, sex, events, dates including ranges and calendars, places, shared notes);
+  exports are always 5.5.1.
 - **Data → Possible duplicates** lists people who may be the same person and lets you merge them
   field by field.
 - **Data** holds the backup buttons, the storage meter, the language and the date-format setting.

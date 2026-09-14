@@ -65,7 +65,7 @@ test('the guided start creates the family as one undo step and lands on the canv
   // The wizard result is laid out (no provisional outlines) and "you" is selected.
   await expect(page.getByRole('button', { name: /Anna Muster/ }).first()).toBeVisible();
   // The father is deceased with his year, the mother's status is not known, the parents are divorced.
-  await expect(page.getByRole('button', { name: /Peter Muster, 1955 – † 2010/ }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /Peter Muster, born 1955, died 2010/ }).first()).toBeVisible();
   await page.getByRole('button', { name: 'List', exact: true }).click();
   await page.getByRole('button', { name: /Peter Muster/ }).first().click();
   await expect(page.getByText(/divorced/).first()).toBeVisible();

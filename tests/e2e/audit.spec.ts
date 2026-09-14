@@ -24,7 +24,7 @@ test('tree states: selection with details, add menu, legend, layout panel, filte
   await openTree(page);
   const w = page.viewportSize()?.width ?? 0;
   await page.getByLabel('Type a name to jump to a person').fill('karl');
-  await page.getByRole('button', { name: /Karl Weber, 1878/ }).first().click();
+  await page.getByRole('button', { name: /Karl Weber, born 1878/ }).first().click();
   await page.waitForTimeout(200);
   await axe(page, 'tree with a selection');
   // Laptops list the add actions in the details column; phones open them from the bar.

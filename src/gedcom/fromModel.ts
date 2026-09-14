@@ -59,8 +59,8 @@ export function exportGedcom(project: Project, options: ExportOptions): { text: 
     push(1, 'NAME', 'Unknown');
   }
 
-  const dateLine = (level: number, date: string | null, qualifier: Person['birth']['qualifier'], verbatim: string | undefined) => {
-    const d = formatGedcomDate(date, qualifier, verbatim);
+  const dateLine = (level: number, date: string | null, qualifier: Person['birth']['qualifier'], verbatim: string | undefined, dateEnd: string | null = null) => {
+    const d = formatGedcomDate(date, qualifier, verbatim, dateEnd);
     if (verbatim) note('rangesVerbatim');
     if (d) push(level, 'DATE', d);
   };
@@ -103,7 +103,7 @@ export function exportGedcom(project: Project, options: ExportOptions): { text: 
     }
     if (p.birth.date || p.birth.place || p.birth.note || p.birth.gedcomDate) {
       push(1, 'BIRT');
-      dateLine(2, p.birth.date, p.birth.qualifier, p.birth.gedcomDate);
+      dateLine(2, p.birth.date, p.birth.qualifier, p.birth.gedcomDate, p.birth.dateEnd ?? null);
       if (p.birth.place) push(2, 'PLAC', p.birth.place);
       if (p.birth.note) push(2, 'NOTE', p.birth.note);
       rawUnder('BIRT');
@@ -111,7 +111,7 @@ export function exportGedcom(project: Project, options: ExportOptions): { text: 
     const deathHasData = !!(p.death.date || p.death.place || p.death.note || p.death.cause || p.death.gedcomDate);
     if (deathHasData) {
       push(1, 'DEAT');
-      dateLine(2, p.death.date, p.death.qualifier, p.death.gedcomDate);
+      dateLine(2, p.death.date, p.death.qualifier, p.death.gedcomDate, p.death.dateEnd ?? null);
       if (p.death.place) push(2, 'PLAC', p.death.place);
       if (p.death.cause) push(2, 'CAUS', p.death.cause);
       if (p.death.note) push(2, 'NOTE', p.death.note);
@@ -124,7 +124,7 @@ export function exportGedcom(project: Project, options: ExportOptions): { text: 
       const tag = e.type === 'baptism' ? 'BAPM' : e.type === 'burial' ? 'BURI' : e.type === 'residence' ? 'RESI' : e.type === 'emigration' ? 'EMIG' : 'EVEN';
       push(1, tag, e.type === 'residence' ? e.label : '');
       if (e.type === 'other' && e.label) push(2, 'TYPE', e.label);
-      dateLine(2, e.date, e.qualifier, e.gedcomDate);
+      dateLine(2, e.date, e.qualifier, e.gedcomDate, e.dateEnd ?? null);
       if (e.place) push(2, 'PLAC', e.place);
       if (e.note) push(2, 'NOTE', e.note);
       rawUnder(tag);
@@ -160,13 +160,13 @@ export function exportGedcom(project: Project, options: ExportOptions): { text: 
     for (const l of Object.values(project.childLinks)) if (l.unionId === u.id && xrefOf.has(l.childId)) push(1, 'CHIL', xrefOf.get(l.childId));
     if (u.type === 'marriage' || u.type === 'partnership' || u.marriageDate || u.marriagePlace || u.marriageGedcomDate) {
       push(1, 'MARR');
-      dateLine(2, u.marriageDate, u.marriageQualifier, u.marriageGedcomDate);
+      dateLine(2, u.marriageDate, u.marriageQualifier, u.marriageGedcomDate, u.marriageDateEnd ?? null);
       if (u.marriagePlace) push(2, 'PLAC', u.marriagePlace);
       if (u.type === 'partnership') push(2, 'TYPE', 'partnership');
     }
     if (u.divorceDate || u.divorceGedcomDate) {
       push(1, 'DIV');
-      dateLine(2, u.divorceDate, u.divorceQualifier, u.divorceGedcomDate);
+      dateLine(2, u.divorceDate, u.divorceQualifier, u.divorceGedcomDate, u.divorceDateEnd ?? null);
     } else if (u.status === 'divorced') push(1, 'DIV', 'Y');
     if (u.type === 'unmarried') push(1, '_STAT', 'unmarried');
     else if (u.status === 'separated') push(1, '_STAT', 'separated');

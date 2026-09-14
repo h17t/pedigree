@@ -11,12 +11,23 @@
  */
 import type { DateQualifier, PartialDate } from './types';
 import type { DateFormat, Locale } from '@/i18n/types';
-import { intlTag } from '@/i18n';
+import { intlTag, translate } from '@/i18n';
 
 export interface ParsedDate {
   date: PartialDate;
   qualifier: DateQualifier;
+  /** End of a range ('between' or 'from'), otherwise null. */
+  dateEnd: PartialDate;
 }
+
+/** Anything that carries a date with its qualifier and, for ranges, an end. */
+export interface DateLike {
+  date: PartialDate;
+  qualifier: DateQualifier;
+  dateEnd?: PartialDate;
+}
+
+export const isRange = (q: DateQualifier): boolean => q === 'between' || q === 'from';
 
 export interface DateParseResult {
   ok: true;
@@ -72,8 +83,31 @@ function make(y: number, m?: number, d?: number): PartialDate {
   return `${String(y).padStart(4, '0')}-${pad(m)}-${pad(d)}`;
 }
 
-/** Parse free text typed by the user. */
+const RANGE_WORDS = [
+  { re: /^(?:between|zwischen|bet\.?)\s+(.+?)\s+(?:and|und)\s+(.+)$/, q: 'between' as const },
+  { re: /^(?:from|von)\s+(.+?)\s+(?:to|bis)\s+(.+)$/, q: 'from' as const },
+  // "1920–1925", "1920 - 1925", "1920..1925", "1920-1925" (two full years only)
+  { re: /^(.+?)\s*(?:–|—|\.\.|\s-\s)\s*(.+)$/, q: 'between' as const },
+  { re: /^(\d{4})-(\d{4})$/, q: 'between' as const },
+];
+
+/** Parse free text typed by the user: single dates with qualifiers, or a range. */
 export function parseUserDate(input: string, format: DateFormat): DateParseResult | DateParseError {
+  const s = input.trim().toLowerCase().replace(/\s+/g, ' ');
+  if (s === '') return { ok: false };
+  for (const { re, q } of RANGE_WORDS) {
+    const m = s.match(re);
+    if (!m) continue;
+    const a = parseSingle(m[1]!, format), b = parseSingle(m[2]!, format);
+    if (!a.ok || !b.ok || a.value.qualifier !== 'exact' || b.value.qualifier !== 'exact') continue;
+    const start = toOrdinal(a.value.date, 'start'), end = toOrdinal(b.value.date, 'end');
+    if (start === null || end === null || end < start) return { ok: false };
+    return { ok: true, value: { date: a.value.date, qualifier: q, dateEnd: b.value.date }, alternative: null };
+  }
+  return parseSingle(s, format);
+}
+
+function parseSingle(input: string, format: DateFormat): DateParseResult | DateParseError {
   let s = input.trim().toLowerCase().replace(/\s+/g, ' ');
   if (s === '') return { ok: false };
   let qualifier: DateQualifier = 'exact';
@@ -100,13 +134,13 @@ export function parseUserDate(input: string, format: DateFormat): DateParseResul
   // Year only
   if ((m = s.match(/^(\d{1,4})$/))) {
     const y = Number(m[1]);
-    return valid(y) ? { ok: true, value: { date: make(y), qualifier }, alternative: null } : { ok: false };
+    return valid(y) ? { ok: true, value: { date: make(y), qualifier, dateEnd: null }, alternative: null } : { ok: false };
   }
 
   // ISO: 1923-03-14 or 1923-03
   if ((m = s.match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?$/))) {
     const y = Number(m[1]), mo = Number(m[2]), d = m[3] ? Number(m[3]) : undefined;
-    return valid(y, mo, d) ? { ok: true, value: { date: make(y, mo, d), qualifier }, alternative: null } : { ok: false };
+    return valid(y, mo, d) ? { ok: true, value: { date: make(y, mo, d), qualifier, dateEnd: null }, alternative: null } : { ok: false };
   }
 
   // Month name forms: "14 mar 1923", "14. märz 1923", "mar 14 1923", "march 1923", "14 march, 1923"
@@ -126,7 +160,7 @@ export function parseUserDate(input: string, format: DateFormat): DateParseResul
       y = Number(m[3]);
     }
     if (mo === undefined || !valid(y, mo, d)) return { ok: false };
-    return { ok: true, value: { date: make(y, mo, d), qualifier }, alternative: null };
+    return { ok: true, value: { date: make(y, mo, d), qualifier, dateEnd: null }, alternative: null };
   }
 
   // Numeric with separators: 14.03.1923, 03.1923, 14/03/1923, 03/1923, 14-03-1923
@@ -140,14 +174,14 @@ export function parseUserDate(input: string, format: DateFormat): DateParseResul
     const primaryOk = valid(y, mo, d);
     const altOk = a !== b && valid(y, mo2, d2);
     if (primaryOk) {
-      return { ok: true, value: { date: make(y, mo, d), qualifier }, alternative: altOk ? { date: make(y, mo2, d2), qualifier } : null };
+      return { ok: true, value: { date: make(y, mo, d), qualifier, dateEnd: null }, alternative: altOk ? { date: make(y, mo2, d2), qualifier, dateEnd: null } : null };
     }
-    if (altOk) return { ok: true, value: { date: make(y, mo2, d2), qualifier }, alternative: null };
+    if (altOk) return { ok: true, value: { date: make(y, mo2, d2), qualifier, dateEnd: null }, alternative: null };
     return { ok: false };
   }
   if ((m = s.match(/^(\d{1,2})[./-](\d{4})$/))) {
     const mo = Number(m[1]), y = Number(m[2]);
-    return valid(y, mo) ? { ok: true, value: { date: make(y, mo), qualifier }, alternative: null } : { ok: false };
+    return valid(y, mo) ? { ok: true, value: { date: make(y, mo), qualifier, dateEnd: null }, alternative: null } : { ok: false };
   }
 
   return { ok: false };
@@ -174,7 +208,16 @@ export function toOrdinal(date: PartialDate, edge: 'start' | 'end' = 'start'): n
   return Math.round(Date.UTC(p.y, m - 1, d) / 86_400_000);
 }
 
-const QUALIFIER_MARK: Record<DateQualifier, string> = { exact: '', about: '~', before: '<', after: '>', estimated: '~' };
+/**
+ * Earliest or latest day a date-like value can mean: a range spans from its start to its end,
+ * a partial date from the first to the last day it covers.
+ */
+export function ordinalOf(d: DateLike, edge: 'start' | 'end'): number | null {
+  if (edge === 'end' && isRange(d.qualifier) && d.dateEnd) return toOrdinal(d.dateEnd, 'end');
+  return toOrdinal(d.date, edge);
+}
+
+const QUALIFIER_MARK: Record<DateQualifier, string> = { exact: '', about: '~', before: '<', after: '>', estimated: '~', between: '', from: '' };
 
 /** Short mark used on cards: ~ < > (estimated shares ~, see DECISIONS.md #44). */
 export function qualifierMark(q: DateQualifier): string {
@@ -199,10 +242,31 @@ export function formatPartialDate(locale: Locale, date: PartialDate, style: 'sho
     : new Intl.DateTimeFormat(tag, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(utc);
 }
 
-/** Date with its qualifier mark, e.g. "~1923" or "<14.03.1923". */
-export function formatDateWithQualifier(locale: Locale, date: PartialDate, q: DateQualifier, style: 'short' | 'long' = 'short'): string {
+/**
+ * Date with its qualifier mark, e.g. "~1923" or "<14.03.1923". Ranges read "1920–1925" in the
+ * short style and "between 1920 and 1925" / "from 1920 to 1925" in the long style.
+ */
+export function formatDateWithQualifier(locale: Locale, date: PartialDate, q: DateQualifier, style: 'short' | 'long' = 'short', dateEnd: PartialDate = null): string {
   const f = formatPartialDate(locale, date, style);
-  return f ? `${qualifierMark(q)}${f}` : '';
+  if (!f) return '';
+  if (isRange(q)) {
+    const end = dateEnd ? formatPartialDate(locale, dateEnd, style) : '';
+    if (style === 'short') return end ? `${f}\u2013${end}` : `${f}\u2013`;
+    if (!end) return translate(locale, 'dates.fromOpen', { start: f });
+    return translate(locale, q === 'between' ? 'dates.between' : 'dates.fromTo', { start: f, end });
+  }
+  return `${qualifierMark(q)}${f}`;
+}
+
+/** Years shown on a card: "1923", "~1923", "1920–1925". */
+export function formatYearWithQualifier(d: DateLike): string {
+  const y = yearOf(d.date);
+  if (y === null) return '';
+  if (isRange(d.qualifier)) {
+    const e = d.dateEnd ? yearOf(d.dateEnd) : null;
+    return e === null ? `${y}\u2013` : e === y ? String(y) : `${y}\u2013${e}`;
+  }
+  return `${qualifierMark(d.qualifier)}${y}`;
 }
 
 /** Age in whole years between two partial dates (uses year-level precision where needed). */

@@ -204,6 +204,25 @@ Layout panel (compact 16/56, normal 40/80, wide 80/120 pixels between cards / be
 default normal) that re-arranges the tree in one undo step and is stored with the tree; charts use
 the same gaps. Sibling runs stay centred under their parents' junction in every setting.
 
+Stage (m) delivered (2026-09-14): a **private** flag per person (editor checkbox, small lock on
+the card) with "Hide private people" switches: on by default in the print dialog (print, SVG, PNG,
+timeline and statistics sheets) and for the GEDCOM export (the report counts the people left out),
+off by default on the canvas (toolbar button, stored with the tree's view state); partners and
+children of a private person stay. **Undo** keeps 200 steps and a copy in the tab's session
+storage keyed by the project's modification stamp, so a reload of the same tab restores the
+history (a project changed elsewhere never gets a stale one; the copy halves itself when it does
+not fit). **Date ranges** are model fields: qualifiers `between` and `from` with a `dateEnd`,
+typed in the date field as "between 1920 and 1925", "zwischen … und …", "1920–1925", "from 1905 to
+1962" or "von … bis …", echoed in plain language, shown as "1920–1925" on cards and lists and as
+sentences in details, family sheet and reports; GEDCOM BET/AND and FROM/TO round-trip exactly
+instead of being kept verbatim. **GEDCOM 7** files are read (version note in the report; SNOTE
+shared notes, @VOID@ pointers, calendar words such as JULIAN, BCE); export stays 5.5.1.
+**Warnings** now include a parent under 13 at a child's birth (biological or unknown links only;
+the latest possible birth of a range counts), marriage under 12 (was 14) and an age over 115 (was
+120); death before birth was already there. Cards and the list show "* 1878" for born next to
+"† 1950" for died; the spoken card label says "born … died …". 249 unit tests and 112 Playwright
+tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -224,6 +243,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(i)** manifest, service worker with prompt-style updates, update and offline notices, install entry with iOS instructions, offline verification — screenshots in `docs/screenshots/stage-i/`
 - [x] **(l)** search and filters, colour groups (schema 2), relationship calculator — screenshots in `docs/screenshots/stage-l/`
 - [x] **(k)** ancestor and descendant charts, family sheet — screenshots in `docs/screenshots/stage-k/`
+- [x] **(m)** privacy flag with hide switches, 200-step session undo, date ranges, GEDCOM 7 import, extended warnings — screenshots in `docs/screenshots/stage-m/`
 - [x] **(j)** final accessibility audit, 500-person performance pass (with three rendering optimisations), README numbers, network verification, screen-reader checklist, deployment note — screenshots in `docs/screenshots/stage-j/`
 
 ## Known open points after stage (b)

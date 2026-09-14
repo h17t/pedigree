@@ -93,10 +93,14 @@ function scalingOf(v: unknown): GenerationScaling {
 
 export function normalizeProject(data: Record<string, unknown>): Project {
   const p = data as unknown as Project;
+  const persons: Project['persons'] = {};
+  for (const [id, person] of Object.entries(p.persons ?? {})) {
+    if (person && typeof person === 'object') persons[id] = { ...person, isPrivate: person.isPrivate === true };
+  }
   return {
     ...p,
     schemaVersion: SCHEMA_VERSION,
-    persons: p.persons ?? {},
+    persons,
     unions: p.unions ?? {},
     childLinks: p.childLinks ?? {},
     rawRecords: Array.isArray(p.rawRecords) ? p.rawRecords : [],

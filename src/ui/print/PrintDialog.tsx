@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useT, formatNumber, intlTag } from '@/i18n';
 import type { TKey } from '@/i18n';
 import { useAppStore } from '@/store/store';
+import { withoutPrivate } from '@/model/privacy';
 import { placeUnpositioned } from '@/render/layout';
 import type { DetailLevel } from '@/render/geometry';
 import { PAPER, sheetFor, mmToPx, LARGE_FORMATS } from '@/print/paper';
@@ -47,6 +48,7 @@ export function PrintDialog() {
   const [withDate, setWithDate] = useState(true);
   const [withLegend, setWithLegend] = useState(true);
   const [bw, setBw] = useState(false);
+  const [hidePrivate, setHidePrivate] = useState(true);
   const [dpi, setDpi] = useState<PngDpi>(300);
   const [previewSheet, setPreviewSheet] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -54,7 +56,7 @@ export function PrintDialog() {
 
   // The dialog is mounted only while open, so the initial state above is fresh every time.
 
-  const labels = useMemo(() => ({ née: t('person.née'), living: t('person.lifeStatusValue.living'), unknownDate: t('dates.unknownDate'), warning: t('tree.warningMarker'), unknownParents: t('union.partnersUnknown') }), [t]);
+  const labels = useMemo(() => ({ née: t('person.née'), living: t('person.lifeStatusValue.living'), unknownDate: t('dates.unknownDate'), warning: t('tree.warningMarker'), private: t('person.privateMark'), unknownParents: t('union.partnersUnknown') }), [t]);
   const legendLines: LegendLine[] = useMemo(
     () => [
       { kind: 'marriage', text: t('tree.legendItems.marriage') },
@@ -73,21 +75,30 @@ export function PrintDialog() {
   // Which people are in scope.
   const visible = useMemo(() => {
     if (!project) return new Set<string>();
-    if (scope.kind === 'chart' && ctx.chart) return new Set(ctx.chart.visible);
-    if (scope.kind === 'selection' && ctx.selection.length) return new Set(ctx.selection);
-    if (scope.kind === 'filter' && ctx.filtered) return new Set(ctx.filtered);
-    if (scope.kind === 'cluster') return new Set(ctx.clusters.find((c) => c.index === scope.index)?.personIds ?? []);
-    return new Set(Object.keys(project.persons));
-  }, [project, scope, ctx]);
+    const ids =
+      scope.kind === 'chart' && ctx.chart
+        ? ctx.chart.visible
+        : scope.kind === 'selection' && ctx.selection.length
+          ? ctx.selection
+          : scope.kind === 'filter' && ctx.filtered
+            ? ctx.filtered
+            : scope.kind === 'cluster'
+              ? (ctx.clusters.find((c) => c.index === scope.index)?.personIds ?? [])
+              : Object.keys(project.persons);
+    return new Set(hidePrivate ? ids.filter((id) => !project.persons[id]?.isPrivate) : ids);
+  }, [project, scope, ctx, hidePrivate]);
+  const privateCount = useMemo(() => (project ? Object.values(project.persons).filter((p) => p.isPrivate).length : 0), [project]);
+  /** The project as printed: without private people when they are hidden. */
+  const printed = useMemo(() => (project && hidePrivate ? withoutPrivate(project) : project), [project, hidePrivate]);
 
   const drawing = useMemo(() => {
     if (!project || !open) return null;
-    if (content === 'timeline') return timelineContent(project, locale, { unnamed: t('person.unnamed') });
-    if (content === 'statistics') return statisticsContent(project, locale, { basis: 'Basis', people: t('stats.people'), unions: t('stats.unions'), generations: t('stats.generations'), ageAtDeath: t('stats.ageAtDeath'), lifeExpectancy: t('stats.lifeExpectancy'), childrenPerUnion: t('stats.childrenPerUnion'), givenNames: t('stats.givenNames'), surnames: t('stats.surnames'), occupations: t('stats.occupations'), places: t('stats.places') });
+    if (content === 'timeline') return timelineContent(printed ?? project, locale, { unnamed: t('person.unnamed') });
+    if (content === 'statistics') return statisticsContent(printed ?? project, locale, { basis: 'Basis', people: t('stats.people'), unions: t('stats.unions'), generations: t('stats.generations'), ageAtDeath: t('stats.ageAtDeath'), lifeExpectancy: t('stats.lifeExpectancy'), childrenPerUnion: t('stats.childrenPerUnion'), givenNames: t('stats.givenNames'), surnames: t('stats.surnames'), occupations: t('stats.occupations'), places: t('stats.places') });
     const chart = scope.kind === 'chart' ? ctx.chart : null;
     const positions = chart ? new Map(chart.positions) : placeUnpositioned(project, level).positions;
     return treeContent({ project, positions, visible, level, locale, labels, header: null, legend: null, blackAndWhite: bw, lines: chart?.lines, useUnions: chart ? chart.useUnions : true });
-  }, [project, open, content, level, visible, locale, labels, bw, t, scope, ctx.chart]);
+  }, [project, printed, open, content, level, visible, locale, labels, bw, t, scope, ctx.chart]);
 
   const sheet = sheetFor(paper, orientation, margin);
   const headerPx = title || subtitle || withDate ? HEADER_H : 0;
@@ -355,6 +366,17 @@ export function PrintDialog() {
                 <div className="radio-row">
                   <input id="pr-legend" type="checkbox" checked={withLegend} onChange={(e) => setWithLegend(e.target.checked)} />
                   <label htmlFor="pr-legend">{t('print.includeLegend')}</label>
+                </div>
+              )}
+              {privateCount > 0 && (
+                <div className="radio-row">
+                  <input id="pr-private" type="checkbox" checked={hidePrivate} onChange={(e) => setHidePrivate(e.target.checked)} aria-describedby="pr-private-hint" />
+                  <span>
+                    <label htmlFor="pr-private">{t('print.hidePrivate')}</label>
+                    <span className="hint" id="pr-private-hint">
+                      {t('print.hidePrivateHint')}
+                    </span>
+                  </span>
                 </div>
               )}
               {content === 'tree' && (

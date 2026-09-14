@@ -7,7 +7,11 @@ export const SCHEMA_VERSION = 2;
 
 export type Sex = 'male' | 'female' | 'diverse' | 'unknown';
 export type LifeStatus = 'living' | 'deceased' | 'unknown';
-export type DateQualifier = 'exact' | 'about' | 'before' | 'after' | 'estimated';
+/**
+ * How a date is to be read. 'between' (GEDCOM BET … AND …) and 'from' (FROM … TO …) are
+ * ranges: `date` is the start and `dateEnd` the end (a FROM without TO has no end).
+ */
+export type DateQualifier = 'exact' | 'about' | 'before' | 'after' | 'estimated' | 'between' | 'from';
 
 /** 'YYYY' | 'YYYY-MM' | 'YYYY-MM-DD' | null (unknown). */
 export type PartialDate = string | null;
@@ -15,6 +19,8 @@ export type PartialDate = string | null;
 export interface EventDate {
   date: PartialDate;
   qualifier: DateQualifier;
+  /** End of a date range (qualifier 'between' or 'from'); absent or null otherwise. */
+  dateEnd?: PartialDate;
   place: string;
   note: string;
   /**
@@ -38,6 +44,7 @@ export interface LifeEvent {
   label: string;
   date: PartialDate;
   qualifier: DateQualifier;
+  dateEnd?: PartialDate;
   place: string;
   note: string;
   gedcomDate?: string;
@@ -91,6 +98,8 @@ export interface Person {
   position: Position | null;
   /** The colour group this person belongs to (see Project.groups), or none. */
   groupId: string | null;
+  /** Private people are left out of print, SVG/PNG and GEDCOM export when "hide private people" is on. */
+  isPrivate: boolean;
   /** Unknown GEDCOM lines belonging to this person, preserved verbatim for export. */
   rawGedcom: string[];
   /** Original GEDCOM cross-reference id (e.g. "@I12@") so exports keep references valid. */
@@ -107,9 +116,11 @@ export interface Union {
   type: UnionType;
   marriageDate: PartialDate;
   marriageQualifier: DateQualifier;
+  marriageDateEnd?: PartialDate;
   marriagePlace: string;
   divorceDate: PartialDate;
   divorceQualifier: DateQualifier;
+  divorceDateEnd?: PartialDate;
   status: UnionStatus;
   notes: string;
   position: Position | null;
@@ -202,6 +213,7 @@ export function createPerson(partial: Partial<Person> = {}): Person {
     customFields: [],
     position: null,
     groupId: null,
+    isPrivate: false,
     rawGedcom: [],
     ...partial,
   };

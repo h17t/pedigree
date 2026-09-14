@@ -32,7 +32,7 @@ export interface CanvasProps {
   /** Family boundaries with labels; drawn when there is more than one. */
   frames: ClusterFrame[];
   frameLabel: (f: ClusterFrame) => string;
-  labels: { née: string; living: string; unknownDate: string; warning: string; unknownParents: string; canvas: string };
+  labels: { née: string; living: string; unknownDate: string; warning: string; private: string; unknownParents: string; canvas: string };
   cardLabel: (id: string) => string;
   onViewport: (v: Viewport) => void;
   onSelect: (id: string | null) => void;
@@ -330,7 +330,7 @@ export function Canvas(props: CanvasProps) {
     e.preventDefault();
   };
 
-  const cardLabels = useMemo(() => ({ née: labels.née, living: labels.living, unknownDate: labels.unknownDate, warning: labels.warning }), [labels]);
+  const cardLabels = useMemo(() => ({ née: labels.née, living: labels.living, unknownDate: labels.unknownDate, warning: labels.warning, private: labels.private }), [labels]);
   return (
     <svg
       ref={svgRef}

@@ -23,7 +23,7 @@ test('timeline shows one bar per dated person, toggles history, and jumps to the
   await page.getByRole('button', { name: 'Zoom in' }).click();
   await page.getByRole('button', { name: 'Show Karl Weber in the tree' }).click();
   await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Karl Weber, 1878/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: /Karl Weber, born 1878/ })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('statistics state their base population and offer data tables', async ({ page }) => {

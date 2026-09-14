@@ -9,6 +9,7 @@ import type { Project } from '@/model/types';
 import { validateProject } from '@/model/validation';
 import type { ValidationWarning } from '@/model/validation';
 import { UndoStack } from './undo';
+import type { UndoEntry } from './undo';
 import { acquireLock } from './lock';
 import type { LockHandle } from './lock';
 import {
@@ -84,6 +85,52 @@ function undoFlags() {
   return { canUndo: undo.canUndo, canRedo: undo.canRedo, undoLabel: undo.undoLabel, redoLabel: undo.redoLabel };
 }
 
+// ---- Undo history for the tab session --------------------------------------------------------
+// The history is written to sessionStorage with the project's modification stamp, so a reload
+// of the same tab picks it up again; another tab, or a project changed elsewhere, never does.
+
+const undoKey = (id: string) => `pedigree:undo:${id}`;
+
+function session(): Storage | null {
+  try {
+    return typeof sessionStorage !== 'undefined' ? sessionStorage : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveUndoHistory(projectId: string, project: Project): void {
+  const store = session();
+  if (!store) return;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const snap = undo.snapshot();
+    if (snap.past.length === 0 && snap.future.length === 0) {
+      store.removeItem(undoKey(projectId));
+      return;
+    }
+    try {
+      store.setItem(undoKey(projectId), JSON.stringify({ modifiedAt: project.modifiedAt, ...snap }));
+      return;
+    } catch {
+      undo.halve(); // does not fit: keep the newer half and try again
+    }
+  }
+}
+
+function restoreUndoHistory(projectId: string, project: Project): void {
+  const store = session();
+  if (!store) return;
+  try {
+    const raw = store.getItem(undoKey(projectId));
+    if (!raw) return;
+    const data = JSON.parse(raw) as { modifiedAt: number; past: UndoEntry[]; future: UndoEntry[] };
+    if (data.modifiedAt === project.modifiedAt && Array.isArray(data.past) && Array.isArray(data.future)) undo.restore(data);
+    else store.removeItem(undoKey(projectId));
+  } catch {
+    store.removeItem(undoKey(projectId));
+  }
+}
+
 function onStorageEvent(ev: StorageEvent) {
   const { projectId, lockState } = useAppStore.getState();
   if (!projectId || ev.key !== `pedigree:project:${projectId}`) return;
@@ -123,6 +170,7 @@ export function openProject(id: string): LoadStatus {
     }
   });
   const ui = loadUiMeta(id);
+  restoreUndoHistory(id, result.project);
   useAppStore.setState({
     ...initial,
     projectId: id,
@@ -207,6 +255,12 @@ function afterChange(project: Project, changeCount: number): void {
   scheduleUiSave();
 }
 
+/** Undo bookkeeping is written together with the project (see flushSave). */
+function flushUndoHistory(): void {
+  const s = useAppStore.getState();
+  if (s.projectId && s.project && s.lockState === 'owner') saveUndoHistory(s.projectId, s.project);
+}
+
 /** Update per-project UI meta (mode, selection, expanded rows, backup bookkeeping). */
 export function updateUi(patch: Partial<ProjectUiMeta>): void {
   const s = useAppStore.getState();
@@ -256,6 +310,7 @@ export function flushSave(): void {
   if (s.projectId && s.lockState === 'owner') saveUiMeta(s.projectId, s.ui);
   if (!s.project || s.lockState !== 'owner' || s.saveState === 'saved') return;
   const w = saveProject(s.project);
+  flushUndoHistory();
   if (w.ok) {
     const near = storageSummary(useSettings.getState().storageCapacity).fraction >= NEAR_LIMIT_FRACTION;
     useAppStore.setState({ saveState: 'saved', lastSavedAt: Date.now(), storageNearLimit: near });

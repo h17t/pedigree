@@ -6,12 +6,13 @@ import type { ImportReport, ExportReport } from '@/gedcom/report';
 import { t } from '@/i18n';
 import { layoutAll, placeUnpositioned } from '@/render/layout';
 import { adoptProject } from './projects';
+import { withoutPrivate } from '@/model/privacy';
 import { transact, useAppStore, markBackedUp } from './store';
 
 export type GedcomImportOutcome =
   | { ok: true; mode: 'new'; id: string; name: string; report: ImportReport }
   | { ok: true; mode: 'merge'; added: number; report: ImportReport }
-  | { ok: false; reason: 'gedcom7' | 'empty' | 'unreadable' | 'quota' | 'readOnly'; version?: string };
+  | { ok: false; reason: 'empty' | 'unreadable' | 'quota' | 'readOnly' };
 
 function nameFromFile(fileName: string): string {
   return fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim() || t('projects.newName');
@@ -53,11 +54,13 @@ export async function importGedcomMerge(bytes: Uint8Array, preserve: boolean): P
   return { ok: true, mode: 'merge', added, report: r.report };
 }
 
-export async function exportGedcomFile(): Promise<{ file: string; report: ExportReport } | null> {
+export async function exportGedcomFile(hidePrivate = true): Promise<{ file: string; report: ExportReport } | null> {
   const s = useAppStore.getState();
   if (!s.project) return null;
   const { exportGedcom } = await import('@/gedcom');
-  const { text, report } = exportGedcom(s.project, { preserve: s.project.settings.preserveRawGedcom, sourceName: 'Pedigree', sourceVersion: __APP_VERSION__ });
+  const source = hidePrivate ? withoutPrivate(s.project) : s.project;
+  const { text, report } = exportGedcom(source, { preserve: s.project.settings.preserveRawGedcom, sourceName: 'Pedigree', sourceVersion: __APP_VERSION__ });
+  report.privateOmitted = Object.keys(s.project.persons).length - Object.keys(source.persons).length;
   const safe = s.project.name.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 60) || 'tree';
   const file = `${t('gedcom.filePrefix')}-${safe}-${new Date().toISOString().slice(0, 10)}.ged`;
   const blob = new Blob([text], { type: 'text/vnd.familysearch.gedcom;charset=utf-8' });

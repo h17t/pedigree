@@ -46,7 +46,7 @@ describe('UndoStack', () => {
     expect(u.canUndo).toBe(false);
   });
 
-  it('caps the stack at 50 and drops the oldest', () => {
+  it('caps the stack at the limit and drops the oldest', () => {
     const u = new UndoStack<S>();
     let s: S = { items: [], n: 0 };
     for (let i = 0; i < UNDO_LIMIT + 10; i++) s = u.transact(s, `step ${i}`, (d) => void (d.n = i + 1));

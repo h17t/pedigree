@@ -27,7 +27,7 @@ export interface PersonCardProps {
   group?: { name: string; color: TagColor } | null;
   /** Accessible name for the card ("Name, years"). */
   ariaLabel: string;
-  labels: { née: string; living: string; unknownDate: string; warning: string };
+  labels: { née: string; living: string; unknownDate: string; warning: string; private: string };
   onPointerDown?: (e: PointerEvent<SVGGElement>, id: string) => void;
   onSelect?: (id: string) => void;
   onOpen?: (id: string) => void;
@@ -81,6 +81,12 @@ export const PersonCard = memo(function PersonCard({ person, x, y, level, locale
         </text>
       )}
       <SexMarker sex={person.sex} x={w - card.padding.right - card.marker} y={card.padding.top} />
+      {person.isPrivate && (
+        <g aria-label={labels.private} role="img" transform={`translate(${left} ${h - card.padding.bottom - 9})`}>
+          <rect x={0} y={4} width={9} height={6} rx={1} fill={color.slate} />
+          <path d="M2 4 V2.5 A2.5 2.5 0 0 1 7 2.5 V4" fill="none" stroke={color.slate} strokeWidth={1.4} />
+        </g>
+      )}
       {hasWarning && (
         <g aria-label={labels.warning} role="img">
           <path d={`M${w - card.padding.right - card.marker - 2} ${h - card.padding.bottom} l-10 0 l5 -9 z`} fill={color.warn} />

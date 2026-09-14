@@ -40,10 +40,10 @@ type T = (key: TKey, params?: Record<string, string | number>) => string;
 export function buildFamilySheet(project: Project, personId: string, locale: Locale, t: T): FamilySheet | null {
   const person = project.persons[personId];
   if (!person) return null;
-  const date = (d: string | null, q: Person['birth']['qualifier']) => (d ? formatDateWithQualifier(locale, d, q, 'long') : '');
+  const date = (d: string | null, q: Person['birth']['qualifier'], end: string | null = null) => (d ? formatDateWithQualifier(locale, d, q, 'long', end) : '');
   const years = (p: Person) => {
-    const b = p.birth.date ? `* ${date(p.birth.date, p.birth.qualifier)}` : '';
-    const d = p.death.date ? `† ${date(p.death.date, p.death.qualifier)}` : p.lifeStatus === 'deceased' ? '†' : '';
+    const b = p.birth.date ? `* ${date(p.birth.date, p.birth.qualifier, p.birth.dateEnd ?? null)}` : '';
+    const d = p.death.date ? `† ${date(p.death.date, p.death.qualifier, p.death.dateEnd ?? null)}` : p.lifeStatus === 'deceased' ? '†' : '';
     return [b, d].filter(Boolean).join('   ');
   };
   const brief = (id: string): SheetPerson => {
@@ -53,8 +53,8 @@ export function buildFamilySheet(project: Project, personId: string, locale: Loc
   };
   const unionInfo = (u: Union) => {
     const status = u.status !== 'unknown' ? t(`union.status.${u.status}` as TKey) : u.type !== 'unknown' ? t(`union.type.${u.type}` as TKey) : t('family.notRecorded');
-    const m = u.marriageDate ? `${t('union.marriageDate')}: ${date(u.marriageDate, u.marriageQualifier)}${u.marriagePlace ? `, ${u.marriagePlace}` : ''}` : '';
-    const d = u.divorceDate ? `${t('union.divorceDate')}: ${date(u.divorceDate, u.divorceQualifier)}` : '';
+    const m = u.marriageDate ? `${t('union.marriageDate')}: ${date(u.marriageDate, u.marriageQualifier, u.marriageDateEnd ?? null)}${u.marriagePlace ? `, ${u.marriagePlace}` : ''}` : '';
+    const d = u.divorceDate ? `${t('union.divorceDate')}: ${date(u.divorceDate, u.divorceQualifier, u.divorceDateEnd ?? null)}` : '';
     return [status, m, d].filter(Boolean).join(' · ');
   };
   const fields: SheetRow[] = [];
@@ -65,8 +65,8 @@ export function buildFamilySheet(project: Project, personId: string, locale: Loc
   add(t('person.nickname'), person.nickname);
   add(t('person.titlePrefix'), person.titlePrefix);
   add(t('person.sex'), person.sex === 'unknown' ? '' : t(`person.sexValue.${person.sex}` as TKey));
-  add(t('person.birth'), [date(person.birth.date, person.birth.qualifier), person.birth.place, person.birth.note].filter(Boolean).join(', '));
-  add(t('person.death'), [date(person.death.date, person.death.qualifier), person.death.place, person.death.cause ? `${t('person.cause')}: ${person.death.cause}` : '', person.death.note].filter(Boolean).join(', '));
+  add(t('person.birth'), [date(person.birth.date, person.birth.qualifier, person.birth.dateEnd ?? null), person.birth.place, person.birth.note].filter(Boolean).join(', '));
+  add(t('person.death'), [date(person.death.date, person.death.qualifier, person.death.dateEnd ?? null), person.death.place, person.death.cause ? `${t('person.cause')}: ${person.death.cause}` : '', person.death.note].filter(Boolean).join(', '));
   add(t('person.occupation'), person.occupation);
   add(t('person.religion'), person.religion);
   add(t('person.residence'), person.residence);
@@ -89,7 +89,7 @@ export function buildFamilySheet(project: Project, personId: string, locale: Loc
   }));
   const events: SheetRow[] = person.events.map((e) => ({
     label: e.type === 'other' ? e.label || t('person.eventType.other') : t(`person.eventType.${e.type}` as TKey),
-    value: [date(e.date, e.qualifier), e.place, e.note].filter(Boolean).join(', '),
+    value: [date(e.date, e.qualifier, e.dateEnd ?? null), e.place, e.note].filter(Boolean).join(', '),
   }));
   return {
     name: displayName(person, t('person.née')) || t('person.unnamed'),

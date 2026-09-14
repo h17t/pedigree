@@ -11,10 +11,10 @@ import { parseGedcom, child, children, nodeToLines, valueOf } from './parse';
 import type { GedNode } from './parse';
 import type { ImportReport } from './report';
 
-export type ImportResult = { ok: true; project: Project; report: ImportReport } | { ok: false; reason: 'gedcom7' | 'empty' | 'unreadable'; version?: string };
+export type ImportResult = { ok: true; project: Project; report: ImportReport } | { ok: false; reason: 'empty' | 'unreadable' };
 
-const PERSON_TAGS = new Set(['NAME', 'SEX', 'BIRT', 'DEAT', 'BAPM', 'CHR', 'BURI', 'RESI', 'EMIG', 'OCCU', 'RELI', 'NOTE', 'SOUR', 'FAMS', 'FAMC', '_UDF', '_GENDER']);
-const FAMILY_TAGS = new Set(['HUSB', 'WIFE', 'CHIL', 'MARR', 'DIV', 'NOTE', '_STAT', '_STATUS']);
+const PERSON_TAGS = new Set(['NAME', 'SEX', 'BIRT', 'DEAT', 'BAPM', 'CHR', 'BURI', 'RESI', 'EMIG', 'OCCU', 'RELI', 'NOTE', 'SNOTE', 'SOUR', 'FAMS', 'FAMC', '_UDF', '_GENDER']);
+const FAMILY_TAGS = new Set(['HUSB', 'WIFE', 'CHIL', 'MARR', 'DIV', 'NOTE', 'SNOTE', '_STAT', '_STATUS']);
 
 function nameParts(name: string): { given: string; surname: string; suffix: string } {
   const m = name.match(/^([^/]*)\/([^/]*)\/(.*)$/);
@@ -27,6 +27,10 @@ function label(p: Pick<Person, 'givenNames' | 'surname'>): string {
 }
 
 const isRef = (v: string) => /^@[^@]+@$/.test(v.trim());
+/** GEDCOM 7 writes @VOID@ for a pointer that deliberately points nowhere. */
+const isVoid = (v: string) => v.trim().toUpperCase() === '@VOID@';
+/** NOTE and SNOTE (GEDCOM 7 shared note pointer) children of a node. */
+const noteNodes = (n: GedNode) => n.children.filter((c) => c.tag === 'NOTE' || c.tag === 'SNOTE');
 
 export function importGedcomText(text: string, options: { preserve: boolean; declared?: string | null; detected?: ImportReport['encodingDetected']; mismatch?: boolean } = { preserve: true }): ImportResult {
   const file = parseGedcom(text);
@@ -34,7 +38,7 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
   const head = file.records.find((r) => r.tag === 'HEAD');
   const gedc = head ? child(head, 'GEDC') : undefined;
   const version = gedc ? valueOf(gedc, 'VERS') : '';
-  if (/^7(\.|$)/.test(version.trim())) return { ok: false, reason: 'gedcom7', version: version.trim() };
+  const isV7 = /^7(\.|$)/.test(version.trim());
   const sourceProgram = head ? valueOf(head, 'SOUR') || null : null;
 
   const report: ImportReport = {
@@ -62,10 +66,12 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
     if (!report.notes.includes(n)) report.notes.push(n);
   };
 
+  if (isV7) noteOnce('gedcom7');
+
   const project = createProject('');
   project.settings.preserveRawGedcom = options.preserve;
   const noteRecords = new Map<string, string>();
-  for (const r of file.records) if (r.tag === 'NOTE' && r.xref) noteRecords.set(r.xref, r.value);
+  for (const r of file.records) if ((r.tag === 'NOTE' || r.tag === 'SNOTE') && r.xref) noteRecords.set(r.xref, r.value);
   const referencedNotes = new Set<string>();
 
   const resolveNote = (n: GedNode): string => {
@@ -80,7 +86,7 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
   /** Children of an event node that are not mapped (e.g. SOUR citations) go to the raw lines. */
   const eventExtras = (n: GedNode, raw: string[]) => {
     for (const c of n.children) {
-      if (['DATE', 'PLAC', 'NOTE', 'CAUS', 'TYPE'].includes(c.tag)) continue;
+      if (['DATE', 'PLAC', 'NOTE', 'SNOTE', 'CAUS', 'TYPE'].includes(c.tag)) continue;
       ignore(c.tag);
       raw.push(...nodeToLines({ ...n, children: [c] }));
     }
@@ -94,11 +100,12 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
       const d = parseGedcomDate(dv);
       e.date = d.date;
       e.qualifier = d.qualifier;
+      if (d.dateEnd !== undefined) e.dateEnd = d.dateEnd;
       if (d.gedcomDate) e.gedcomDate = d.gedcomDate;
-      if (d.uncertain) report.uncertainDates.push({ where, value: dv, interpretedAs: d.date ? `${d.qualifier} ${d.date}` : '-' });
+      if (d.uncertain) report.uncertainDates.push({ where, value: dv, interpretedAs: d.date ? `${d.qualifier} ${d.date}${d.dateEnd ? ` \u2013 ${d.dateEnd}` : ''}` : '-' });
     }
     e.place = valueOf(n, 'PLAC');
-    const nn = child(n, 'NOTE');
+    const nn = noteNodes(n)[0];
     if (nn) e.note = resolveNote(nn);
     eventExtras(n, raw);
     return e;
@@ -148,6 +155,7 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
       if (!type) continue;
       const d = eventDate(n, `${who}: ${n.tag}`, raw);
       const ev: LifeEvent = { id: newId(), type, label: type === 'residence' && n.value ? n.value : '', date: d.date, qualifier: d.qualifier, place: d.place, note: d.note };
+      if (d.dateEnd !== undefined) ev.dateEnd = d.dateEnd;
       if (d.gedcomDate) ev.gedcomDate = d.gedcomDate;
       p.events.push(ev);
     }
@@ -156,7 +164,7 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
       p.residence = resiNodes[0]!.value || valueOf(resiNodes[0], 'PLAC');
       p.events = p.events.filter((e) => e.type !== 'residence');
     }
-    for (const n of children(rec, 'NOTE')) p.notes = [p.notes, resolveNote(n)].filter(Boolean).join('\n');
+    for (const n of noteNodes(rec)) p.notes = [p.notes, resolveNote(n)].filter(Boolean).join('\n');
     const sourceTexts: string[] = [];
     for (const n of children(rec, 'SOUR')) {
       if (isRef(n.value)) continue;
@@ -193,7 +201,7 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
     const u: Union = createUnion();
     const raw: string[] = [];
     if (rec.xref) u.gedcomXref = rec.xref;
-    const partners = [valueOf(rec, 'HUSB'), valueOf(rec, 'WIFE')].map((x) => x.trim()).filter(Boolean);
+    const partners = [valueOf(rec, 'HUSB'), valueOf(rec, 'WIFE')].map((x) => x.trim()).filter((x) => x && !isVoid(x));
     for (const x of partners) {
       const p = persons.get(x);
       if (p) u.partnerIds.push(p.id);
@@ -228,7 +236,7 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
       u.status = 'partnership';
     } else if (/separat/.test(stat)) u.status = 'separated';
     else if (/widow/.test(stat)) u.status = 'widowed';
-    for (const n of children(rec, 'NOTE')) u.notes = [u.notes, resolveNote(n)].filter(Boolean).join('\n');
+    for (const n of noteNodes(rec)) u.notes = [u.notes, resolveNote(n)].filter(Boolean).join('\n');
     for (const c of rec.children) {
       if (FAMILY_TAGS.has(c.tag)) continue;
       ignore(c.tag);
@@ -238,6 +246,7 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
     project.unions[u.id] = u;
     report.families++;
     for (const c of children(rec, 'CHIL')) {
+      if (isVoid(c.value)) continue;
       const p = persons.get(c.value.trim());
       if (!p) {
         report.danglingReferences++;
@@ -253,7 +262,7 @@ export function importGedcomText(text: string, options: { preserve: boolean; dec
   // Unreferenced top-level records, preserved verbatim.
   for (const rec of file.records) {
     if (['HEAD', 'TRLR', 'INDI', 'FAM'].includes(rec.tag)) continue;
-    if (rec.tag === 'NOTE' && rec.xref && referencedNotes.has(rec.xref)) continue;
+    if ((rec.tag === 'NOTE' || rec.tag === 'SNOTE') && rec.xref && referencedNotes.has(rec.xref)) continue;
     if (rec.tag === 'SUBM' || rec.tag === 'SUBN') {
       ignore(rec.tag); // regenerated on export
       continue;

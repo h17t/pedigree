@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import { useT } from '@/i18n';
 import type { DateQualifier, PartialDate } from '@/model/types';
-import { formatDateWithQualifier, formatPartialDate, parseUserDate, qualifierMark } from '@/model/dates';
+import { formatDateWithQualifier, formatPartialDate, isRange, parseUserDate } from '@/model/dates';
 import type { ParsedDate } from '@/model/dates';
 import { useSettings } from '@/store/settings';
 
@@ -10,10 +10,10 @@ import { useSettings } from '@/store/settings';
  * interpretation in plain language ("Understood as: 2 March 1923"), and offers the other
  * reading in one click when the input is ambiguous.
  */
-export function DateField({ id, label, value, qualifier, onChange, hint }: { id: string; label: string; value: PartialDate; qualifier: DateQualifier; onChange: (v: ParsedDate) => void; hint?: string }) {
+export function DateField({ id, label, value, qualifier, dateEnd = null, onChange, hint }: { id: string; label: string; value: PartialDate; qualifier: DateQualifier; dateEnd?: PartialDate; onChange: (v: ParsedDate) => void; hint?: string }) {
   const { t, locale } = useT();
   const dateFormat = useSettings((s) => s.dateFormat);
-  const formatted = value ? `${qualifierMark(qualifier)}${formatPartialDate(locale, value)}` : '';
+  const formatted = formatDateWithQualifier(locale, value, qualifier, 'short', dateEnd);
   const [text, setText] = useState(formatted);
   const [alternative, setAlternative] = useState<ParsedDate | null>(null);
   const [bad, setBad] = useState(false);
@@ -33,16 +33,16 @@ export function DateField({ id, label, value, qualifier, onChange, hint }: { id:
     if (s.trim() === '') {
       setBad(false);
       setAlternative(null);
-      onChange({ date: null, qualifier: 'exact' });
+      onChange({ date: null, qualifier: 'exact', dateEnd: null });
       return;
     }
     const r = parseUserDate(s, dateFormat);
     if (r.ok) {
       setBad(false);
       setAlternative(r.alternative);
-      if (r.value.date !== value || r.value.qualifier !== qualifier) {
+      if (r.value.date !== value || r.value.qualifier !== qualifier || r.value.dateEnd !== dateEnd) {
         // Keep what the user typed; only the echo updates.
-        setSeen(r.value.date ? `${qualifierMark(r.value.qualifier)}${formatPartialDate(locale, r.value.date)}` : '');
+        setSeen(formatDateWithQualifier(locale, r.value.date, r.value.qualifier, 'short', r.value.dateEnd));
         onChange(r.value);
       }
     } else {
@@ -51,14 +51,18 @@ export function DateField({ id, label, value, qualifier, onChange, hint }: { id:
     }
   };
 
-  const echo = value ? t('dates.understoodAs', { date: `${qualifier !== 'exact' ? `${t(`dates.qualifierLong.${qualifier}`)} ` : ''}${formatPartialDate(locale, value, 'long')}` }) : '';
+  const echo = value
+    ? t('dates.understoodAs', {
+        date: isRange(qualifier) ? formatDateWithQualifier(locale, value, qualifier, 'long', dateEnd) : `${qualifier !== 'exact' ? `${t(`dates.qualifierLong.${qualifier}`)} ` : ''}${formatPartialDate(locale, value, 'long')}`,
+      })
+    : '';
 
   return (
     <div className="field">
       <label htmlFor={id}>{label}</label>
       <input id={id} className="input" type="text" inputMode="text" value={text} onChange={(e) => commit(e.target.value)} aria-describedby={echoId} aria-invalid={bad || undefined} autoComplete="off" />
       <div id={echoId} className={bad ? 'field-error' : 'hint'} aria-live="polite">
-        {bad ? (dateFormat === 'dayFirst' ? t('dates.unreadable') : t('dates.unreadableMonthFirst')) : echo || hint || t('edit.yearHint')}
+        {bad ? (dateFormat === 'dayFirst' ? t('dates.unreadable') : t('dates.unreadableMonthFirst')) : echo || hint || `${t('edit.yearHint')} ${t('dates.rangeHint')}`}
         {!bad && alternative && (
           <>
             {' '}

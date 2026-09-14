@@ -42,7 +42,7 @@ export interface TreeSvgOptions {
   visible: Set<string>;
   level: DetailLevel;
   locale: Locale;
-  labels: { née: string; living: string; unknownDate: string; warning: string; unknownParents: string };
+  labels: { née: string; living: string; unknownDate: string; warning: string; private: string; unknownParents: string };
   header: Header | null;
   legend: LegendLine[] | null;
   blackAndWhite: boolean;
@@ -79,7 +79,7 @@ export function treeContent(o: TreeSvgOptions): { markup: string; bounds: Box; t
     }
   }
   const bounds: Box = Number.isFinite(minX) ? { x: minX, y: minY, w: maxX - minX, h: maxY - minY } : { x: 0, y: 0, w: 1, h: 1 };
-  const labels = { née: o.labels.née, living: o.labels.living, unknownDate: o.labels.unknownDate, warning: o.labels.warning };
+  const labels = { née: o.labels.née, living: o.labels.living, unknownDate: o.labels.unknownDate, warning: o.labels.warning, private: o.labels.private };
   let text = '';
   const cards = [...boxes.entries()].map(([id, b]) => {
     const person = o.project.persons[id]!;

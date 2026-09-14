@@ -29,8 +29,14 @@ describe('dates', () => {
     ['CAL 1923', '1923', 'about', 'CAL 1923'],
     ['BEF 1923', '1923', 'before', undefined],
     ['AFT 14 MAR 1923', '1923-03-14', 'after', undefined],
-    ['BET 1920 AND 1925', '1920', 'about', 'BET 1920 AND 1925'],
-    ['FROM 1905 TO 1962', '1905', 'exact', 'FROM 1905 TO 1962'],
+    ['BET 1920 AND 1925', '1920', 'between', undefined],
+    ['FROM 1905 TO 1962', '1905', 'from', undefined],
+    ['FROM 1905', '1905', 'from', undefined],
+    ['TO 1962', '1962', 'before', 'TO 1962'],
+    ['BET ABT 1920 AND 1925', null, 'between', 'BET ABT 1920 AND 1925'],
+    ['JULIAN 14 FEB 1720', '1720-02-14', 'exact', 'JULIAN 14 FEB 1720'],
+    ['GREGORIAN 14 FEB 1720', '1720-02-14', 'exact', undefined],
+    ['100 BCE', null, 'exact', '100 BCE'],
     ['@#DJULIAN@ 14 FEB 1720/21', '1720-02-14', 'exact', '@#DJULIAN@ 14 FEB 1720/21'],
     ['1750/51', '1750', 'exact', '1750/51'],
     ['(unknown)', null, 'exact', '(unknown)'],
@@ -46,6 +52,10 @@ describe('dates', () => {
     expect(formatGedcomDate('1923-03', 'about')).toBe('ABT MAR 1923');
     expect(formatGedcomDate('1923', 'before')).toBe('BEF 1923');
     expect(formatGedcomDate('1920', 'about', 'BET 1920 AND 1925')).toBe('BET 1920 AND 1925');
+    expect(formatGedcomDate('1920', 'between', undefined, '1925-03-01')).toBe('BET 1920 AND 1 MAR 1925');
+    expect(formatGedcomDate('1905', 'from', undefined, '1962')).toBe('FROM 1905 TO 1962');
+    expect(formatGedcomDate('1905', 'from', undefined, null)).toBe('FROM 1905');
+    expect(parseGedcomDate('BET 1920 AND 1925').dateEnd).toBe('1925');
   });
 });
 
@@ -105,8 +115,9 @@ describe('import', () => {
     const anna = byName('Anna Weber');
     expect(anna.birthName).toBe('Schmidt');
     expect(anna.birth).toMatchObject({ date: '1884', qualifier: 'about' });
-    expect(anna.death).toMatchObject({ date: '1960', qualifier: 'about', gedcomDate: 'BET 1960 AND 1962' });
-    expect(anna.events[0]).toMatchObject({ type: 'residence', gedcomDate: 'FROM 1905 TO 1962', place: 'Landau' });
+    expect(anna.death).toMatchObject({ date: '1960', qualifier: 'between', dateEnd: '1962' });
+    expect(anna.death.gedcomDate).toBeUndefined();
+    expect(anna.events[0]).toMatchObject({ type: 'residence', date: '1905', qualifier: 'from', dateEnd: '1962', place: 'Landau' });
     const dieter = byName('Dieter Braun');
     expect(dieter.notes).toBe('Adoptiert 1951.');
     expect(dieter.birth.qualifier).toBe('estimated');
@@ -143,7 +154,8 @@ describe('import', () => {
     expect(report.gedcomVersion).toBe('5.5.1');
     expect(report.ignoredTags._UID).toBe(1);
     expect(report.ignoredTags._CUSTOMFAM).toBe(1);
-    expect(report.uncertainDates.map((u) => u.value)).toEqual(expect.arrayContaining(['ABT 1884', 'BET 1960 AND 1962', 'FROM 1905 TO 1962', 'EST 1945', '@#DJULIAN@ 14 FEB 1720/21']));
+    expect(report.uncertainDates.map((u) => u.value)).toEqual(expect.arrayContaining(['ABT 1884', 'EST 1945', '@#DJULIAN@ 14 FEB 1720/21']));
+    expect(report.uncertainDates.map((u) => u.value)).not.toContain('BET 1960 AND 1962');
     expect(report.notes).toEqual(expect.arrayContaining(['sexXAsDiverse', 'marnmAsSurname', 'noteRecordsInlined']));
     expect(report.danglingReferences).toBe(0);
     expect(report.problems).toEqual([]);
@@ -172,8 +184,40 @@ describe('import', () => {
     expect(m.report.uncertainDates.some((u) => u.value === '31 FEB 1900')).toBe(true);
   });
 
-  it('refuses GEDCOM 7 politely, and empty or non-GEDCOM input', () => {
-    expect(importGedcomBytes(read('gedcom7.ged'))).toEqual({ ok: false, reason: 'gedcom7', version: '7.0' });
+  it('reads a GEDCOM 7 file: header, names, sex, events, ranges, calendars, shared notes, VOID pointers', () => {
+    const r = importGedcomBytes(read('gedcom7.ged'));
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const { project, report } = r;
+    expect(report.gedcomVersion).toBe('7.0');
+    expect(report.notes).toContain('gedcom7');
+    expect(report.individuals).toBe(3);
+    expect(report.families).toBe(1);
+    expect(report.danglingReferences).toBe(0);
+    const byName = (n: string) => Object.values(project.persons).find((p) => `${p.givenNames} ${p.surname}` === n)!;
+    const eva = byName('Eva Klein');
+    expect(eva.sex).toBe('female');
+    expect(eva.birth).toMatchObject({ date: '1920', qualifier: 'between', dateEnd: '1925', place: 'Mainz' });
+    expect(eva.notes).toBe('Shared note about Eva.');
+    expect(eva.death).toMatchObject({ date: '1988-02-14', qualifier: 'exact' });
+    expect(eva.events.map((e) => e.type)).toEqual(['baptism', 'burial']);
+    expect(eva.events[1]).toMatchObject({ date: '1988-02-18', place: 'Mainz' });
+    const kai = byName('Kai Klein');
+    expect(kai.sex).toBe('diverse');
+    expect(kai.birth).toMatchObject({ date: '1950-05-01', qualifier: 'exact' });
+    const ulf = byName('Ulf Klein');
+    expect(ulf.birth.qualifier).toBe('exact');
+    expect(ulf.birth.gedcomDate).toBe('JULIAN 1 JAN 1700');
+    const fam = Object.values(project.unions)[0]!;
+    expect(fam.partnerIds).toEqual([eva.id]);
+    expect(fam.marriageDate).toBe('1948');
+    expect(Object.values(project.childLinks).map((l) => l.childId)).toEqual([kai.id]);
+    expect(Object.values(project.childLinks)[0]!.relationType).toBe('adopted');
+    expect(fam.notes).toBe('Family note.');
+    expect(project.rawRecords.length).toBe(0);
+  });
+
+  it('refuses empty or non-GEDCOM input', () => {
     expect(importGedcomBytes(new Uint8Array())).toEqual({ ok: false, reason: 'empty' });
     expect(importGedcomBytes(new TextEncoder().encode('hello world'))).toEqual({ ok: false, reason: 'unreadable' });
   });

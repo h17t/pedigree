@@ -15,7 +15,7 @@ test('canvas renders every visible person as a focusable card and has no accessi
   await openTree(page);
   const cards = page.locator('.person-card');
   await expect(cards).toHaveCount(48);
-  await expect(page.getByRole('button', { name: /Karl Weber, 1878/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Karl Weber, born 1878/ })).toBeVisible();
   await expectNoHorizontalScroll(page);
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']).analyze();
   expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
@@ -40,7 +40,7 @@ test('zoom buttons, fit and 100 % change the zoom level', async ({ page }) => {
 test('selecting a card shows the details; search jumps to a person; filter hides the rest', async ({ page }) => {
   await openTree(page);
   await page.getByLabel('Type a name to jump to a person').fill('karl');
-  await page.getByRole('button', { name: /Karl Weber, 1878/ }).first().click();
+  await page.getByRole('button', { name: /Karl Weber, born 1878/ }).first().click();
   await page.waitForTimeout(200);
   const w = page.viewportSize()?.width ?? 0;
   if (w < 1024) {
@@ -53,7 +53,7 @@ test('selecting a card shows the details; search jumps to a person; filter hides
 
   await page.getByLabel('Type a name to jump to a person').fill('lindner');
   await page.getByRole('button', { name: /Johann Lindner/ }).first().click();
-  await expect(page.getByRole('button', { name: /Johann Lindner, 1860/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: /Johann Lindner, born 1860/ })).toHaveAttribute('aria-pressed', 'true');
 
   if (w < 1024) await page.getByRole('button', { name: 'More actions' }).click();
   await page.getByRole('button', { name: 'Descendants of Johann Lindner' }).click();
@@ -93,7 +93,7 @@ test.describe('desktop only', () => {
     await openTree(page);
     // Jump to Otto so his card is centred in the canvas at a readable zoom.
     await page.getByLabel('Type a name to jump to a person').fill('otto');
-    await page.getByRole('button', { name: /Otto Weber, 1885/ }).first().click();
+    await page.getByRole('button', { name: /Otto Weber, born 1885/ }).first().click();
     await page.waitForTimeout(200);
     const card = page.locator('.person-card[data-person-id]').filter({ hasText: 'Otto Weber' });
     const box = (await card.boundingBox())!;
@@ -111,7 +111,7 @@ test.describe('desktop only', () => {
     await page.reload();
     await expect(canvas).toBeVisible();
     const canvasAfter = (await canvas.boundingBox())!;
-    const after = (await page.getByRole('button', { name: /Otto Weber, 1885/ }).boundingBox())!;
+    const after = (await page.getByRole('button', { name: /Otto Weber, born 1885/ }).boundingBox())!;
     expect(Math.round(after.x - canvasAfter.x)).toBe(Math.round(moved.x - canvasBefore.x));
     expect(Math.round(after.y - canvasAfter.y)).toBe(Math.round(moved.y - canvasBefore.y));
   });

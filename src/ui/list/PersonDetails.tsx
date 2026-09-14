@@ -18,7 +18,7 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
     const p = project.persons[id];
     return p ? displayName(p, t('person.née')) || t('person.unnamed') : t('common.unknown');
   };
-  const date = (d: string | null, q: Person['birth']['qualifier']) => (d ? formatDateWithQualifier(locale, d, q, 'long') : t('dates.unknownDate'));
+  const date = (d: string | null, q: Person['birth']['qualifier'], end: string | null = null) => (d ? formatDateWithQualifier(locale, d, q, 'long', end) : t('dates.unknownDate'));
 
   const parentUnions = adj.parentLinks.get(person.id) ?? [];
   const partnerUnions = (adj.partnerUnions.get(person.id) ?? []).map((id) => project.unions[id]!).filter(Boolean);
@@ -41,7 +41,7 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
       <h2 className="details-name">{displayName(person, t('person.née')) || t('person.unnamed')}</h2>
       <p className="muted tnum">
         {person.birth.date || person.death.date
-          ? `${person.birth.date ? `* ${formatDateWithQualifier(locale, person.birth.date, person.birth.qualifier)}` : ''}${person.death.date ? ` † ${formatDateWithQualifier(locale, person.death.date, person.death.qualifier)}` : ''}`.trim()
+          ? `${person.birth.date ? `* ${formatDateWithQualifier(locale, person.birth.date, person.birth.qualifier, 'short', person.birth.dateEnd)}` : ''}${person.death.date ? ` † ${formatDateWithQualifier(locale, person.death.date, person.death.qualifier, 'short', person.death.dateEnd)}` : ''}`.trim()
           : t('dates.unknownDate')}
       </p>
       {group && (
@@ -69,10 +69,10 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
         {field(t('person.nickname'), person.nickname)}
         {field(t('person.titlePrefix'), person.titlePrefix)}
         {field(t('person.sex'), t(`person.sexValue.${person.sex}` as TKey))}
-        {field(t('person.birth'), [date(person.birth.date, person.birth.qualifier), person.birth.place].filter(Boolean).join(', '))}
+        {field(t('person.birth'), [date(person.birth.date, person.birth.qualifier, person.birth.dateEnd ?? null), person.birth.place].filter(Boolean).join(', '))}
         {field(t('person.note'), person.birth.note)}
         {field(t('person.lifeStatus'), t(`person.lifeStatusValue.${status}` as TKey))}
-        {person.death.date && field(t('person.death'), [date(person.death.date, person.death.qualifier), person.death.place].filter(Boolean).join(', '))}
+        {person.death.date && field(t('person.death'), [date(person.death.date, person.death.qualifier, person.death.dateEnd ?? null), person.death.place].filter(Boolean).join(', '))}
         {field(t('person.cause'), person.death.cause)}
         {field(t('person.occupation'), person.occupation)}
         {field(t('person.religion'), person.religion)}
@@ -85,7 +85,7 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
                 {person.events.map((e) => (
                   <li key={e.id}>
                     {e.type === 'other' ? e.label : t(`person.eventType.${e.type}` as TKey)}
-                    {e.date ? `: ${formatDateWithQualifier(locale, e.date, e.qualifier, 'long')}` : ''}
+                    {e.date ? `: ${formatDateWithQualifier(locale, e.date, e.qualifier, 'long', e.dateEnd)}` : ''}
                     {e.place ? `, ${e.place}` : ''}
                     {e.note ? ` (${e.note})` : ''}
                   </li>
@@ -140,8 +140,8 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
               const info = [
                 t(`union.type.${u.type}` as TKey),
                 t(`union.status.${u.status}` as TKey),
-                u.marriageDate ? `${t('union.marriageDate')}: ${formatDateWithQualifier(locale, u.marriageDate, u.marriageQualifier)}` : '',
-                u.divorceDate ? `${t('union.divorceDate')}: ${formatDateWithQualifier(locale, u.divorceDate, u.divorceQualifier)}` : '',
+                u.marriageDate ? `${t('union.marriageDate')}: ${formatDateWithQualifier(locale, u.marriageDate, u.marriageQualifier, 'short', u.marriageDateEnd)}` : '',
+                u.divorceDate ? `${t('union.divorceDate')}: ${formatDateWithQualifier(locale, u.divorceDate, u.divorceQualifier, 'short', u.divorceDateEnd)}` : '',
               ]
                 .filter(Boolean)
                 .join(' · ');

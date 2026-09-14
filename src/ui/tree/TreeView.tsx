@@ -70,7 +70,12 @@ export function TreeView() {
   const [searchOpen, setSearchOpen] = useState(false);
   const chartSpec = ui.chart && project && project.persons[ui.chart.personId] ? ui.chart : null;
   const chart = useMemo(() => (project && chartSpec ? buildChart(project, chartSpec, level) : null), [project, chartSpec, level]);
-  const visible = useMemo(() => (chart ? chart.visible : project ? visiblePersons(project, ui.filter) : new Set<string>()), [project, ui.filter, chart]);
+  const visible = useMemo(() => {
+    const base = chart ? chart.visible : project ? visiblePersons(project, ui.filter) : new Set<string>();
+    if (!project || !ui.hidePrivate) return base;
+    return new Set([...base].filter((id) => !project.persons[id]?.isPrivate));
+  }, [project, ui.filter, ui.hidePrivate, chart]);
+  const privateCount = useMemo(() => (project ? Object.values(project.persons).filter((p) => p.isPrivate).length : 0), [project]);
   /** What the canvas shows: chart positions in chart mode, stored/provisional positions otherwise. */
   const positionsNow = useMemo(() => (chart ? chart.positions : placement?.positions ?? new Map<string, Position>()), [chart, placement]);
   const provisionalNow = useMemo(() => (chart ? new Set<string>() : placement?.provisional ?? new Set<string>()), [chart, placement]);
@@ -116,13 +121,18 @@ export function TreeView() {
     (id: string) => {
       const p = project?.persons[id];
       if (!p) return '';
-      const years = cardText(p, 'minimal', locale).lines[0] || t('dates.unknownDate');
+      // Spoken form of the years line: "born 1878, died 1950" instead of the * and † symbols.
+      const years = (cardText(p, 'minimal', locale).lines[0] || t('dates.unknownDate'))
+        .replace(/^\* /, `${t('tree.born')} `)
+        .replace(/ – † /, `, ${t('tree.died')} `)
+        .replace(/^† /, `${t('tree.died')} `)
+        .replace(/^†$/, t('tree.diedNoDate'));
       return t('tree.cardLabel', { name: displayName(p, t('person.née')) || t('person.unnamed'), years });
     },
     [project, locale, t],
   );
   const labels = useMemo(
-    () => ({ née: t('person.née'), living: t('person.lifeStatusValue.living'), unknownDate: t('dates.unknownDate'), warning: t('tree.warningMarker'), unknownParents: t('union.partnersUnknown'), canvas: t('tree.canvasLabel') }),
+    () => ({ née: t('person.née'), living: t('person.lifeStatusValue.living'), unknownDate: t('dates.unknownDate'), warning: t('tree.warningMarker'), private: t('person.privateMark'), unknownParents: t('union.partnersUnknown'), canvas: t('tree.canvasLabel') }),
     [t],
   );
 
@@ -392,6 +402,11 @@ export function TreeView() {
         <button type="button" className="btn btn-search-more" aria-expanded={searchOpen} onClick={() => setSearchOpen((v) => !v)}>
           {t('search.open')}
         </button>
+        {privateCount > 0 && (
+          <button type="button" className="btn btn-private" aria-pressed={ui.hidePrivate} onClick={() => updateUi({ hidePrivate: !ui.hidePrivate })}>
+            {t('tree.hidePrivate')}
+          </button>
+        )}
         <button type="button" className="btn btn-print" onClick={() => openPrint({ selection: multiLive.size > 1 ? [...multiLive] : ui.selectedPersonId ? [ui.selectedPersonId] : [], filtered: ui.filter ? [...visible] : null, clusters: frames.map((f) => ({ index: f.index, personIds: f.personIds })), defaultContent: 'tree', chart: chart ? { positions: [...chart.positions.entries()], visible: [...chart.visible], lines: chart.lines, useUnions: chart.useUnions, label: chartLabel } : null })}>
           {t('print.open')}
         </button>

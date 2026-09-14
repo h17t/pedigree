@@ -22,7 +22,7 @@ export interface ImportReport {
   /** Missing references (CHIL/HUSB/WIFE pointing nowhere). */
   danglingReferences: number;
   warnings: ValidationWarning[];
-  notes: ('sexXAsDiverse' | 'marnmAsSurname' | 'noteRecordsInlined' | 'multipleNames')[];
+  notes: ('sexXAsDiverse' | 'marnmAsSurname' | 'noteRecordsInlined' | 'multipleNames' | 'gedcom7')[];
 }
 
 export interface ExportReport {
@@ -31,5 +31,7 @@ export interface ExportReport {
   preserved: boolean;
   preservedRecords: number;
   preservedLines: number;
+  /** People left out because they are marked private (set by the export action). */
+  privateOmitted?: number;
   notes: ('diverseAsX' | 'customFieldsAsUdf' | 'sameSexAsHusbWife' | 'preservationOff' | 'rangesVerbatim')[];
 }

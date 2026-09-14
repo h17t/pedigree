@@ -62,7 +62,7 @@ describe('validateProject', () => {
     expect(codes(validateProject(b.project))).toEqual(['cycle', 'cycle']);
   });
 
-  it('warns on implausible age and on living people born over 120 years ago', () => {
+  it('warns on implausible age and on living people born over 115 years ago', () => {
     const b = build();
     b.person('Old', { ...born('1800'), ...died('1930') });
     b.person('Alive', { ...born('1900'), lifeStatus: 'living' });
@@ -78,10 +78,30 @@ describe('validateProject', () => {
     expect(effectiveLifeStatus(q)).toBe('unknown');
   });
 
-  it('warns on marriage under 14', () => {
+  it('warns on marriage under 12, not at 12', () => {
     const b = build();
     const p = b.person('Young', born('1900'));
-    b.union([p], { marriageDate: '1912' });
+    b.union([p], { marriageDate: '1911' });
     expect(codes(validateProject(b.project))).toEqual(['partnerAge']);
+    const c = build();
+    const q = c.person('Twelve', born('1900'));
+    c.union([q], { marriageDate: '1912' });
+    expect(codes(validateProject(c.project))).toEqual([]);
+  });
+
+  it('warns when a parent would have been under 13 at the birth of a child, but not for adopted or step children', () => {
+    const b = build();
+    const parent = b.person('Parent', born('1900'));
+    const child = b.person('Child', born('1912'));
+    b.family([parent], [child]);
+    const w = validateProject(b.project);
+    expect(codes(w)).toEqual(['parentTooYoung']);
+    expect(w[0]!.params).toEqual({ parent: 'Parent Test', child: 'Child Test' });
+    // A birth range is judged by its latest possible date.
+    parent.birth = { date: '1895', qualifier: 'between', dateEnd: '1899', place: '', note: '' };
+    expect(codes(validateProject(b.project))).toEqual([]);
+    parent.birth = { date: '1900', qualifier: 'exact', place: '', note: '' };
+    Object.values(b.project.childLinks)[0]!.relationType = 'adopted';
+    expect(codes(validateProject(b.project))).toEqual([]);
   });
 });

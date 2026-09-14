@@ -50,7 +50,7 @@ test('ancestor chart: pedigree columns, generation choice, print scope, back to 
 
 test('descendant chart: the person on top, depth choice, partnerships drawn', async ({ page }) => {
   await openSample(page);
-  await selectOnCanvas(page, 'karl weber', /Karl Weber, 1878/);
+  await selectOnCanvas(page, 'karl weber', /Karl Weber, born 1878/);
   await page.getByRole('button', { name: 'Descendant chart' }).click();
   await expect(page.getByText(/Chart: Descendant chart of Karl Weber/)).toBeVisible();
   await expect(page.getByLabel('Generations below')).toHaveValue('3');

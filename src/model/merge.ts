@@ -28,9 +28,9 @@ export interface MergePlan {
 export function fieldValue(p: Person, f: MergeField, groups: ColourGroup[] = []): string {
   switch (f) {
     case 'birth':
-      return [p.birth.date ?? '', p.birth.qualifier !== 'exact' ? p.birth.qualifier : '', p.birth.place].filter(Boolean).join(' ');
+      return [p.birth.qualifier !== 'exact' ? p.birth.qualifier : '', p.birth.date ?? '', p.birth.dateEnd ?? '', p.birth.place].filter(Boolean).join(' ');
     case 'death':
-      return [p.death.date ?? '', p.death.qualifier !== 'exact' ? p.death.qualifier : '', p.death.place, p.death.cause].filter(Boolean).join(' ');
+      return [p.death.qualifier !== 'exact' ? p.death.qualifier : '', p.death.date ?? '', p.death.dateEnd ?? '', p.death.place, p.death.cause].filter(Boolean).join(' ');
     case 'groupId':
       return p.groupId ? (groups.find((g) => g.id === p.groupId)?.name ?? p.groupId) : '';
     default:

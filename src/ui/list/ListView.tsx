@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@/i18n';
-import type { DateQualifier, Project } from '@/model/types';
+import type { Project } from '@/model/types';
 import { displayName } from '@/model/types';
+import { formatYearWithQualifier } from '@/model/dates';
 import { useAppStore, updateUi, transact } from '@/store/store';
 import { addPerson } from '@/model/edits';
 import { DetailsHost } from '../edit/DetailsHost';
@@ -143,17 +144,13 @@ export function ListView() {
   );
 }
 
-function formatYear(date: string, q: DateQualifier): string {
-  const mark = q === 'about' || q === 'estimated' ? '~' : q === 'before' ? '<' : q === 'after' ? '>' : '';
-  return `${mark}${date.slice(0, 4)}`;
-}
 
 function PersonButton({ project, id, selected, onSelect }: { project: Project; id: string; selected: boolean; onSelect: (id: string) => void }) {
   const { t } = useT();
   const p = project.persons[id];
   if (!p) return null;
-  const birthYear = p.birth.date ? formatYear(p.birth.date, p.birth.qualifier) : '';
-  const deathYear = p.death.date ? `† ${formatYear(p.death.date, p.death.qualifier)}` : '';
+  const birthYear = p.birth.date ? `* ${formatYearWithQualifier(p.birth)}` : '';
+  const deathYear = p.death.date ? `† ${formatYearWithQualifier(p.death)}` : '';
   return (
     <button type="button" className={`person-btn${selected ? ' person-btn-selected' : ''}`} aria-pressed={selected} onClick={() => onSelect(id)}>
       <span className="person-btn-name">{displayName(p, t('person.née')) || t('person.unnamed')}</span>

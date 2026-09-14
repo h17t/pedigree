@@ -96,12 +96,12 @@ export function UnionForm({ union, onDone, onDelete }: { union: Union; onDone: (
           ))}
         </select>
       </div>
-      <DateField id="uf-marriage" label={t('union.marriageDate')} value={u.marriageDate} qualifier={u.marriageQualifier} onChange={(v) => setU((prev) => ({ ...prev, marriageDate: v.date, marriageQualifier: v.qualifier }))} />
+      <DateField id="uf-marriage" label={t('union.marriageDate')} value={u.marriageDate} qualifier={u.marriageQualifier} dateEnd={u.marriageDateEnd ?? null} onChange={(v) => setU((prev) => ({ ...prev, marriageDate: v.date, marriageQualifier: v.qualifier, marriageDateEnd: v.dateEnd }))} />
       <div className="field">
         <label htmlFor="uf-place">{t('union.marriagePlace')}</label>
         <input id="uf-place" className="input" value={u.marriagePlace} onChange={(e) => set('marriagePlace', e.target.value)} autoComplete="off" />
       </div>
-      <DateField id="uf-divorce" label={t('union.divorceDate')} value={u.divorceDate} qualifier={u.divorceQualifier} onChange={(v) => setU((prev) => ({ ...prev, divorceDate: v.date, divorceQualifier: v.qualifier, status: v.date ? 'divorced' : prev.status }))} />
+      <DateField id="uf-divorce" label={t('union.divorceDate')} value={u.divorceDate} qualifier={u.divorceQualifier} dateEnd={u.divorceDateEnd ?? null} onChange={(v) => setU((prev) => ({ ...prev, divorceDate: v.date, divorceQualifier: v.qualifier, divorceDateEnd: v.dateEnd, status: v.date ? 'divorced' : prev.status }))} />
       <div className="field">
         <label htmlFor="uf-notes">{t('person.notes')}</label>
         <textarea id="uf-notes" className="textarea" value={u.notes} onChange={(e) => set('notes', e.target.value)} />

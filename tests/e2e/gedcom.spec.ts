@@ -45,11 +45,14 @@ test('merge-import adds people to the open tree as one undo step and lists dupli
   await expect(page.locator('dd', { hasText: /^48$/ }).first()).toBeVisible();
 });
 
-test('a GEDCOM 7 file is refused with a plain explanation', async ({ page }) => {
+test('a GEDCOM 7 file is read and the report says so', async ({ page }) => {
   await openSample(page);
   await page.getByRole('button', { name: 'Data', exact: true }).click();
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: 'Import a GEDCOM file' }).click();
   await (await chooser).setFiles('tests/gedcom/gedcom7.ged');
-  await expect(page.getByText('This file is GEDCOM 7.0. This app reads GEDCOM 5.5.1 only.')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Import report' })).toBeVisible();
+  await expect(page.getByText('This is a GEDCOM 7 file.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Close report' }).click();
+  await expect(page.locator('dd', { hasText: /^3$/ }).first()).toBeVisible();
 });

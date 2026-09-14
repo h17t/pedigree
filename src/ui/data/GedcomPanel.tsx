@@ -17,10 +17,12 @@ export function GedcomPanel() {
   const readOnly = useAppStore((s) => s.lockState !== 'owner');
   const [mode, setMode] = useState<'new' | 'merge'>('new');
   const [preserve, setPreserve] = useState(true);
+  const [hidePrivate, setHidePrivate] = useState(true);
   const [busy, setBusy] = useState(false);
   const [report, setReport] = useState<{ kind: 'import'; report: ImportReport } | { kind: 'export'; report: ExportReport } | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const rawBytes = rawDataBytes();
+  const privateCount = Object.values(project.persons).filter((p) => p.isPrivate).length;
 
   const onFile = async (file: File | undefined) => {
     if (!file) return;
@@ -29,7 +31,7 @@ export function GedcomPanel() {
       const bytes = new Uint8Array(await file.arrayBuffer());
       const r = mode === 'new' || readOnly ? await importGedcomAsNew(bytes, file.name, preserve) : await importGedcomMerge(bytes, preserve);
       if (!r.ok) {
-        const msg = r.reason === 'gedcom7' ? t('gedcom.gedcom7', { version: r.version ?? '7' }) : r.reason === 'empty' ? t('gedcom.empty') : r.reason === 'quota' ? t('data.storageFull') : r.reason === 'readOnly' ? t('edit.readOnly') : t('gedcom.unreadable');
+        const msg = r.reason === 'empty' ? t('gedcom.empty') : r.reason === 'quota' ? t('data.storageFull') : r.reason === 'readOnly' ? t('edit.readOnly') : t('gedcom.unreadable');
         announce(msg, 'danger');
         return;
       }
@@ -43,7 +45,7 @@ export function GedcomPanel() {
     }
   };
   const onExport = async () => {
-    const r = await exportGedcomFile();
+    const r = await exportGedcomFile(hidePrivate);
     if (!r) return;
     announce(t('gedcom.exported', { file: r.file }));
     setReport({ kind: 'export', report: r.report });
@@ -111,6 +113,17 @@ export function GedcomPanel() {
             </span>
           </div>
         )}
+        {privateCount > 0 && (
+          <div className="radio-row">
+            <input id="ged-private" type="checkbox" checked={hidePrivate} onChange={(e) => setHidePrivate(e.target.checked)} aria-describedby="ged-private-hint" />
+            <span>
+              <label htmlFor="ged-private">{t('gedcom.hidePrivate')}</label>
+              <span className="hint" id="ged-private-hint">
+                {t('print.hidePrivateHint')}
+              </span>
+            </span>
+          </div>
+        )}
         {rawBytes > 0 && (
           <div className="btn-row">
             <span className="tnum">{t('gedcom.rawStored', { size: formatBytes(locale, rawBytes) })}</span>
@@ -157,7 +170,7 @@ export function GedcomPanel() {
 }
 
 const NOTE_KEYS: Record<string, TKey> = {
-  sexXAsDiverse: 'gedcom.noteSexX', marnmAsSurname: 'gedcom.noteMarnm', noteRecordsInlined: 'gedcom.noteNotesInlined', multipleNames: 'gedcom.noteMultipleNames',
+  sexXAsDiverse: 'gedcom.noteSexX', marnmAsSurname: 'gedcom.noteMarnm', noteRecordsInlined: 'gedcom.noteNotesInlined', multipleNames: 'gedcom.noteMultipleNames', gedcom7: 'gedcom.noteGedcom7',
   diverseAsX: 'gedcom.noteDiverseAsX', customFieldsAsUdf: 'gedcom.noteUdf', sameSexAsHusbWife: 'gedcom.noteSameSex', preservationOff: 'gedcom.notePreservationOff', rangesVerbatim: 'gedcom.noteRanges',
 };
 
@@ -233,6 +246,7 @@ function ExportReportBody({ r }: { r: ExportReport }) {
         <div className="detail-field"><dt>{t('gedcom.families')}</dt><dd className="tnum">{formatNumber(locale, r.families)}</dd></div>
       </dl>
       {r.preserved && r.preservedRecords > 0 && <p>{t('gedcom.preservedRecords', { count: r.preservedRecords })}</p>}
+      {(r.privateOmitted ?? 0) > 0 && <p>{t('gedcom.privateOmitted', { count: r.privateOmitted ?? 0 })}</p>}
       {r.notes.length > 0 ? (
         <ul className="small">
           {r.notes.map((n) => (

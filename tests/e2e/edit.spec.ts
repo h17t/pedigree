@@ -75,7 +75,7 @@ test('possible duplicates are listed and merging re-points relationships', async
   await page.getByRole('button', { name: 'Save changes' }).click();
   if (isPhone(page)) await page.getByRole('button', { name: 'Back' }).click();
   await page.getByRole('button', { name: 'Data', exact: true }).click();
-  await expect(page.getByText(/Carl Weber \(1878\)/)).toBeVisible();
+  await expect(page.getByText(/Carl Weber \(\* 1878\)/)).toBeVisible();
   await page.getByRole('button', { name: 'Compare and merge' }).click();
   await expect(page.getByRole('dialog', { name: 'Merge two people' })).toBeVisible();
   await axe(page, 'merge dialog');

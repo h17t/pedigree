@@ -125,6 +125,32 @@ describe('store: transact / undo / redo', () => {
     expect(useAppStore.getState().canUndo).toBe(false);
   });
 
+  it('keeps the undo history in the tab session across a reload of the same state', () => {
+    vi.useFakeTimers();
+    sessionStorage.clear();
+    const { p } = storedProject('U');
+    openProject(p.id);
+    for (let i = 0; i < 3; i++) transact(`step ${i}`, (d) => void (d.persons[`p${i}`] = createPerson({ id: `p${i}` })));
+    vi.advanceTimersByTime(600);
+    expect(sessionStorage.getItem(`pedigree:undo:${p.id}`)).not.toBeNull();
+    // A fresh open of the same stored state (as a reload does) restores the history.
+    closeProject();
+    openProject(p.id);
+    expect(useAppStore.getState().canUndo).toBe(true);
+    expect(useAppStore.getState().undoLabel).toBe('step 2');
+    undoLast();
+    expect(Object.keys(useAppStore.getState().project!.persons)).toHaveLength(3);
+    // A project changed elsewhere (a different modification stamp) does not get the stale history.
+    vi.advanceTimersByTime(600);
+    closeProject();
+    const raw = JSON.parse(localStorage.getItem(KEY.project(p.id))!) as Project;
+    raw.modifiedAt += 1;
+    localStorage.setItem(KEY.project(p.id), JSON.stringify(raw));
+    openProject(p.id);
+    expect(useAppStore.getState().canUndo).toBe(false);
+    expect(sessionStorage.getItem(`pedigree:undo:${p.id}`)).toBeNull();
+  });
+
   it('clears the undo stack when switching projects', () => {
     const { p } = storedProject('A');
     const { p: q } = storedProject('B');
