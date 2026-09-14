@@ -41,13 +41,23 @@ export function DetailsHost({ project, person, onSelect, extra }: { project: Pro
         </div>
       )}
       {readOnly ? (
-        <PersonDetails project={project} person={person} onSelect={onSelect} />
+        <>
+          <PersonDetails project={project} person={person} onSelect={onSelect} />
+          <div className="btn-row">
+            <button type="button" className="btn" onClick={() => openEditor({ kind: 'sheet', id: person.id })}>
+              {t('sheet.open')}
+            </button>
+          </div>
+        </>
       ) : (
         <>
           <PersonDetails project={project} person={person} onSelect={onSelect} relations={false} section="header" />
           <FamilyPanel project={project} person={person} onSelect={onSelect} />
           <PersonDetails project={project} person={person} onSelect={onSelect} relations={false} section="fields" />
           <div className="btn-row">
+            <button type="button" className="btn" onClick={() => openEditor({ kind: 'sheet', id: person.id })}>
+              {t('sheet.open')}
+            </button>
             <button type="button" className="btn" onClick={() => openEditor({ kind: 'merge', aId: person.id, bId: null })}>
               {t('edit.merge')}
             </button>

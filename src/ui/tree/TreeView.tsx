@@ -9,6 +9,7 @@ import { Canvas } from '@/render/Canvas';
 import { CanvasErrorBoundary } from '@/render/CanvasErrorBoundary';
 import { layoutAll, layoutSubset, placeUnpositioned, scalingOf } from '@/render/layout';
 import { personScales } from '@/render/layout/scale';
+import { buildChart, ANCESTOR_GENERATIONS, DESCENDANT_DEPTH } from '@/render/charts';
 import type { GenerationScaling } from '@/model/types';
 import { clusterFrames } from '@/render/layout/clusters';
 import type { ClusterFrame } from '@/render/layout/clusters';
@@ -37,6 +38,10 @@ import { startGuidedHere } from '../onboarding/start';
  * focus filter bar, multi-selection bar, and the selection bar on phones / details column on
  * laptops. Editing opens in the same column or sheet.
  */
+function range(a: number, b: number): number[] {
+  return Array.from({ length: b - a + 1 }, (_, i) => a + i);
+}
+
 export function TreeView() {
   const { t, locale } = useT();
   const project = useAppStore((s) => s.project);
@@ -61,13 +66,20 @@ export function TreeView() {
   const scales = useMemo(() => (project ? personScales(project, scaling) : new Map<string, number>()), [project, scaling]);
   const frames = useMemo(() => (project && placement ? clusterFrames(project, placement.positions, level, scales) : []), [project, placement, level, scales]);
   const [layoutOpen, setLayoutOpen] = useState(false);
-  const visible = useMemo(() => (project ? visiblePersons(project, ui.filter) : new Set<string>()), [project, ui.filter]);
+  const chartSpec = ui.chart && project && project.persons[ui.chart.personId] ? ui.chart : null;
+  const chart = useMemo(() => (project && chartSpec ? buildChart(project, chartSpec, level) : null), [project, chartSpec, level]);
+  const visible = useMemo(() => (chart ? chart.visible : project ? visiblePersons(project, ui.filter) : new Set<string>()), [project, ui.filter, chart]);
+  /** What the canvas shows: chart positions in chart mode, stored/provisional positions otherwise. */
+  const positionsNow = useMemo(() => (chart ? chart.positions : placement?.positions ?? new Map<string, Position>()), [chart, placement]);
+  const provisionalNow = useMemo(() => (chart ? new Set<string>() : placement?.provisional ?? new Set<string>()), [chart, placement]);
+  const framesNow = useMemo(() => (chart ? [] : frames), [chart, frames]);
+  const scalesNow = useMemo(() => (chart ? new Map<string, number>() : scales), [chart, scales]);
   const warningIds = useMemo(() => new Set(warnings.map((w) => w.personIds[0]!)), [warnings]);
   const boundsAll = useMemo(() => {
     if (!placement) return null;
-    const boxes = [...placement.positions.entries()].filter(([id]) => visible.has(id)).map(([id, p]) => cardBox(p.x, p.y, level, false, scales.get(id) ?? 1));
+    const boxes = [...positionsNow.entries()].filter(([id]) => visible.has(id)).map(([id, p]) => cardBox(p.x, p.y, level, false, scalesNow.get(id) ?? 1));
     return boundsOf(boxes);
-  }, [placement, visible, level, scales]);
+  }, [placement, positionsNow, visible, level, scalesNow]);
 
   const storedViewport = ui.viewport;
   const viewport: Viewport = useMemo(() => storedViewport ?? { x: 40, y: 40, zoom: 1 }, [storedViewport]);
@@ -164,11 +176,11 @@ export function TreeView() {
   const hidden = total - visible.size;
 
   const jumpTo = (id: string) => {
-    const p = placement.positions.get(id);
+    const p = positionsNow.get(id);
     if (!p) return;
-    updateUi({ selectedPersonId: id, filter: visible.has(id) ? ui.filter : null });
+    updateUi({ selectedPersonId: id, filter: visible.has(id) ? ui.filter : null, chart: chart && !visible.has(id) ? null : ui.chart });
     setMenu('none');
-    const box = cardBox(p.x, p.y, level, false, scales.get(id) ?? 1);
+    const box = cardBox(p.x, p.y, level, false, scalesNow.get(id) ?? 1);
     setViewport(centerOn({ ...viewport, zoom: Math.max(viewport.zoom, 0.8) }, box.x + box.w / 2, box.y + box.h / 2, size.w, size.h));
     setQuery('');
   };
@@ -253,6 +265,21 @@ export function TreeView() {
     setMenu('none');
     updateUi({ filter, viewport: null });
   };
+  const applyChart = (c: NonNullable<typeof ui.chart>) => {
+    setMenu('none');
+    updateUi({ chart: c, filter: null, viewport: null });
+  };
+  const chartButtons = selected && (
+    <div className="btn-row" role="group" aria-label={t('tree.charts')}>
+      <button type="button" className="btn" onClick={() => applyChart({ kind: 'ancestors', personId: selected.id, generations: ANCESTOR_GENERATIONS.default })}>
+        {t('tree.chartAncestors')}
+      </button>
+      <button type="button" className="btn" onClick={() => applyChart({ kind: 'descendants', personId: selected.id, depth: DESCENDANT_DEPTH.default })}>
+        {t('tree.chartDescendants')}
+      </button>
+    </div>
+  );
+  const chartLabel = chartSpec ? (chartSpec.kind === 'ancestors' ? t('tree.chartAncestorsOf', { name: nameOf(chartSpec.personId) }) : t('tree.chartDescendantsOf', { name: nameOf(chartSpec.personId) })) : '';
   const filterButtons = selected && (
     <div className="btn-row" role="group" aria-label={t('tree.filter')}>
       <button type="button" className="btn" onClick={() => applyFilter({ kind: 'ancestors', personId: selected.id })}>
@@ -275,6 +302,8 @@ export function TreeView() {
       extra={
         selected && (
           <>
+            <h3>{t('tree.charts')}</h3>
+            {chartButtons}
             <h3>{t('tree.filter')}</h3>
             {filterButtons}
           </>
@@ -336,10 +365,12 @@ export function TreeView() {
             <option value="full">{t('tree.detailLevel.full')}</option>
           </select>
         </div>
-        <button type="button" className="btn btn-layout" aria-expanded={layoutOpen} onClick={() => setLayoutOpen((v) => !v)}>
-          {t('layout.panel')}
-        </button>
-        <button type="button" className="btn btn-print" onClick={() => openPrint({ selection: multiLive.size > 1 ? [...multiLive] : ui.selectedPersonId ? [ui.selectedPersonId] : [], filtered: ui.filter ? [...visible] : null, clusters: frames.map((f) => ({ index: f.index, personIds: f.personIds })), defaultContent: 'tree' })}>
+        {!chart && (
+          <button type="button" className="btn btn-layout" aria-expanded={layoutOpen} onClick={() => setLayoutOpen((v) => !v)}>
+            {t('layout.panel')}
+          </button>
+        )}
+        <button type="button" className="btn btn-print" onClick={() => openPrint({ selection: multiLive.size > 1 ? [...multiLive] : ui.selectedPersonId ? [ui.selectedPersonId] : [], filtered: ui.filter ? [...visible] : null, clusters: frames.map((f) => ({ index: f.index, personIds: f.personIds })), defaultContent: 'tree', chart: chart ? { positions: [...chart.positions.entries()], visible: [...chart.visible], lines: chart.lines, useUnions: chart.useUnions, label: chartLabel } : null })}>
           {t('print.open')}
         </button>
         {!readOnly && isDesktop && (
@@ -401,7 +432,33 @@ export function TreeView() {
         </section>
       )}
 
-      {ui.filter && (
+      {chart && chartSpec && (
+        <div className="filter-bar notice notice-info chart-bar" role="status">
+          <span>{t('tree.chartBar', { what: chartLabel })}</span>
+          <span className="chart-controls">
+            <label htmlFor="chart-gens">{chartSpec.kind === 'ancestors' ? t('tree.chartGenerations') : t('tree.chartDepth')}</label>
+            <select
+              id="chart-gens"
+              className="select select-inline"
+              value={chartSpec.kind === 'ancestors' ? chartSpec.generations : chartSpec.depth}
+              onChange={(e) => {
+                const n = Number(e.target.value);
+                updateUi({ chart: chartSpec.kind === 'ancestors' ? { ...chartSpec, generations: n } : { ...chartSpec, depth: n }, viewport: null });
+              }}
+            >
+              {(chartSpec.kind === 'ancestors' ? range(ANCESTOR_GENERATIONS.min, ANCESTOR_GENERATIONS.max) : range(DESCENDANT_DEPTH.min, DESCENDANT_DEPTH.max)).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </span>
+          <button type="button" className="btn" onClick={() => updateUi({ chart: null, viewport: null })}>
+            {t('tree.chartClose')}
+          </button>
+        </div>
+      )}
+      {ui.filter && !chart && (
         <div className="filter-bar notice notice-info" role="status">
           <span>
             {t('tree.showing', { what: filterLabel })}
@@ -474,7 +531,7 @@ export function TreeView() {
           >
             <Canvas
               project={project}
-              positions={placement.positions}
+              positions={positionsNow}
               visible={visible}
               level={level}
               locale={locale}
@@ -484,10 +541,13 @@ export function TreeView() {
               warningIds={warningIds}
               readOnly={readOnly}
               snapToGrid={ui.snapToGrid}
-              provisional={placement.provisional}
-              frames={frames}
+              provisional={provisionalNow}
+              frames={framesNow}
               frameLabel={frameLabel}
-              scales={scales}
+              scales={scalesNow}
+              chartLines={chart?.lines}
+              hideUnions={chart ? !chart.useUnions : false}
+              locked={!!chart}
               labels={labels}
               cardLabel={cardLabel}
               onViewport={setViewport}
@@ -561,6 +621,7 @@ export function TreeView() {
                   </button>
                 )}
               </div>
+              {chartButtons}
               {filterButtons}
             </div>
           )}

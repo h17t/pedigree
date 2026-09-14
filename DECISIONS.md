@@ -225,3 +225,12 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 144 | Cards show no "living" label; only a death date or † appears. | A living person is the default reading of a card without a death date; the label added noise. | decided |
 | 145 | The divorce mark is two strokes through the junction between the partners. | The gap between partner cards is the only place not covered by cards; a small slash beside the junction was invisible. | decided |
 | 146 | "Close family" includes parents, siblings, children, grandparents, grandchildren and the person's own partners, never the partners of relatives; "Ancestors" is exactly the ancestors; "Descendants" keeps the descendants' partners. | The old rule added partners of everyone visible, which showed a partner's ex-partners and in-laws. | decided |
+
+## Stage (k) (2026-09-14)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 147 | Charts are computed from the data on every render and never stored; the canvas locks the cards in chart mode and the print dialog receives the chart's positions and lines. | One source of geometry for screen and paper; nothing on the main canvas changes when a chart is viewed. | decided |
+| 148 | The pedigree chart is a dedicated left-to-right layout with orthogonal child→parent lines and no partnership junctions; the descendant chart reuses the generational engine on the descendant sub-graph with partners. | A pedigree reads by columns and has no need for junctions; a descendant chart is the main canvas restricted to one family line. | decided |
+| 149 | A repeated ancestor (cousin marriage) is drawn once in the pedigree; the second branch ends there. | Positions are keyed by person; duplicating cards would double every ancestor above the repeat. | decided |
+| 150 | The family sheet is plain HTML with inline CSS and no scripts, rendered from the same builder in the app's dialog, the print root and the saved file. | One report, three outputs, identical content; a saved file must open anywhere and carry nothing executable. | decided |

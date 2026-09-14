@@ -46,3 +46,6 @@
 .btn-add-floating { position: absolute; right: var(--sp-3); bottom: var(--sp-3); box-shadow: var(--shadow-menu); }
 @media (min-width: 768px) { .btn-add { margin-left: auto; } }
 .legend-title { font-size: var(--fs-md); line-height: var(--lh-md); margin: 0; }
+.chart-bar { gap: var(--sp-2) var(--sp-3); }
+.chart-controls { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.sheet-preview { padding: var(--sp-3); border: 1px solid var(--rule); border-radius: var(--r-card); background: var(--paper); max-height: 60vh; overflow: auto; }

@@ -157,6 +157,20 @@ partner's ex-partners, siblings' spouses): it shows parents, siblings, children,
 grandchildren and the person's own partners; "Ancestors" shows exactly the ancestors and
 "Descendants" keeps the descendants' partners. 202 unit tests and 92 Playwright tests pass.
 
+## Roadmap stages (k)–(n)
+
+Stage (k) delivered (2026-09-14): two chart modes in the Tree view, the ancestor chart (pedigree:
+the person on the left, parents to the right, father above mother, each ancestor's row the middle of
+its parents' rows, branch ends stacked, 4–8 generations, a repeated ancestor drawn once) and the
+descendant chart (the person on top, descendants to a chosen depth with their partners, laid out by
+the ordinary generational engine so partnerships and children look exactly as on the canvas).
+Charts are computed from the data each time and never stored; the canvas draws them with locked
+cards, the layout panel is hidden, and the print dialog offers "The chart as shown" and draws the
+same positions and lines. The family sheet is a one-page report (fields, parents with their
+relationship, siblings, partnerships with children and relation, events, notes, sources) shown in a
+dialog, printed through the print root, and saved as a standalone HTML file without scripts.
+206 unit tests and 98 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -175,6 +189,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions — screenshots in `docs/screenshots/stage-g/`
 - [x] **(h)** first-run screen, guided start (resumable, one undo step), contextual tips, help page with printable quick start — screenshots in `docs/screenshots/stage-h/`
 - [x] **(i)** manifest, service worker with prompt-style updates, update and offline notices, install entry with iOS instructions, offline verification — screenshots in `docs/screenshots/stage-i/`
+- [x] **(k)** ancestor and descendant charts, family sheet — screenshots in `docs/screenshots/stage-k/`
 - [x] **(j)** final accessibility audit, 500-person performance pass (with three rendering optimisations), README numbers, network verification, screen-reader checklist, deployment note — screenshots in `docs/screenshots/stage-j/`
 
 ## Known open points after stage (b)

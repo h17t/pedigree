@@ -36,6 +36,13 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   it. When choosing an existing person, people who cannot take the role are listed with the reason.
   **Edit** and **Delete** at the top act on the person; deleting explains what else changes, and
   **Undo** and **Redo** are always in the header.
+- **Charts**: with a person selected, the details column offers an **Ancestor chart** (the person
+  on the left, parents to the right, four to eight generations) and a **Descendant chart** (the
+  person on top, descendants below, depth selectable). Charts are drawn from the data each time,
+  leave the canvas positions untouched, and print and export through the same dialog ("The chart
+  as shown").
+- **Family sheet**: a one-page report of a person (fields, parents, siblings, partnerships with
+  children, events, notes, sources), printable and saved as a standalone HTML file.
 - **Timeline** shows one lifespan bar per person, zoomable, with an optional layer of a few
   historical events (off by default). **Statistics** shows counts, ages and most common names, and
   every figure says how many people it is based on.

@@ -20,7 +20,7 @@ import { announce } from '../status';
 import { Dialog } from '../components/Dialog';
 
 type Content = 'tree' | 'timeline' | 'statistics';
-type Scope = { kind: 'all' } | { kind: 'selection' } | { kind: 'filter' } | { kind: 'cluster'; index: number };
+type Scope = { kind: 'all' } | { kind: 'selection' } | { kind: 'filter' } | { kind: 'cluster'; index: number } | { kind: 'chart' };
 
 /**
  * The in-app print dialog: paper, orientation, margin, fit-or-tile, detail, scope, header,
@@ -34,7 +34,7 @@ export function PrintDialog() {
   const ctx = usePrint((s) => s.context);
   const project = useAppStore((s) => s.project);
   const [content, setContent] = useState<Content>(ctx.defaultContent);
-  const [scope, setScope] = useState<Scope>({ kind: 'all' });
+  const [scope, setScope] = useState<Scope>(ctx.chart ? { kind: 'chart' } : { kind: 'all' });
   const [paper, setPaper] = useState<PaperSize>('A4');
   const [orientation, setOrientation] = useState<Orientation>('landscape');
   const [margin, setMargin] = useState(10);
@@ -72,6 +72,7 @@ export function PrintDialog() {
   // Which people are in scope.
   const visible = useMemo(() => {
     if (!project) return new Set<string>();
+    if (scope.kind === 'chart' && ctx.chart) return new Set(ctx.chart.visible);
     if (scope.kind === 'selection' && ctx.selection.length) return new Set(ctx.selection);
     if (scope.kind === 'filter' && ctx.filtered) return new Set(ctx.filtered);
     if (scope.kind === 'cluster') return new Set(ctx.clusters.find((c) => c.index === scope.index)?.personIds ?? []);
@@ -82,9 +83,10 @@ export function PrintDialog() {
     if (!project || !open) return null;
     if (content === 'timeline') return timelineContent(project, locale, { unnamed: t('person.unnamed') });
     if (content === 'statistics') return statisticsContent(project, locale, { basis: 'Basis', people: t('stats.people'), unions: t('stats.unions'), generations: t('stats.generations'), ageAtDeath: t('stats.ageAtDeath'), lifeExpectancy: t('stats.lifeExpectancy'), childrenPerUnion: t('stats.childrenPerUnion'), givenNames: t('stats.givenNames'), surnames: t('stats.surnames'), occupations: t('stats.occupations'), places: t('stats.places') });
-    const positions = placeUnpositioned(project, level).positions;
-    return treeContent({ project, positions, visible, level, locale, labels, header: null, legend: null, blackAndWhite: bw });
-  }, [project, open, content, level, visible, locale, labels, bw, t]);
+    const chart = scope.kind === 'chart' ? ctx.chart : null;
+    const positions = chart ? new Map(chart.positions) : placeUnpositioned(project, level).positions;
+    return treeContent({ project, positions, visible, level, locale, labels, header: null, legend: null, blackAndWhite: bw, lines: chart?.lines, useUnions: chart ? chart.useUnions : true });
+  }, [project, open, content, level, visible, locale, labels, bw, t, scope, ctx.chart]);
 
   const sheet = sheetFor(paper, orientation, margin);
   const headerPx = title || subtitle || withDate ? HEADER_H : 0;
@@ -226,6 +228,12 @@ export function PrintDialog() {
             {content === 'tree' && (
               <fieldset className="form-section">
                 <legend>{t('print.scope')}</legend>
+                {ctx.chart && (
+                  <div className="radio-row">
+                    <input id="pr-scope-chart" type="radio" name="pr-scope" checked={scope.kind === 'chart'} onChange={() => setScope({ kind: 'chart' })} />
+                    <label htmlFor="pr-scope-chart">{t('print.scopeChart', { what: ctx.chart.label })}</label>
+                  </div>
+                )}
                 <div className="radio-row">
                   <input id="pr-scope-all" type="radio" name="pr-scope" checked={scope.kind === 'all'} onChange={() => setScope({ kind: 'all' })} />
                   <label htmlFor="pr-scope-all">{t('print.scopeAll')}</label>

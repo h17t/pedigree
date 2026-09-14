@@ -119,6 +119,8 @@ export interface ProjectUiMeta {
   filter: { kind: 'ancestors'; personId: string } | { kind: 'descendants'; personId: string } | { kind: 'around'; personId: string; generations: number } | null;
   legendOpen: boolean;
   snapToGrid: boolean;
+  /** Chart mode of the tree view (pedigree or descendants), or the ordinary canvas. */
+  chart: { kind: 'ancestors'; personId: string; generations: number } | { kind: 'descendants'; personId: string; depth: number } | null;
 }
 
 export const defaultUiMeta = (): ProjectUiMeta => ({
@@ -133,6 +135,7 @@ export const defaultUiMeta = (): ProjectUiMeta => ({
   filter: null,
   legendOpen: false,
   snapToGrid: false,
+  chart: null,
 });
 
 export function loadUiMeta(id: string): ProjectUiMeta {

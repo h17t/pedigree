@@ -7,6 +7,8 @@ export interface PrintContext {
   filtered: string[] | null;
   clusters: { index: number; personIds: string[] }[];
   defaultContent: 'tree' | 'timeline' | 'statistics';
+  /** Chart mode of the tree view: fixed positions, lines and scope. */
+  chart: { positions: [string, { x: number; y: number }][]; visible: string[]; lines: { d: string }[]; useUnions: boolean; label: string } | null;
 }
 
 interface State {
@@ -18,8 +20,8 @@ interface State {
 
 export const usePrint = create<State>((set) => ({
   open: false,
-  context: { selection: [], filtered: null, clusters: [], defaultContent: 'tree' },
-  show: (ctx) => set((s) => ({ open: true, context: { ...s.context, selection: [], filtered: null, clusters: [], defaultContent: 'tree', ...ctx } })),
+  context: { selection: [], filtered: null, clusters: [], defaultContent: 'tree', chart: null },
+  show: (ctx) => set((s) => ({ open: true, context: { ...s.context, selection: [], filtered: null, clusters: [], defaultContent: 'tree', chart: null, ...ctx } })),
   hide: () => set({ open: false }),
 }));
 

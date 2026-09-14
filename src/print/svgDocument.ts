@@ -43,6 +43,9 @@ export interface TreeSvgOptions {
   header: Header | null;
   legend: LegendLine[] | null;
   blackAndWhite: boolean;
+  /** Chart mode: extra lines and, for a pedigree, no partnership routing. */
+  lines?: { d: string }[];
+  useUnions?: boolean;
 }
 
 export const HEADER_H = 72;
@@ -58,7 +61,7 @@ export function treeContent(o: TreeSvgOptions): { markup: string; bounds: Box; t
     const p = o.positions.get(id);
     if (p) boxes.set(id, cardBox(p.x, p.y, o.level, true, scales.get(id) ?? 1));
   }
-  const unions = routeUnions({ project: o.project, boxes, visible: o.visible });
+  const unions = o.useUnions === false ? [] : routeUnions({ project: o.project, boxes, visible: o.visible });
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const b of boxes.values()) {
     minX = Math.min(minX, b.x);
@@ -82,7 +85,7 @@ export function treeContent(o: TreeSvgOptions): { markup: string; bounds: Box; t
     return createElement(PersonCard, { key: id, person, x: b.x, y: b.y, level: o.level, locale: o.locale, selected: false, hasWarning: false, print: true, blackAndWhite: o.blackAndWhite, scale: scales.get(id) ?? 1, ariaLabel: personName(person), labels });
   });
   const markup = renderToStaticMarkup(
-    createElement('g', null, createElement(Connectors, { unions, background: color.paper }), ...unions.map((u) => createElement(UnionNode, { key: u.unionId, cx: u.cx, cy: u.cy, unknownParents: u.unknownParents, label: o.labels.unknownParents })), ...cards),
+    createElement('g', null, o.lines && o.lines.length ? createElement('g', { fill: 'none', stroke: color.ink, strokeWidth: 2 }, ...o.lines.map((l, i) => createElement('path', { key: `cl${i}`, d: l.d }))) : null, createElement(Connectors, { unions, background: color.paper }), ...unions.map((u) => createElement(UnionNode, { key: u.unionId, cx: u.cx, cy: u.cy, unknownParents: u.unknownParents, label: o.labels.unknownParents })), ...cards),
   );
   text += o.labels.unknownParents;
   return { markup, bounds, text, minScale: minScaleOf(scales, boxes.keys()) };

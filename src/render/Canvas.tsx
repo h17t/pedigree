@@ -44,6 +44,12 @@ export interface CanvasProps {
   onSize?: (w: number, h: number) => void;
   /** Per-person card scale ("Balance generations"); missing = 1. */
   scales?: Map<string, number>;
+  /** Chart mode: extra orthogonal lines drawn instead of (or in addition to) partnership routing. */
+  chartLines?: { d: string }[];
+  /** Chart mode without partnership routing (pedigree). */
+  hideUnions?: boolean;
+  /** Chart mode: cards cannot be dragged or multi-selected. */
+  locked?: boolean;
 }
 
 type Gesture =
@@ -65,7 +71,7 @@ const DRAG_THRESHOLD = 4;
 export const LARGE_TREE = 150;
 
 export function Canvas(props: CanvasProps) {
-  const { project, positions, visible, level, locale, viewport, selectedId, multiSelected, warningIds, readOnly, snapToGrid, provisional, frames, frameLabel, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onMoveMany, onMultiSelect, onDeleteKey, onSize, scales } = props;
+  const { project, positions, visible, level, locale, viewport, selectedId, multiSelected, warningIds, readOnly, snapToGrid, provisional, frames, frameLabel, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onMoveMany, onMultiSelect, onDeleteKey, onSize, scales, chartLines, hideUnions, locked } = props;
   const [guides, setGuides] = useState<{ x: number[]; y: number[] }>({ x: [], y: [] });
   const svgRef = useRef<SVGSVGElement>(null);
   const gestureRef = useRef<Gesture>({ kind: 'none' });
@@ -110,7 +116,7 @@ export function Canvas(props: CanvasProps) {
     return m;
   }, [positions, visible, level, dragPos, scales]);
 
-  const unions = useMemo(() => routeUnions({ project, boxes, visible }), [project, boxes, visible]);
+  const unions = useMemo(() => (hideUnions ? [] : routeUnions({ project, boxes, visible })), [project, boxes, visible, hideUnions]);
 
   // Large trees only (above LARGE_TREE people): cards outside the visible area (plus a margin
   // of one card) are not rendered, and below 40 % zoom cards draw only their name and years
@@ -161,9 +167,9 @@ export function Canvas(props: CanvasProps) {
   // The card handler reads the latest viewport, positions and selection through a ref so that
   // its identity is stable: otherwise every pan or zoom step would re-render all (memoised)
   // cards, which is what makes a 500-person tree feel slow.
-  const latest = useRef({ positions, readOnly, viewport, multiSelected, onMultiSelect });
+  const latest = useRef({ positions, readOnly: readOnly || !!locked, viewport, multiSelected, onMultiSelect });
   useLayoutEffect(() => {
-    latest.current = { positions, readOnly, viewport, multiSelected, onMultiSelect };
+    latest.current = { positions, readOnly: readOnly || !!locked, viewport, multiSelected, onMultiSelect };
   });
   const onCardPointerDown = useCallback((e: ReactPointerEvent<SVGGElement>, id: string) => {
     const { positions, readOnly, viewport, multiSelected, onMultiSelect } = latest.current;
@@ -356,6 +362,13 @@ export function Canvas(props: CanvasProps) {
         {guides.y.map((gy, i) => (
           <line key={`gy${i}`} x1={-1e5} x2={1e5} y1={gy} y2={gy} stroke={color.select} strokeWidth={1 / viewport.zoom} strokeDasharray={`${6 / viewport.zoom} ${4 / viewport.zoom}`} />
         ))}
+        {chartLines && chartLines.length > 0 && (
+          <g className="chart-lines" fill="none" stroke={color.ink} strokeWidth={2}>
+            {chartLines.map((l, i) => (
+              <path key={i} d={l.d} />
+            ))}
+          </g>
+        )}
         <Connectors unions={unions} />
         {unions.map((u) => (
           <UnionNode key={u.unionId} cx={u.cx} cy={u.cy} unknownParents={u.unknownParents} label={labels.unknownParents} />

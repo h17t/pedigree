@@ -124,7 +124,8 @@ export function downloadText(text: string, fileName: string): void {
   const a = document.createElement('a');
   a.href = url;
   a.download = fileName;
-  document.body.appendChild(a);
+  // Inside an open modal dialog everything else is inert, so the link must live in the dialog.
+  (document.querySelector('dialog[open]') ?? document.body).appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
