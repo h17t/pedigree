@@ -73,3 +73,24 @@ test('stage screenshots', async ({ page }, testInfo) => {
   await expectNoHorizontalScroll(page);
   await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-wizard.png`, fullPage: true });
 });
+
+test('dark theme screenshots', async ({ page }, testInfo) => {
+  const w = page.viewportSize()?.width ?? 0;
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await openSample(page);
+  await page.getByRole('button', { name: 'Tree', exact: true }).click();
+  await page.getByRole('button', { name: 'Fit' }).click();
+  await page.waitForTimeout(300);
+  await page.getByLabel('Type a name to jump to a person').fill('karl');
+  await page.getByRole('button', { name: /Karl Weber, born 1878/ }).first().click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-dark-tree.png`, fullPage: false });
+  await page.getByRole('button', { name: 'List', exact: true }).click();
+  await page.getByRole('button', { name: /Karl Weber/ }).first().click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-dark-list-details.png`, fullPage: false });
+  if (w < 1024) await page.getByRole('button', { name: 'Back' }).click();
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${dir}/${testInfo.project.name}-${w}-dark-data.png`, fullPage: false });
+});

@@ -6,6 +6,10 @@
  * See docs/DESIGN_PLAN.md for the rationale and the contrast table.
  */
 
+/**
+ * The light palette. Print, SVG and PNG output always use these literal values; the DOM and
+ * the on-screen canvas use the CSS custom properties (`cssColor`), which the theme switches.
+ */
 export const color = {
   ink: '#1B2733',
   slate: '#4A5A6A',
@@ -22,6 +26,49 @@ export const color = {
   dangerBg: '#FBE9EA',
   lineBg: '#E2F0EC',
 } as const;
+export type Palette = { [K in keyof typeof color]: string };
+
+/**
+ * The dark palette (same roles). Text colours keep at least 7:1 on `paper` and `chrome`,
+ * `slate` at least 4.5:1, and the accent colours are lightened so they read on dark ground.
+ * `tokens.css` mirrors these values under `[data-theme="dark"]`.
+ */
+export const darkColor: Palette = {
+  ink: '#E6EBEF',
+  slate: '#AEBAC6',
+  rule: '#7C8996',
+  paper: '#1E262E',
+  chrome: '#161C22',
+  ground: '#11161B',
+  line: '#5FC4A8',
+  select: '#8FB4FF',
+  selectBg: '#23324A',
+  warn: '#F2B84B',
+  warnBg: '#3B2E10',
+  danger: '#FF8C96',
+  dangerBg: '#3F1F24',
+  lineBg: '#1C3A33',
+};
+
+/** The same roles as CSS custom properties, for everything drawn on screen. */
+export const cssColor: Palette = {
+  ink: 'var(--ink)',
+  slate: 'var(--slate)',
+  rule: 'var(--rule)',
+  paper: 'var(--paper)',
+  chrome: 'var(--chrome)',
+  ground: 'var(--ground)',
+  line: 'var(--line)',
+  select: 'var(--select)',
+  selectBg: 'var(--select-bg)',
+  warn: 'var(--warn)',
+  warnBg: 'var(--warn-bg)',
+  danger: 'var(--danger)',
+  dangerBg: 'var(--danger-bg)',
+  lineBg: 'var(--line-bg)',
+};
+
+export type Theme = 'system' | 'light' | 'dark';
 
 /** Branch-tag colours; every tag is always rendered with a text label as well. */
 export const tagColor = {

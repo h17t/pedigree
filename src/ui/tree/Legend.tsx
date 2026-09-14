@@ -1,6 +1,6 @@
 import { useT } from '@/i18n';
 import type { TKey } from '@/i18n';
-import { color, tagColor } from '@/design/tokens';
+import { cssColor as color, tagColor } from '@/design/tokens';
 import { useAppStore } from '@/store/store';
 
 const LINE_ITEMS: { key: string; draw: React.ReactNode }[] = [

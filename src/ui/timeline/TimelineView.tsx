@@ -5,7 +5,7 @@ import { useAppStore, updateUi } from '@/store/store';
 import { computeTimeline, sortBars } from '@/timeline/timeline';
 import type { TimelineSort } from '@/timeline/timeline';
 import { HISTORY } from '@/timeline/history';
-import { color } from '@/design/tokens';
+import { cssColor as color } from '@/design/tokens';
 import { cardText } from '@/render/geometry';
 import { useRouter } from '../router';
 import { openPrint } from '../print/printStore';

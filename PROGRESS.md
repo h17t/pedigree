@@ -223,6 +223,16 @@ the latest possible birth of a range counts), marriage under 12 (was 14) and an 
 "† 1950" for died; the spoken card label says "born … died …". 249 unit tests and 112 Playwright
 tests pass.
 
+Stage (n), dark theme (2026-09-14): a second palette in `src/design/tokens.ts` (`darkColor`,
+mirrored in `tokens.css` under `[data-theme="dark"]` and `prefers-color-scheme: dark` when
+nothing is chosen), an **Appearance** setting on the Data page (same as the device / light /
+dark, default system), and every on-screen colour through CSS custom properties: the canvas,
+legend, timeline, statistics, dialogs and tips draw with `cssColor` (a palette context on the
+SVG canvas), while print, SVG, PNG and the family sheet keep the literal light palette (the
+print root re-declares the light variables). The browser theme colour follows. Axe passes on
+every view in dark mode (list, details, editor, canvas with legend, print dialog, data,
+timeline, statistics), on phone and desktop; dark screenshots in `docs/screenshots/stage-n/`.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -243,6 +253,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(i)** manifest, service worker with prompt-style updates, update and offline notices, install entry with iOS instructions, offline verification — screenshots in `docs/screenshots/stage-i/`
 - [x] **(l)** search and filters, colour groups (schema 2), relationship calculator — screenshots in `docs/screenshots/stage-l/`
 - [x] **(k)** ancestor and descendant charts, family sheet — screenshots in `docs/screenshots/stage-k/`
+- [ ] **(n)** dark theme (done), further languages in two batches (in progress) — screenshots in `docs/screenshots/stage-n/`
 - [x] **(m)** privacy flag with hide switches, 200-step session undo, date ranges, GEDCOM 7 import, extended warnings — screenshots in `docs/screenshots/stage-m/`
 - [x] **(j)** final accessibility audit, 500-person performance pass (with three rendering optimisations), README numbers, network verification, screen-reader checklist, deployment note — screenshots in `docs/screenshots/stage-j/`
 

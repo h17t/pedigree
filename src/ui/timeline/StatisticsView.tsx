@@ -3,7 +3,7 @@ import { useT, formatNumber, intlTag } from '@/i18n';
 import type { TKey } from '@/i18n';
 import { useAppStore } from '@/store/store';
 import { computeStatistics } from '@/timeline/statistics';
-import { color } from '@/design/tokens';
+import { cssColor as color } from '@/design/tokens';
 import { BarChart, GroupedBars, RankedBars } from './charts';
 import { openPrint } from '../print/printStore';
 

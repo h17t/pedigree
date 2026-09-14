@@ -39,7 +39,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn:hover { background: var(--line-bg); }
 .btn:disabled { border-color: var(--rule); color: var(--rule); cursor: not-allowed; background: var(--paper); }
 .btn-primary { background: var(--line); color: var(--paper); min-height: var(--touch-primary); padding: 0 var(--sp-6); }
-.btn-primary:hover { background: #185a4b; }
+.btn-primary:hover { background: var(--line-strong); }
 .btn-primary:disabled { background: var(--rule); border-color: var(--rule); color: var(--paper); }
 .btn-danger { border-color: var(--danger); color: var(--danger); }
 .btn-danger:hover { background: var(--danger-bg); }

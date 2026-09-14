@@ -1,9 +1,10 @@
 import { memo } from 'react';
-import { color } from '@/design/tokens';
 import { unknownParentsBox } from './geometry';
+import { usePalette } from './palette';
 
 /** The junction on a partner line, or the labelled "Parents unknown" box for a zero-partner union. */
 export const UnionNode = memo(function UnionNode({ cx, cy, unknownParents, label }: { cx: number; cy: number; unknownParents: boolean; label: string }) {
+  const color = usePalette();
   if (unknownParents) {
     const { w, h } = unknownParentsBox;
     return (

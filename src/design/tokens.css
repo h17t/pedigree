@@ -48,7 +48,11 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-:root {
+/* Light palette: the root, and always the print root (paper output never follows the theme). */
+:root,
+#print-root,
+.theme-light {
+  color-scheme: light;
   --ink: #1b2733;
   --slate: #4a5a6a;
   --rule: #6f7c89;
@@ -56,13 +60,21 @@
   --chrome: #f3f4f2;
   --ground: #e9eeec;
   --line: #1e6b5a;
+  --line-strong: #185a4b;
   --line-bg: #e2f0ec;
   --select: #2456c4;
   --select-bg: #e4ecfb;
+  --select-veil: rgba(36, 86, 196, 0.12);
   --warn: #8a5a00;
   --warn-bg: #fff3d6;
+  --warn-bg-strong: #ffe8b3;
   --danger: #a3212b;
   --danger-bg: #fbe9ea;
+  --backdrop: rgba(27, 39, 51, 0.45);
+  --shadow-sheet: 0 -2px 12px rgba(27, 39, 51, 0.18);
+  --shadow-menu: 0 4px 16px rgba(27, 39, 51, 0.18);
+}
+:root {
 
   --font: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
   --fs-xs: 14px; --lh-xs: 18px;
@@ -76,9 +88,57 @@
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px; --sp-14: 56px;
   --r-card: 4px; --r-control: 6px; --r-sheet: 12px;
   --touch: 48px; --touch-primary: 56px;
-  --shadow-sheet: 0 -2px 12px rgba(27, 39, 51, 0.18);
-  --shadow-menu: 0 4px 16px rgba(27, 39, 51, 0.18);
   --t-fast: 120ms; --t-sheet: 200ms; --t-glide: 250ms;
+}
+
+/* Dark palette (mirrors `darkColor` in tokens.ts): chosen explicitly, or by the system when nothing is chosen. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ink: #e6ebef;
+  --slate: #aebac6;
+  --rule: #7c8996;
+  --paper: #1e262e;
+  --chrome: #161c22;
+  --ground: #11161b;
+  --line: #5fc4a8;
+  --line-strong: #7fd6be;
+  --line-bg: #1c3a33;
+  --select: #8fb4ff;
+  --select-bg: #23324a;
+  --select-veil: rgba(143, 180, 255, 0.16);
+  --warn: #f2b84b;
+  --warn-bg: #3b2e10;
+  --warn-bg-strong: #4d3c14;
+  --danger: #ff8c96;
+  --danger-bg: #3f1f24;
+  --backdrop: rgba(0, 0, 0, 0.6);
+  --shadow-sheet: 0 -2px 12px rgba(0, 0, 0, 0.5);
+  --shadow-menu: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --ink: #e6ebef;
+    --slate: #aebac6;
+    --rule: #7c8996;
+    --paper: #1e262e;
+    --chrome: #161c22;
+    --ground: #11161b;
+    --line: #5fc4a8;
+    --line-strong: #7fd6be;
+    --line-bg: #1c3a33;
+    --select: #8fb4ff;
+    --select-bg: #23324a;
+    --select-veil: rgba(143, 180, 255, 0.16);
+    --warn: #f2b84b;
+    --warn-bg: #3b2e10;
+    --warn-bg-strong: #4d3c14;
+    --danger: #ff8c96;
+    --danger-bg: #3f1f24;
+    --backdrop: rgba(0, 0, 0, 0.6);
+    --shadow-sheet: 0 -2px 12px rgba(0, 0, 0, 0.5);
+    --shadow-menu: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

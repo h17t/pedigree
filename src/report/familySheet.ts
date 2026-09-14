@@ -147,7 +147,8 @@ export function familySheetBody(sheet: FamilySheet, l: SheetLabels): string {
 }
 
 export const SHEET_CSS = `
-body { font-family: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif; color: #1B2733; margin: 0; padding: 24px; line-height: 1.45; max-width: 720px; }
+body { font-family: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif; color: #1B2733; background: #FFFFFF; margin: 0; padding: 24px; line-height: 1.45; max-width: 720px; }
+.family-sheet { color: #1B2733; background: #FFFFFF; color-scheme: light; }
 .family-sheet .head { border-bottom: 2px solid #1B2733; padding-bottom: 8px; margin-bottom: 16px; }
 .family-sheet .kicker { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #4A5A6A; }
 .family-sheet h1 { margin: 2px 0 4px; font-size: 24px; }

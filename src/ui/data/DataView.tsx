@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useT, formatBytes, formatDateTime, formatNumber } from '@/i18n';
-import type { Locale, DateFormat } from '@/i18n';
+import type { Locale, DateFormat, TKey } from '@/i18n';
+import type { Theme } from '@/design/tokens';
 import { useAppStore } from '@/store/store';
 import { useSettings, setLocale } from '@/store/settings';
 import { storageSummary, listRecoveryKeys } from '@/store/persistence';
@@ -158,6 +159,19 @@ export function DataView() {
           </select>
           <p className="hint" id="dateformat-hint">
             {t('dates.formatHint')}
+          </p>
+        </div>
+        <div className="field">
+          <label htmlFor="theme-select">{t('data.theme')}</label>
+          <select id="theme-select" className="select" value={settings.theme} onChange={(e) => settings.update({ theme: e.target.value as Theme })} aria-describedby="theme-hint">
+            {(['system', 'light', 'dark'] as Theme[]).map((v) => (
+              <option key={v} value={v}>
+                {t(`data.themeValue.${v}` as TKey)}
+              </option>
+            ))}
+          </select>
+          <p className="hint" id="theme-hint">
+            {t('data.themeHint')}
           </p>
         </div>
       </section>

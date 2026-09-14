@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
-import { card, color, tagColor, tagPattern } from '@/design/tokens';
+import { card, tagColor, tagPattern } from '@/design/tokens';
+import { usePalette } from './palette';
 import type { TagColor } from '@/design/tokens';
 import type { Person } from '@/model/types';
 import { cardHeight, cardText } from './geometry';
@@ -39,6 +40,7 @@ export interface PersonCardProps {
  * label. Rendered identically on screen and in print (only the detail level differs).
  */
 export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, scale = 1, group = null, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
+  const color = usePalette();
   const h = cardHeight(level, print);
   const w = card.width;
   const textLevel: DetailLevel = sparse ? 'minimal' : level;
@@ -124,7 +126,7 @@ export const PersonCard = memo(function PersonCard({ person, x, y, level, locale
 
 /** Pedigree-chart convention: square = male, circle = female, diamond = diverse, none = unknown. */
 export function SexMarker({ sex, x, y, size = card.marker }: { sex: Person['sex']; x: number; y: number; size?: number }) {
-  const c = color.ink;
+  const c = usePalette().ink;
   switch (sex) {
     case 'male':
       return <rect x={x} y={y} width={size} height={size} fill={c} />;

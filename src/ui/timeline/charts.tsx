@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { useT, formatNumber } from '@/i18n';
-import { color } from '@/design/tokens';
+import { cssColor as color } from '@/design/tokens';
 
 /**
  * Lean SVG charts. Every chart has a visible title, text labels on the marks, a description,
