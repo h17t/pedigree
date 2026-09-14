@@ -159,6 +159,11 @@ export function Canvas(props: CanvasProps) {
     w: number;
     h: number;
   } | null>(null);
+  // The pointer-up handler reads the latest drag positions and band from refs: a burst of pointer
+  // moves followed by the pointer up (a fast mouse on a slow device) can arrive before React has
+  // committed the state set by the moves, and the move or the selection would be lost.
+  const dragPosRef = useRef<Map<string, Position> | null>(null);
+  const bandRef = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
   const spaceDown = useRef(false);
 
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -399,15 +404,18 @@ export function Canvas(props: CanvasProps) {
         next.set(gid, { x, y });
       }
       setGuides({ x: gx, y: gy });
+      dragPosRef.current = next;
       setDragPos(next);
     } else if (g.kind === 'band' && g.pointerId === e.pointerId) {
       g.moved = true;
-      setBand({
+      const rect = {
         x: Math.min(g.startX, p.x),
         y: Math.min(g.startY, p.y),
         w: Math.abs(p.x - g.startX),
         h: Math.abs(p.y - g.startY),
-      });
+      };
+      bandRef.current = rect;
+      setBand(rect);
     } else if (g.kind === 'pinch' && g.pointers.has(e.pointerId)) {
       g.pointers.set(e.pointerId, p);
       const [a, b] = [...g.pointers.values()] as [{ x: number; y: number }, { x: number; y: number }];
@@ -429,22 +437,26 @@ export function Canvas(props: CanvasProps) {
       if (!g.moved) onSelect(g.tapTarget);
       gestureRef.current = { kind: 'none' };
     } else if (g.kind === 'drag' && g.pointerId === e.pointerId) {
-      if (g.moved && dragPos) {
-        if (dragPos.size === 1) onMove(g.id, dragPos.get(g.id)!);
-        else onMoveMany([...dragPos.entries()].map(([id, pos]) => ({ id, pos })));
+      const moved = dragPosRef.current;
+      if (g.moved && moved) {
+        if (moved.size === 1) onMove(g.id, moved.get(g.id)!);
+        else onMoveMany([...moved.entries()].map(([id, pos]) => ({ id, pos })));
       } else onSelect(g.id);
+      dragPosRef.current = null;
       setDragPos(null);
       setGuides({ x: [], y: [] });
       gestureRef.current = { kind: 'none' };
     } else if (g.kind === 'band' && g.pointerId === e.pointerId) {
-      if (band) {
-        const x1 = (band.x - viewport.x) / viewport.zoom,
-          y1 = (band.y - viewport.y) / viewport.zoom;
-        const x2 = x1 + band.w / viewport.zoom,
-          y2 = y1 + band.h / viewport.zoom;
+      const rect = bandRef.current;
+      if (rect) {
+        const x1 = (rect.x - viewport.x) / viewport.zoom,
+          y1 = (rect.y - viewport.y) / viewport.zoom;
+        const x2 = x1 + rect.w / viewport.zoom,
+          y2 = y1 + rect.h / viewport.zoom;
         const hits = [...boxes.entries()].filter(([, b]) => b.x < x2 && b.x + b.w > x1 && b.y < y2 && b.y + b.h > y1).map(([id]) => id);
         onMultiSelect(hits, 'set');
       } else onSelect(null);
+      bandRef.current = null;
       setBand(null);
       gestureRef.current = { kind: 'none' };
     } else if (g.kind === 'pinch') {

@@ -117,12 +117,15 @@ test.describe('desktop only', () => {
   });
 
   test('select area: a plain drag draws a rectangle, dragging one selected card moves the group', async ({ page }) => {
+    // Without a service worker there is no "ready to work offline" notice that could appear above
+    // the canvas in the middle of a drag and shift everything (pwa.spec covers the worker itself).
+    await page.route(/\/sw\.js(\?.*)?$/, (route) => route.abort());
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
+    page.on('console', (m) => {
+      if (m.type() === 'error' || m.type() === 'warning') errors.push(`${m.type()}: ${m.text()}`);
+    });
     await openTree(page);
-    // The service worker's "ready to work offline" notice arrives a moment after the first load
-    // and shifts the canvas down; wait for it and dismiss it so nothing moves during the test.
-    const offlineNotice = page.locator('section.notice').filter({ hasText: /ready to work without an internet connection/ });
-    await offlineNotice.waitFor({ timeout: 4000 }).catch(() => undefined);
-    if (await offlineNotice.isVisible()) await offlineNotice.getByRole('button', { name: 'Dismiss' }).click();
     await page.getByLabel('Type a name to jump to a person').fill('otto');
     await page.getByRole('button', { name: /Otto Weber, born 1885/ }).first().click();
     await page.waitForTimeout(200);
@@ -176,26 +179,58 @@ test.describe('desktop only', () => {
     const rel = (id: string) =>
       page.evaluate((pid) => {
         const card = document.querySelector(`.person-card[data-person-id="${pid}"]`)!.getBoundingClientRect();
-        const cv = document.querySelector('svg.tree-canvas')!.getBoundingClientRect();
-        return { x: card.x - cv.x, y: card.y - cv.y };
+        const svg = document.querySelector('svg.tree-canvas')!;
+        const cv = svg.getBoundingClientRect();
+        const view = svg.querySelector('g[transform]')?.getAttribute('transform') ?? '';
+        return { x: card.x - cv.x, y: card.y - cv.y, view, canvas: `${Math.round(cv.x)},${Math.round(cv.y)} ${Math.round(cv.width)}x${Math.round(cv.height)} scroll ${window.scrollY}` };
       }, id);
     const dragBefore = await rel(drag.id), otherBefore = await rel(other.id);
-    // hover() waits until the card really receives pointer events at that point (nothing covers it)
-    // and uses the card's position at that moment.
+    // Diagnostics: record every pointer event the document sees from here on.
+    await page.evaluate(() => {
+      const w = window as unknown as { __ev: string[] };
+      w.__ev = [];
+      for (const t of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'gotpointercapture', 'lostpointercapture']) {
+        document.addEventListener(t, (e) => {
+          const pe = e as PointerEvent;
+          w.__ev.push(`${t}:${(e.target as Element).tagName}:${pe.pointerId}:${Math.round(pe.clientX)},${Math.round(pe.clientY)}:b${pe.buttons}`);
+        }, true);
+      }
+    });
+    // Grip the card by its own name text: hover() waits until that text really receives pointer
+    // events (nothing covers it) and the pointer then sits well inside the card.
     const dragCard = page.locator(`.person-card[data-person-id="${drag.id}"]`);
-    await dragCard.hover({ position: { x: 30, y: 30 } });
-    const grip = (await dragCard.boundingBox())!;
+    const nameText = dragCard.locator('text').first();
+    await nameText.hover();
+    const nb = (await nameText.boundingBox())!;
+    const gx = nb.x + nb.width / 2, gy = nb.y + nb.height / 2;
+    const under = await page.evaluate(
+      ([x, y, id]) => {
+        const el = document.elementFromPoint(x as number, y as number);
+        const card = el?.closest('[data-person-id]');
+        return { hits: card?.getAttribute('data-person-id') === id, tag: el?.tagName ?? 'none', scrollY: window.scrollY, scrollX: window.scrollX };
+      },
+      [gx, gy, drag.id],
+    );
+    expect(under.hits, `pointer over ${under.tag}, scroll ${under.scrollX},${under.scrollY}`).toBe(true);
+    await page.mouse.move(gx, gy);
     await page.mouse.down();
-    await page.mouse.move(grip.x + 110, grip.y + 70, { steps: 8 });
+    await page.mouse.move(gx + 80, gy + 40, { steps: 8 });
     await page.mouse.up();
-    const under = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.outerHTML.slice(0, 120) ?? 'none', [grip.x + 30, grip.y + 30]);
-    await expect.poll(async () => (await rel(drag.id)).x - dragBefore.x, { message: `card did not move; under the pointer: ${under}` }).toBeGreaterThan(40);
+    const state = async () => {
+      const now = await rel(drag.id);
+      const status = await page.getByRole('status').allTextContents();
+      const events = await page.evaluate(() => (window as unknown as { __ev: string[] }).__ev.slice(-20));
+      const undo = page.getByRole('button', { name: /Undo/ }).first();
+      return `pointer over ${under.tag}; view before ${dragBefore.view} (${dragBefore.canvas}) now ${now.view} (${now.canvas}); select pressed ${await select.getAttribute('aria-pressed')}; undo enabled ${await undo.isEnabled()} "${await undo.getAttribute('aria-label')}"; status ${JSON.stringify(status)}; errors ${JSON.stringify(errors)}; events ${JSON.stringify(events)}`;
+    };
+    await expect.poll(async () => (await rel(drag.id)).x - dragBefore.x, { message: `card did not move; ${await state()}` }).toBeGreaterThan(40);
     const dragAfter = await rel(drag.id), otherAfter = await rel(other.id);
     const dx = dragAfter.x - dragBefore.x, dy = dragAfter.y - dragBefore.y;
-    expect(Math.abs(dx - 80)).toBeLessThanOrEqual(2);
-    expect(Math.abs(dy - 40)).toBeLessThanOrEqual(2);
-    expect(Math.abs(otherAfter.x - otherBefore.x - dx)).toBeLessThanOrEqual(2);
-    expect(Math.abs(otherAfter.y - otherBefore.y - dy)).toBeLessThanOrEqual(2);
+    const moved = `dragged ${drag.id} by ${dx},${dy}; other ${other.id} by ${otherAfter.x - otherBefore.x},${otherAfter.y - otherBefore.y}; view before ${dragBefore.view} (${dragBefore.canvas}) after ${dragAfter.view} (${dragAfter.canvas})`;
+    expect(Math.abs(dx - 80), moved).toBeLessThanOrEqual(2);
+    expect(Math.abs(dy - 40), moved).toBeLessThanOrEqual(2);
+    expect(Math.abs(otherAfter.x - otherBefore.x - dx), moved).toBeLessThanOrEqual(2);
+    expect(Math.abs(otherAfter.y - otherBefore.y - dy), moved).toBeLessThanOrEqual(2);
     // Undo puts the whole group back in one step.
     await page.keyboard.press('Control+z');
     await expect.poll(async () => Math.abs((await rel(other.id)).x - otherBefore.x)).toBeLessThanOrEqual(3);
