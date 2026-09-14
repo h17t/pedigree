@@ -118,6 +118,11 @@ test.describe('desktop only', () => {
 
   test('select area: a plain drag draws a rectangle, dragging one selected card moves the group', async ({ page }) => {
     await openTree(page);
+    // The service worker's "ready to work offline" notice arrives a moment after the first load
+    // and shifts the canvas down; wait for it and dismiss it so nothing moves during the test.
+    const offlineNotice = page.locator('section.notice').filter({ hasText: /ready to work without an internet connection/ });
+    await offlineNotice.waitFor({ timeout: 4000 }).catch(() => undefined);
+    if (await offlineNotice.isVisible()) await offlineNotice.getByRole('button', { name: 'Dismiss' }).click();
     await page.getByLabel('Type a name to jump to a person').fill('otto');
     await page.getByRole('button', { name: /Otto Weber, born 1885/ }).first().click();
     await page.waitForTimeout(200);
@@ -156,33 +161,37 @@ test.describe('desktop only', () => {
     const count = Number(/(\d+) people selected/.exec((await bar.textContent()) ?? '')?.[1]);
     expect(count).toBeGreaterThan(1);
     // Drag the selected card nearest the canvas centre (fully visible, away from the hint) and
-    // check that another selected card moves with it.
+    // check that another selected card moves by the same amount. Positions are measured relative
+    // to the canvas, because a notice above it (e.g. "ready to work offline") can shift the whole
+    // canvas meanwhile.
     const selected = page.locator('.person-card-selected[data-person-id]');
-    const boxes = await selected.evaluateAll((els) => els.map((el) => { const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }));
-    expect(boxes.length).toBeGreaterThan(1);
+    const cards = await selected.evaluateAll((els) => els.map((el) => { const r = el.getBoundingClientRect(); return { id: el.getAttribute('data-person-id')!, x: r.x, y: r.y, w: r.width, h: r.height }; }));
+    expect(cards.length).toBeGreaterThan(1);
     const cx = c.x + c.width / 2, cy = c.y + Math.min(c.height, vh - c.y) / 2;
     const dist = (b: { x: number; y: number; w: number; h: number }) => Math.hypot(b.x + b.w / 2 - cx, b.y + b.h / 2 - cy);
-    const dragIndex = boxes.map((b, i) => [dist(b), i] as const).sort((p, q) => p[0] - q[0])[0][1];
-    const otherIndex = dragIndex === 0 ? 1 : 0;
-    const other = selected.nth(otherIndex);
-    const dragId = await selected.nth(dragIndex).getAttribute('data-person-id');
-    const dragged = page.locator(`.person-card[data-person-id="${dragId}"]`);
-    const before = boxes[otherIndex];
-    const box = boxes[dragIndex];
-    await page.mouse.move(box.x + 30, box.y + 30);
+    const byDistance = [...cards].sort((p, q) => dist(p) - dist(q));
+    const drag = byDistance[0], other = byDistance[1];
+    const rel = async (id: string) => {
+      const b = (await page.locator(`.person-card[data-person-id="${id}"]`).boundingBox())!;
+      const cb = (await canvas.boundingBox())!;
+      return { x: b.x - cb.x, y: b.y - cb.y };
+    };
+    const dragBefore = await rel(drag.id), otherBefore = await rel(other.id);
+    await page.mouse.move(drag.x + 30, drag.y + 30);
     await page.mouse.down();
-    await page.mouse.move(box.x + 110, box.y + 70, { steps: 8 });
+    await page.mouse.move(drag.x + 110, drag.y + 70, { steps: 8 });
     await page.mouse.up();
-    // Positions are stored in whole canvas units, so allow a pixel of rounding at this zoom.
-    const after = (await other.boundingBox())!;
-    expect(Math.abs(after.x - before.x - 80)).toBeLessThanOrEqual(2);
-    expect(Math.abs(after.y - before.y - 40)).toBeLessThanOrEqual(2);
-    const draggedAfter = (await dragged.boundingBox())!;
-    expect(Math.abs(draggedAfter.x - box.x - 80)).toBeLessThanOrEqual(2);
+    await expect.poll(async () => (await rel(drag.id)).x - dragBefore.x).toBeGreaterThan(40);
+    const dragAfter = await rel(drag.id), otherAfter = await rel(other.id);
+    const dx = dragAfter.x - dragBefore.x, dy = dragAfter.y - dragBefore.y;
+    expect(Math.abs(dx - 80)).toBeLessThanOrEqual(2);
+    expect(Math.abs(dy - 40)).toBeLessThanOrEqual(2);
+    expect(Math.abs(otherAfter.x - otherBefore.x - dx)).toBeLessThanOrEqual(2);
+    expect(Math.abs(otherAfter.y - otherBefore.y - dy)).toBeLessThanOrEqual(2);
     // Undo puts the whole group back in one step.
     await page.keyboard.press('Control+z');
-    const undone = (await other.boundingBox())!;
-    expect(Math.abs(undone.x - before.x)).toBeLessThanOrEqual(3);
+    await expect.poll(async () => Math.abs((await rel(other.id)).x - otherBefore.x)).toBeLessThanOrEqual(3);
+    expect(Math.abs((await rel(drag.id)).x - dragBefore.x)).toBeLessThanOrEqual(3);
     // A click on the background in select mode clears the selection; the mode is a toggle.
     await page.mouse.click(start!.x, start!.y);
     await expect(bar).toHaveCount(0);
