@@ -59,3 +59,27 @@ test('no network requests after the initial load', async ({ page }) => {
   await page.waitForTimeout(500);
   expect(external).toEqual([]);
 });
+
+test('a family tree can be renamed and deleted from the projects page, with both dialogs labelled', async ({ page }) => {
+  await openSample(page);
+  await page.getByRole('button', { name: 'Family trees' }).click();
+  const row = page.getByRole('region', { name: 'List of family trees' });
+  await expect(row).toContainText('Sample family');
+  // Rename: a form submit, under the page's content security policy.
+  await row.getByRole('button', { name: 'Rename' }).first().click();
+  const rename = page.getByRole('dialog', { name: 'Rename this family tree' });
+  await expect(rename).toBeVisible();
+  await rename.getByLabel('Name of the family tree').fill('Weber family');
+  await rename.getByRole('button', { name: 'Save' }).click();
+  await expect(row).toContainText('Weber family');
+  // Both dialogs are mounted at once; each must carry its own heading id.
+  const ids = await page.locator('dialog h2').evaluateAll((els) => els.map((e) => e.id));
+  expect(new Set(ids).size, ids.join(',')).toBe(ids.length);
+  // Delete: the confirmation names the tree it is about.
+  await row.getByRole('button', { name: 'Delete' }).first().click();
+  const del = page.getByRole('dialog', { name: 'Delete this family tree?' });
+  await expect(del).toContainText('Weber family');
+  await del.getByRole('button', { name: 'Delete this family tree' }).click();
+  await expect(page.getByText('The family tree "Weber family" was deleted.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open Weber family' })).toHaveCount(0);
+});

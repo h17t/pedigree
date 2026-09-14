@@ -67,11 +67,10 @@ const MAX = 248;
 /** One logical line → physical lines with CONT for newlines and CONC for length. */
 export function lineFor(level: number, xref: string | null, tag: string, value: string): string[] {
   const head = xref ? `${level} ${xref} ${tag}` : `${level} ${tag}`;
-  // Ordinary text that starts with "@" must be written "@@" so a reader cannot take it for a
-  // pointer; a real pointer ("@I1@") is left alone. A stray carriage return would otherwise
-  // split the line again on the way back in.
-  // A pointer ("@I1@") or a calendar escape ("@#DJULIAN@ …") is syntax, not text.
-  const isPointer = /^@[^@\s]*@/.test(value);
+  // Ordinary text starting with "@" is written "@@" so a reader cannot take it for a pointer
+  // (the lexer turns it back). A pointer ("@I1@") or a calendar escape ("@#DJULIAN@ …") is
+  // syntax and stays as it is. A stray carriage return would split the line on the way back in.
+  const isPointer = /^@[^@\s]+@/.test(value);
   const escaped = value.replace(/\r\n?/g, '\n');
   const parts = escaped.split('\n').map((part, i) => (i === 0 && !isPointer && part.startsWith('@') ? `@${part}` : part));
   const out: string[] = [];

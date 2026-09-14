@@ -319,4 +319,12 @@ describe('values that look like GEDCOM syntax survive a round trip', () => {
     expect(read.problems).toEqual([]);
     expect(read.lines[0]!.value).toBe('@work — kept\nsecond line');
   });
+
+  it('writes and reads every shape of value that starts with @ without drift', () => {
+    const trip = (v: string) => lex(lineFor(1, null, 'NOTE', v).join('\r\n')).lines[0]!.value;
+    for (const v of ['@work', '@@already', 'plain', '@I1@', '@#DJULIAN@ 14 FEB 1720', 'a@b', '@', '@@', '@x@ trailing', 'line1\nline2', '@a\n@b']) {
+      expect(trip(v), v).toBe(v);
+      expect(trip(trip(v)), v).toBe(v); // and again, so repeated exports cannot drift
+    }
+  });
 });
