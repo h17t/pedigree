@@ -296,6 +296,14 @@ could survive a failed index write as storage nobody can see. Added a content se
 a duplicate-record-id note in the import report, and frame-coalesced canvas dragging (one redraw
 per frame instead of one per pointer event). 344 unit tests and 132 Playwright tests pass.
 
+Review pass, second round: a re-read of the review commit itself found three more things. A
+continuation line of a note starting with "@@" lost a character on export (only the first line
+was escaped). The merge tidy-up reached beyond what the merge changed, so a couple recorded as
+married twice could lose the second record; it now only folds away a partnership that came
+across with the merged record. The ancestor chart could put two cards of one column on top of
+each other when an ancestor is repeated (a bug that predates the chart fix): each column is
+swept once after placement, and the lines are drawn from the final positions.
+
 Follow-up (user reports): removing a partner from a childless partnership now removes the
 partnership record instead of leaving an empty "partner not recorded" row; linking an existing
 person as the second parent joins the pair's existing partnership rather than creating a second

@@ -72,7 +72,8 @@ export function lineFor(level: number, xref: string | null, tag: string, value: 
   // syntax and stays as it is. A stray carriage return would split the line on the way back in.
   const isPointer = /^@[^@\s]+@/.test(value);
   const escaped = value.replace(/\r\n?/g, '\n');
-  const parts = escaped.split('\n').map((part, i) => (i === 0 && !isPointer && part.startsWith('@') ? `@${part}` : part));
+  // Every line is escaped, not just the first: a CONT line is continuation text, never syntax.
+  const parts = escaped.split('\n').map((part, i) => ((i > 0 || !isPointer) && part.startsWith('@') ? `@${part}` : part));
   const out: string[] = [];
   parts.forEach((part, i) => {
     let rest = part;

@@ -39,6 +39,8 @@ export const ANCESTOR_GENERATIONS = { min: 4, max: 8, default: 5 } as const;
 export const DESCENDANT_DEPTH = { min: 1, max: 8, default: 3 } as const;
 
 const H_GAP = 72;
+/** Smallest gap between two cards in the same column of a pedigree chart. */
+const ROW_GAP = 12;
 
 export function buildChart(project: Project, spec: ChartSpec, level: DetailLevel): ChartResult {
   return spec.kind === 'ancestors' ? pedigree(project, spec.personId, spec.generations, level) : descendants(project, spec.personId, spec.depth, level);
@@ -54,6 +56,7 @@ function pedigree(project: Project, personId: string, generations: number, level
   const colStep = card.width + H_GAP;
   let nextRow = 0;
   const rowOf = new Map<string, number>();
+  const links: { from: string; to: string }[] = [];
 
   // Father first (top), then mother; unknown sex keeps the union order.
   const orderedParents = (id: string): string[] => {
@@ -80,21 +83,33 @@ function pedigree(project: Project, personId: string, generations: number, level
     // A person with parents sits between them; keep the stacking cursor below the deepest row used.
     rowOf.set(id, row);
     positions.set(id, { x: col * colStep, y: Math.round(row * rowStep) });
-    if (parents.length) {
-      const cx = col * colStep + card.width;
-      const bus = cx + H_GAP / 2;
-      const cy = Math.round(row * rowStep) + h / 2;
-      for (const p of parents) {
-        const pos = positions.get(p);
-        if (!pos) continue;
-        const py = pos.y + h / 2;
-        // Reach the card where it actually is: a repeated ancestor may sit further left.
-        lines.push({ d: `M${cx} ${cy} H${bus} V${py} H${pos.x}` });
-      }
-    }
+    for (const p of parents) if (positions.has(p)) links.push({ from: id, to: p });
     return row;
   };
   place(personId, 0);
+  // A repeated ancestor brings its own row with it, so two cards in one column can end up on
+  // top of each other. Each column is swept once, keeping the order and opening the gap.
+  const byColumn = new Map<number, string[]>();
+  for (const [id, p] of positions) {
+    const arr = byColumn.get(p.x) ?? [];
+    arr.push(id);
+    byColumn.set(p.x, arr);
+  }
+  for (const ids of byColumn.values()) {
+    ids.sort((a, b) => positions.get(a)!.y - positions.get(b)!.y);
+    for (let i = 1; i < ids.length; i++) {
+      const prev = positions.get(ids[i - 1]!)!, cur = positions.get(ids[i]!)!;
+      const min = prev.y + h + ROW_GAP;
+      if (cur.y < min) positions.set(ids[i]!, { x: cur.x, y: min });
+    }
+  }
+  // Lines are drawn once the cards are where they will stay.
+  for (const { from, to } of links) {
+    const a = positions.get(from), bpos = positions.get(to);
+    if (!a || !bpos) continue;
+    const cx = a.x + card.width;
+    lines.push({ d: `M${cx} ${a.y + h / 2} H${cx + H_GAP / 2} V${bpos.y + h / 2} H${bpos.x}` });
+  }
   let maxX = 0, maxY = 0;
   for (const p of positions.values()) {
     maxX = Math.max(maxX, p.x + card.width);

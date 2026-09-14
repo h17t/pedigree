@@ -114,6 +114,32 @@ describe('family sheet', () => {
 });
 
 describe('ancestor chart with a repeated ancestor', () => {
+  it('never puts two cards of one column on top of each other', () => {
+    const b = build();
+    const me = b.person('Me');
+    const dad = b.person('Dad', { sex: 'male' }), mum = b.person('Mum', { sex: 'female' });
+    b.family([dad, mum], [me]);
+    // A long paternal line ends at X; X is also the mother's father by a second marriage.
+    const x = b.person('X', { sex: 'male' });
+    const f1 = b.person('F1', { sex: 'male' }), f2 = b.person('F2', { sex: 'male' });
+    b.family([f1, b.person('F1W', { sex: 'female' })], [dad]);
+    b.family([f2, b.person('F2W', { sex: 'female' })], [f1]);
+    b.family([x, b.person('XW', { sex: 'female' })], [f2]);
+    b.family([x, b.person('Y', { sex: 'female' })], [mum]);
+    const c = buildChart(b.project, { kind: 'ancestors', personId: me.id, generations: 6 }, 'standard');
+    const h = cardHeight('standard');
+    const boxes = [...c.positions.values()];
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const A = boxes[i]!, B = boxes[j]!;
+        const hit = A.x < B.x + card.width && B.x < A.x + card.width && A.y < B.y + h && B.y < A.y + h;
+        expect(hit, `${JSON.stringify(A)} ${JSON.stringify(B)}`).toBe(false);
+      }
+    }
+    // The drawing still covers every card after the cards were moved apart.
+    expect(c.height).toBeGreaterThanOrEqual(Math.max(...boxes.map((p) => p.y)) + h);
+  });
+
   it('keeps the couple in one column and draws the line to where the card is', () => {
     const b = build();
     const me = b.person('Me');

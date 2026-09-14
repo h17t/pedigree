@@ -258,6 +258,18 @@ describe('deleteUnion', () => {
 });
 
 describe('mergePersons', () => {
+  it('leaves a couple who married twice alone: only the duplicate the merge itself creates is folded', () => {
+    const b = build();
+    const a = b.person('A'), a2 = b.person('A2'), x = b.person('X');
+    const first = b.union([a, x], { marriageDate: '1920' });
+    const second = b.union([a, x], { marriageDate: '1930' });
+    b.union([a2, b.person('O')]);
+    const next = produce(b.project, (d) => mergePersons(d, { survivorId: a.id, loserId: a2.id, choices: {}, keepConflictsInNotes: false }, { mergedFrom: 'Merged' }));
+    expect(next.unions[first.id]).toBeDefined();
+    expect(next.unions[second.id]).toBeDefined();
+    expect(next.unions[second.id]!.marriageDate).toBe('1930');
+  });
+
   it('keeps one partnership per pair when both records had one with the same person, and drops a childless self-union', () => {
     const b = build();
     const a = b.person('A'), a2 = b.person('A2'), x = b.person('X');

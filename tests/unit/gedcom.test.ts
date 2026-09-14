@@ -322,7 +322,10 @@ describe('values that look like GEDCOM syntax survive a round trip', () => {
 
   it('writes and reads every shape of value that starts with @ without drift', () => {
     const trip = (v: string) => lex(lineFor(1, null, 'NOTE', v).join('\r\n')).lines[0]!.value;
-    for (const v of ['@work', '@@already', 'plain', '@I1@', '@#DJULIAN@ 14 FEB 1720', 'a@b', '@', '@@', '@x@ trailing', 'line1\nline2', '@a\n@b']) {
+    const values = ['@work', '@@already', 'plain', '@I1@', '@#DJULIAN@ 14 FEB 1720', 'a@b', '@', '@@', '@x@ trailing', 'line1\nline2', '@a\n@b'];
+    // A continuation line is text as well, so it is escaped like the first one.
+    values.push('@a\n@@b', 'x\n@@y', 'x\n@y', '@@a\n@@b');
+    for (const v of values) {
       expect(trip(v), v).toBe(v);
       expect(trip(trip(v)), v).toBe(v); // and again, so repeated exports cannot drift
     }

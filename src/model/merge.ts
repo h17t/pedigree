@@ -82,9 +82,13 @@ export function mergePersons(d: Draft<Project>, plan: MergePlan, labels: { merge
   a.rawGedcom = [...a.rawGedcom, ...b.rawGedcom];
   if (!a.position && b.position) a.position = b.position;
 
-  // Re-point relationships.
+  // Re-point relationships. The unions the merge touches are remembered: only those may be
+  // tidied away below, so a partnership the two records already had separately (a couple who
+  // married twice, say) is left exactly as it was recorded.
+  const touched = new Set<string>();
   for (const u of Object.values(d.unions)) {
     if (u.partnerIds.includes(b.id)) {
+      touched.add(u.id);
       u.partnerIds = u.partnerIds.map((p) => (p === b.id ? a.id : p));
       // A union of a person with themselves collapses to a single-partner union.
       u.partnerIds = [...new Set(u.partnerIds)];
@@ -101,22 +105,26 @@ export function mergePersons(d: Draft<Project>, plan: MergePlan, labels: { merge
       }
     }
   }
-  // Both records may have had a partnership with the same person: keep one partnership per pair
-  // (the first, with the children of the others), and drop a childless partnership of one alone.
-  const seen = new Map<string, string>();
+  // Both records may have had a partnership with the same person. The survivor's own record is
+  // kept and takes the children of the one that came across with the loser. Only partnerships
+  // the merge touched are folded away, so a couple recorded as married twice stays as recorded.
+  const pairKey = (u: { partnerIds: string[] }) => [...u.partnerIds].sort().join('|');
+  const ours = new Map<string, string>();
   for (const u of Object.values(d.unions)) {
-    if (!u.partnerIds.includes(a.id)) continue;
+    if (touched.has(u.id) || u.partnerIds.length < 2 || !u.partnerIds.includes(a.id)) continue;
+    if (!ours.has(pairKey(u))) ours.set(pairKey(u), u.id);
+  }
+  for (const id of touched) {
+    const u = d.unions[id];
+    if (!u || !u.partnerIds.includes(a.id)) continue;
     const hasChildren = () => Object.values(d.childLinks).some((l) => l.unionId === u.id);
     if (u.partnerIds.length < 2) {
+      // The two records were partners of each other: nothing is left of that partnership.
       if (!hasChildren()) delete d.unions[u.id];
       continue;
     }
-    const key = [...u.partnerIds].sort().join('|');
-    const keep = seen.get(key);
-    if (!keep) {
-      seen.set(key, u.id);
-      continue;
-    }
+    const keep = ours.get(pairKey(u));
+    if (!keep) continue;
     for (const l of Object.values(d.childLinks)) {
       if (l.unionId !== u.id) continue;
       if (Object.values(d.childLinks).some((x) => x.unionId === keep && x.childId === l.childId)) delete d.childLinks[l.id];
