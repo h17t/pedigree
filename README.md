@@ -21,7 +21,10 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   buttons to zoom, tap or click a card to select it, type a name to jump to a person, and use
   "Show only" to see just the ancestors or descendants of the selected person. On a laptop you can
   drag cards; their positions are saved. **Layout** arranges the whole tree by generation (undoable),
-  arranges only a selection, toggles snap-to-grid and jumps to each family.
+  arranges only a selection, toggles snap-to-grid and jumps to each family. **Layout → Balance
+  generations** (off by default; gentle or strong) shrinks crowded generations, so a family with
+  20 great-grandparents and 6 people today still reads as one balanced drawing on screen and in
+  print; the scale depends only on how many people each generation holds.
 - **List** shows every family as an indented outline; choose a person to see their details.
 - Choose a person, then **Edit**, **Add** (partner, child, father, mother, sibling) or **Delete**.
   Deleting explains exactly what else changes; **Undo** and **Redo** are always in the header.
@@ -104,11 +107,11 @@ Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Mea
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 147.2 KB | 250.0 KB |
+| Initial JS (entry + static imports) | 148.5 KB | 250.0 KB |
 | Initial CSS | 5.6 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 177.6 KB | 500.0 KB |
+| **Initial payload** | 179.0 KB | 500.0 KB |
 
 The sample family, the GEDCOM module, the timeline/statistics views, the guided start, the help
 page and the print dialog load lazily and do not count.

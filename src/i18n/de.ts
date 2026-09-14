@@ -357,6 +357,10 @@ export const de: Dictionary = {
     goToFamily: 'Familie {index} anzeigen',
     fitAll: 'Alle Familien anzeigen',
     frameLabel: 'Familie {index} · {people}',
+    balance: 'Generationen ausgleichen',
+    balanceHint: 'Verkleinert dicht besetzte Generationen (viele Vorfahren, wenige Nachkommen), damit die Zeichnung auf dem Bildschirm und auf Papier ausgewogen bleibt. An der Karte ändert sich nur die Größe; der Baum wird neu angeordnet.',
+    balanceValue: { off: 'Aus', gentle: 'Sanft (Karten nicht kleiner als 60 %)', strong: 'Stark (Karten nicht kleiner als 35 %)' },
+    balanceDone: 'Generationen ausgleichen: {mode}. Der Baum wurde angeordnet.',
     unplacedHint: 'Personen mit gepunktetem Rand sind noch nicht angeordnet; „Ganzen Baum anordnen“ platziert sie dauerhaft.',
   },
   gedcom: {
@@ -749,6 +753,7 @@ export const de: Dictionary = {
         p2: 'Für ein Poster wählen Sie „Kacheln bei 100 %“ und drucken die Blätter nacheinander; das erste Blatt trägt einen Zusammensetzplan, und jedes Blatt hat Schnittmarken.',
         p3: 'Für eine Druckerei speichern Sie die SVG-Datei: Sie enthält die ganze Zeichnung mit eingebetteten Schriften. Für ein PDF wählen Sie „Drucken“ und im Browserdialog „Als PDF speichern“.',
         p4: 'Auch die Zeitleiste und die Statistik lassen sich drucken; sie passen immer auf eine Seite.',
+        p5: 'Für eine Familie mit viel mehr Vorfahren als jüngeren Personen verkleinert Anordnung › „Generationen ausgleichen“ die dicht besetzten Generationen, damit ein Druck auf einer Seite die jüngeren größer zeigt. Das gilt auch auf dem Bildschirm; „Auf eine Seite anpassen“ und die Lesbarkeitswarnung berücksichtigen die kleineren Karten.',
       },
       keys: {
         title: 'Tastatur',

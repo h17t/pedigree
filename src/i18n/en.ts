@@ -361,6 +361,10 @@ export const en = {
     goToFamily: 'Show family {index}',
     fitAll: 'Show all families',
     frameLabel: 'Family {index} · {people}',
+    balance: 'Balance generations',
+    balanceHint: 'Shrinks crowded generations (many ancestors, few descendants) so the drawing stays balanced on screen and on paper. Nothing changes below the card except its size; the tree is arranged again.',
+    balanceValue: { off: 'Off', gentle: 'Gentle (cards no smaller than 60 %)', strong: 'Strong (cards no smaller than 35 %)' },
+    balanceDone: 'Balance generations: {mode}. The tree was arranged.',
     unplacedHint: 'People shown with a dotted outline have not been arranged yet; "Arrange the whole tree" places them for good.',
   },
   gedcom: {
@@ -755,6 +759,7 @@ export const en = {
         p2: 'For a poster, choose "Tiles at 100 %" and print the sheets one after another; the first sheet carries an assembly plan and every sheet has crop marks.',
         p3: 'For a print shop, save the SVG file: it contains the whole drawing with the fonts embedded. For a PDF, use "Print" and choose "Save as PDF" in the browser dialog.',
         p4: 'The timeline and the statistics can be printed too; they always fit one page.',
+        p5: 'For a family with many more ancestors than recent people, Layout › "Balance generations" shrinks the crowded generations so a one-page print shows the recent ones larger. It applies on screen as well, and "Fit to one page" and the legibility warning take the smaller cards into account.',
       },
       keys: {
         title: 'Keyboard',

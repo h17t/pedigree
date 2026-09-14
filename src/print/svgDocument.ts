@@ -13,6 +13,7 @@ import { UnionNode } from '@/render/UnionNode';
 import { Connectors } from '@/render/Connectors';
 import { Defs } from '@/render/Defs';
 import { cardBox, cardText } from '@/render/geometry';
+import { personScales, minScaleOf } from '@/render/layout/scale';
 import type { Box, DetailLevel } from '@/render/geometry';
 import { routeUnions } from '@/render/connectors';
 import type { Locale } from '@/i18n';
@@ -50,11 +51,12 @@ export const LEGEND_H = 64;
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /** Everything drawn for the tree: the group markup and its bounding box (user units). */
-export function treeContent(o: TreeSvgOptions): { markup: string; bounds: Box; text: string } {
+export function treeContent(o: TreeSvgOptions): { markup: string; bounds: Box; text: string; minScale: number } {
   const boxes = new Map<string, Box>();
+  const scales = personScales(o.project, o.project.settings.generationScaling ?? 'off');
   for (const id of o.visible) {
     const p = o.positions.get(id);
-    if (p) boxes.set(id, cardBox(p.x, p.y, o.level, true));
+    if (p) boxes.set(id, cardBox(p.x, p.y, o.level, true, scales.get(id) ?? 1));
   }
   const unions = routeUnions({ project: o.project, boxes, visible: o.visible });
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -77,13 +79,13 @@ export function treeContent(o: TreeSvgOptions): { markup: string; bounds: Box; t
     const person = o.project.persons[id]!;
     const ct = cardText(person, o.level, o.locale, true, labels);
     text += ct.nameLines.join(' ') + ct.lines.join(' ') + ct.noteLines.join(' ');
-    return createElement(PersonCard, { key: id, person, x: b.x, y: b.y, level: o.level, locale: o.locale, selected: false, hasWarning: false, print: true, blackAndWhite: o.blackAndWhite, ariaLabel: personName(person), labels });
+    return createElement(PersonCard, { key: id, person, x: b.x, y: b.y, level: o.level, locale: o.locale, selected: false, hasWarning: false, print: true, blackAndWhite: o.blackAndWhite, scale: scales.get(id) ?? 1, ariaLabel: personName(person), labels });
   });
   const markup = renderToStaticMarkup(
     createElement('g', null, createElement(Connectors, { unions, background: color.paper }), ...unions.map((u) => createElement(UnionNode, { key: u.unionId, cx: u.cx, cy: u.cy, unknownParents: u.unknownParents, label: o.labels.unknownParents })), ...cards),
   );
   text += o.labels.unknownParents;
-  return { markup, bounds, text };
+  return { markup, bounds, text, minScale: minScaleOf(scales, boxes.keys()) };
 }
 
 /** Header (title, subtitle, date) as SVG markup, in a `w`-wide strip at the top of the area. */

@@ -42,6 +42,8 @@ export interface CanvasProps {
   onMultiSelect: (ids: string[], mode: 'toggle' | 'set') => void;
   onDeleteKey: () => void;
   onSize?: (w: number, h: number) => void;
+  /** Per-person card scale ("Balance generations"); missing = 1. */
+  scales?: Map<string, number>;
 }
 
 type Gesture =
@@ -63,7 +65,7 @@ const DRAG_THRESHOLD = 4;
 export const LARGE_TREE = 150;
 
 export function Canvas(props: CanvasProps) {
-  const { project, positions, visible, level, locale, viewport, selectedId, multiSelected, warningIds, readOnly, snapToGrid, provisional, frames, frameLabel, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onMoveMany, onMultiSelect, onDeleteKey, onSize } = props;
+  const { project, positions, visible, level, locale, viewport, selectedId, multiSelected, warningIds, readOnly, snapToGrid, provisional, frames, frameLabel, labels, cardLabel, onViewport, onSelect, onOpen, onMove, onMoveMany, onMultiSelect, onDeleteKey, onSize, scales } = props;
   const [guides, setGuides] = useState<{ x: number[]; y: number[] }>({ x: [], y: [] });
   const svgRef = useRef<SVGSVGElement>(null);
   const gestureRef = useRef<Gesture>({ kind: 'none' });
@@ -103,10 +105,10 @@ export function Canvas(props: CanvasProps) {
     const m = new Map<string, Box>();
     for (const id of visible) {
       const p = dragPos?.get(id) ?? positions.get(id);
-      if (p) m.set(id, cardBox(p.x, p.y, level));
+      if (p) m.set(id, cardBox(p.x, p.y, level, false, scales?.get(id) ?? 1));
     }
     return m;
-  }, [positions, visible, level, dragPos]);
+  }, [positions, visible, level, dragPos, scales]);
 
   const unions = useMemo(() => routeUnions({ project, boxes, visible }), [project, boxes, visible]);
 
@@ -125,7 +127,7 @@ export function Canvas(props: CanvasProps) {
     if (!world) return [...boxes.entries()];
     return [...boxes.entries()].filter(([, b]) => b.x + b.w >= world.x1 && b.x <= world.x2 && b.y + b.h >= world.y1 && b.y <= world.y2);
   }, [boxes, world]);
-  const sparse = large && viewport.zoom < 0.4;
+  const sparseAt = (sc: number) => large && viewport.zoom * sc < 0.4;
 
   const localPoint = (e: { clientX: number; clientY: number }) => {
     const r = svgRef.current?.getBoundingClientRect();
@@ -209,11 +211,12 @@ export function Canvas(props: CanvasProps) {
       const lead = g.origins.get(g.id)!;
       const lx = lead.x + dx, ly = lead.y + dy;
       const h = boxes.get(g.id)?.h ?? 0;
+      const lw = boxes.get(g.id)?.w ?? card.width;
       const tol = 6 / viewport.zoom;
       if (!snapToGrid) {
         for (const [oid, b] of boxes) {
           if (g.origins.has(oid)) continue;
-          for (const [mine, theirs] of [[lx, b.x], [lx + card.width, b.x + b.w], [lx + card.width / 2, b.x + b.w / 2]] as [number, number][]) {
+          for (const [mine, theirs] of [[lx, b.x], [lx + lw, b.x + b.w], [lx + lw / 2, b.x + b.w / 2]] as [number, number][]) {
             if (Math.abs(mine - theirs) < tol && !ax) {
               ax = theirs - mine;
               gx.push(theirs);
@@ -367,7 +370,8 @@ export function Canvas(props: CanvasProps) {
               x={b.x}
               y={b.y}
               level={level}
-              sparse={sparse}
+              sparse={sparseAt(scales?.get(id) ?? 1)}
+              scale={scales?.get(id) ?? 1}
               locale={locale}
               selected={id === selectedId || multiSelected.has(id)}
               provisional={provisional.has(id)}

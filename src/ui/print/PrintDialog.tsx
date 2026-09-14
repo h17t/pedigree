@@ -96,7 +96,9 @@ export function PrintDialog() {
   const fit = drawing ? fitToSheet(drawing.bounds, sheet, headerPx + legendPx) : null;
   const tiling = drawing && effectiveMode === 'tile' ? tile(drawing.bounds, sheet, tileScale / 100, overlap, headerPx + legendPx) : null;
   const sheetTotal = tiling ? tiling.tiles.length : 1;
-  const smallestPt = effectiveMode === 'tile' ? smallestTextAt(tileScale / 100) : (fit?.smallestTextPt ?? 0);
+  // "Balance generations" shrinks some cards; the smallest text on paper is in those.
+  const cardScale = drawing && 'minScale' in drawing && typeof drawing.minScale === 'number' ? drawing.minScale : 1;
+  const smallestPt = (effectiveMode === 'tile' ? smallestTextAt(tileScale / 100) : (fit?.smallestTextPt ?? 0)) * cardScale;
   const dateText = withDate ? new Intl.DateTimeFormat(intlTag[locale], { dateStyle: 'long' }).format(new Date()) : '';
 
   const overlayFor = (sheetIndex: number, total: number) => {

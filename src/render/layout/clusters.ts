@@ -39,7 +39,7 @@ export function packBoxes(sizes: { w: number; h: number }[], gutter: number = la
 }
 
 /** Cluster frames from the current (effective) positions, largest first. */
-export function clusterFrames(project: Project, positions: Map<string, Position>, level: DetailLevel): ClusterFrame[] {
+export function clusterFrames(project: Project, positions: Map<string, Position>, level: DetailLevel, scales: Map<string, number> = new Map()): ClusterFrame[] {
   const h = cardHeight(level);
   return connectedComponents(project)
     .map((ids, i) => {
@@ -47,10 +47,11 @@ export function clusterFrames(project: Project, positions: Map<string, Position>
       for (const id of ids) {
         const p = positions.get(id);
         if (!p) continue;
+        const sc = scales.get(id) ?? 1;
         minX = Math.min(minX, p.x);
         minY = Math.min(minY, p.y);
-        maxX = Math.max(maxX, p.x + card.width);
-        maxY = Math.max(maxY, p.y + h);
+        maxX = Math.max(maxX, p.x + card.width * sc);
+        maxY = Math.max(maxY, p.y + h * sc);
       }
       if (!Number.isFinite(minX)) return null;
       return { index: i + 1, personIds: ids, box: { x: minX - PAD, y: minY - PAD - 32, w: maxX - minX + 2 * PAD, h: maxY - minY + 2 * PAD + 32 } };

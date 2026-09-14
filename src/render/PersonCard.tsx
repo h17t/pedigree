@@ -20,6 +20,8 @@ export interface PersonCardProps {
   blackAndWhite?: boolean;
   /** Zoomed far out: keep the box, draw only name and years. */
   sparse?: boolean;
+  /** "Balance generations": the card is drawn at this fraction of its size. */
+  scale?: number;
   /** Accessible name for the card ("Name, years"). */
   ariaLabel: string;
   labels: { née: string; living: string; unknownDate: string; warning: string };
@@ -33,7 +35,7 @@ export interface PersonCardProps {
  * Deceased: † plus a slate border. Sex: square/circle/diamond marker. Branch tag: stripe +
  * label. Rendered identically on screen and in print (only the detail level differs).
  */
-export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
+export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, scale = 1, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
   const h = cardHeight(level, print);
   const w = card.width;
   const textLevel: DetailLevel = sparse ? 'minimal' : level;
@@ -56,7 +58,7 @@ export const PersonCard = memo(function PersonCard({ person, x, y, level, locale
   return (
     <g
       className={`person-card${selected ? ' person-card-selected' : ''}`}
-      transform={`translate(${x} ${y})`}
+      transform={scale === 1 ? `translate(${x} ${y})` : `translate(${x} ${y}) scale(${scale})`}
       tabIndex={print ? undefined : 0}
       role={print ? undefined : 'button'}
       aria-label={ariaLabel}

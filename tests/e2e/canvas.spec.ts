@@ -136,3 +136,50 @@ test('layout panel: arrange the whole tree stores positions, families can be sho
   await page.getByRole('button', { name: 'Undo' }).click();
   await expect(page.locator('.person-card rect[stroke-dasharray="4 3"]')).toHaveCount(48);
 });
+
+test('balance generations shrinks the crowded generations, undoes as one step, survives a reload and prints', async ({ page }) => {
+  await openTree(page);
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await page.getByRole('button', { name: 'Arrange the whole tree' }).click(); // closes the panel
+  // Widths of every card's outline: identical without balancing, spread out with it.
+  const widths = async () => {
+    const cards = page.locator('.person-card');
+    const n = await cards.count();
+    const out: number[] = [];
+    for (let i = 0; i < n; i++) {
+      const box = await cards.nth(i).locator('rect').nth(0).boundingBox();
+      if (box) out.push(box.width);
+    }
+    return { min: Math.min(...out), max: Math.max(...out) };
+  };
+  await page.getByRole('button', { name: 'Fit' }).click();
+  await page.waitForTimeout(200);
+  const before = await widths();
+  expect(before.min / before.max).toBeGreaterThan(0.98);
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await expect(page.getByLabel('Balance generations')).toHaveValue('off');
+  await page.getByLabel('Balance generations').selectOption('strong');
+  await expect(page.getByText(/Balance generations: Strong/)).toBeVisible();
+  // One undo step turns it off again (undo history is in memory, so this comes before the reload).
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(page.getByLabel('Balance generations')).toHaveValue('off');
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect(page.getByLabel('Balance generations')).toHaveValue('strong');
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await page.getByRole('button', { name: 'Fit' }).click();
+  await page.waitForTimeout(200);
+  // The crowded generations are drawn smaller than the sparse ones.
+  const after = await widths();
+  expect(after.min / after.max).toBeLessThan(0.75);
+  // The setting is stored with the tree.
+  await page.reload();
+  await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await expect(page.getByLabel('Balance generations')).toHaveValue('strong');
+  await page.getByRole('button', { name: 'Layout' }).click();
+  // Printing still works and reports the smaller text.
+  await page.getByRole('button', { name: 'Print & export' }).click();
+  await expect(page.locator('.print-sheet svg').first()).toBeVisible();
+  await expect(page.getByText(/Smallest text on paper/)).toBeVisible();
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
+});

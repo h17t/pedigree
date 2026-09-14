@@ -205,3 +205,12 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 134 | Existing people are linked through one dialog (partner, child, parent, sibling) that lists impossible candidates with the reason instead of hiding them. | Users search by name and need to see why a name does not appear as a choice; the guards (same person, duplicate, ancestor loop, two parents) protect the model. | decided |
 | 135 | Removing a person from a partnership or a family is a separate, undoable action that never deletes the person; the union survives as a "Parents unknown" group while it still has children. | Unlinking and deleting are different intents; the brief forbids destructive surprises. | decided |
 | 136 | A person may have any number of partnerships; each is its own union, drawn as its own line, with its own status and dates. | Remarriage and successive partnerships are ordinary in family history. | decided |
+
+## Balance generations (2026-09-14)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 137 | "Balance generations" is a layout setting of the tree (off, gentle, strong), applied on screen and in print alike, rather than a print-only option. | The preview must match the canvas, and a card's size is part of its geometry (connectors, hit targets, drag, frames). | decided |
+| 138 | The scale of a generation depends only on the head counts of its family's rows: target width = max(minimum scale × widest row, median row); rows narrower than the target stay at 100 %, wider rows shrink to it, never below the minimum (60 % gentle, 35 % strong). | Deterministic, survives manual moves and imports, and leaves families with evenly sized generations untouched. | decided |
+| 139 | Changing the setting re-arranges the whole tree in the same undo step. | Stored positions assume the previous card sizes; without a re-arrangement cards would overlap. | decided |
+| 140 | The setting is stored in the tree's settings (schema unchanged, missing value reads as "off"). | Backups and older trees keep loading; GEDCOM is unaffected. | decided |

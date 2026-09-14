@@ -29,8 +29,9 @@ export function cardHeight(level: DetailLevel, print = false): number {
   return card.height[variantFor(level, print)];
 }
 
-export function cardBox(x: number, y: number, level: DetailLevel, print = false): Box {
-  return { x, y, w: card.width, h: cardHeight(level, print) };
+/** The card box; `scale` is the per-generation factor of "Balance generations" (1 = full size). */
+export function cardBox(x: number, y: number, level: DetailLevel, print = false, scale = 1): Box {
+  return { x, y, w: card.width * scale, h: cardHeight(level, print) * scale };
 }
 
 /** Text width available inside the card. */

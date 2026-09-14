@@ -118,9 +118,14 @@ export interface ChildLink {
   relationType: RelationType;
 }
 
+/** How strongly crowded generations are shrunk so the drawing stays balanced. */
+export type GenerationScaling = 'off' | 'gentle' | 'strong';
+
 export interface ProjectSettings {
   /** Whether unknown GEDCOM data is kept for round-trips (it costs storage). */
   preserveRawGedcom: boolean;
+  /** Per-generation card scaling ("Balance generations"); off by default. */
+  generationScaling: GenerationScaling;
 }
 
 export interface Project {
@@ -220,7 +225,7 @@ export function createProject(name: string, partial: Partial<Project> = {}): Pro
     unions: {},
     childLinks: {},
     rawRecords: [],
-    settings: { preserveRawGedcom: true },
+    settings: { preserveRawGedcom: true, generationScaling: 'off' },
     ...partial,
   };
 }

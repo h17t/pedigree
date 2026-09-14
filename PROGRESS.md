@@ -132,6 +132,16 @@ be set (biological, adopted, step, foster) and removes a person from a partnersh
 without deleting them; the details column removes the link to a person's parents. A person can
 have any number of partnerships, past or present. 195 unit tests and 90 Playwright tests pass.
 
+Balance generations (2026-09-14, a user suggestion): a per-tree layout setting, off by default,
+with gentle (cards no smaller than 60 %) and strong (35 %). Each family's rows are scaled from
+their head counts alone: the target width is the wider of the widest row at the minimum scale and
+the median row, rows narrower than the target keep full size, wider rows shrink to it. The layout
+engine spaces every row with its own card size and stacks rows by their scaled heights, parents
+are centred over children by card centres, the canvas, hit testing, alignment guides, family frames,
+placement of unplaced people and the print output all use the scaled boxes, and the print dialog's
+"smallest text" figure accounts for the smallest card. Changing the setting re-arranges the tree
+in the same undo step. 200 unit tests and 92 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist

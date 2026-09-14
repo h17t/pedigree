@@ -4,7 +4,7 @@
  * Backing up the pre-migration payload is the persistence layer's job (it has the raw string).
  */
 import { SCHEMA_VERSION } from './types';
-import type { Project } from './types';
+import type { GenerationScaling, Project } from './types';
 
 export interface MigrationResult {
   ok: true;
@@ -59,6 +59,10 @@ export function migrateProject(input: unknown): MigrationResult | MigrationRefus
  * Fills in any missing optional collections so that older or hand-edited files never
  * produce `undefined` where the code expects an object or array.
  */
+function scalingOf(v: unknown): GenerationScaling {
+  return v === 'gentle' || v === 'strong' ? v : 'off';
+}
+
 export function normalizeProject(data: Record<string, unknown>): Project {
   const p = data as unknown as Project;
   return {
@@ -68,7 +72,7 @@ export function normalizeProject(data: Record<string, unknown>): Project {
     unions: p.unions ?? {},
     childLinks: p.childLinks ?? {},
     rawRecords: Array.isArray(p.rawRecords) ? p.rawRecords : [],
-    settings: { preserveRawGedcom: p.settings?.preserveRawGedcom ?? true },
+    settings: { preserveRawGedcom: p.settings?.preserveRawGedcom ?? true, generationScaling: scalingOf(p.settings?.generationScaling) },
     createdAt: typeof p.createdAt === 'number' ? p.createdAt : Date.now(),
     modifiedAt: typeof p.modifiedAt === 'number' ? p.modifiedAt : Date.now(),
     name: typeof p.name === 'string' ? p.name : '',

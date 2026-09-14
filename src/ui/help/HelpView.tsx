@@ -12,7 +12,7 @@ const SECTIONS: { id: 'people' | 'lines' | 'dates' | 'backup' | 'print' | 'insta
   { id: 'lines', paragraphs: 3 },
   { id: 'dates', paragraphs: 3 },
   { id: 'backup', paragraphs: 4 },
-  { id: 'print', paragraphs: 4 },
+  { id: 'print', paragraphs: 5 },
   { id: 'install', paragraphs: 3 },
   { id: 'keys', paragraphs: 3 },
 ];

@@ -5,8 +5,9 @@
  *  - `placeUnpositioned`: effective positions for display, placing `position: null` people
  *    into free space without touching anyone else (replaces the stage b provisional layout).
  */
-import type { Position, Project } from '@/model/types';
+import type { GenerationScaling, Position, Project } from '@/model/types';
 import { card, layout } from '@/design/tokens';
+import { personScales } from './scale';
 import { breakCycles, buildAdjacency, connectedComponents } from '@/model/graph';
 import type { DetailLevel } from '../geometry';
 import { cardHeight } from '../geometry';
@@ -18,10 +19,15 @@ export interface Placement {
   provisional: Set<string>;
 }
 
-export function layoutAll(project: Project, level: DetailLevel): Map<string, Position> {
+/** The tree's scaling mode (older stored trees may lack the field). */
+export function scalingOf(project: Project): GenerationScaling {
+  return project.settings.generationScaling ?? 'off';
+}
+
+export function layoutAll(project: Project, level: DetailLevel, mode: GenerationScaling = scalingOf(project)): Map<string, Position> {
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
   const comps = connectedComponents(project);
-  const results = comps.map((ids) => layoutComponent(project, ids, level, adj));
+  const results = comps.map((ids) => layoutComponent(project, ids, level, adj, mode));
   const offsets = packBoxes(results.map((r) => ({ w: r.width, h: r.height })));
   const out = new Map<string, Position>();
   results.forEach((r, i) => {
@@ -40,7 +46,7 @@ export function layoutSubset(project: Project, ids: string[], current: Map<strin
     unions: Object.fromEntries(Object.entries(project.unions).map(([k, u]) => [k, { ...u, partnerIds: u.partnerIds.filter((p) => set.has(p)) }])),
     childLinks: Object.fromEntries(Object.entries(project.childLinks).filter(([, l]) => set.has(l.childId))),
   };
-  const laid = layoutAll(sub, level);
+  const laid = layoutAll(sub, level, scalingOf(project));
   // Keep the group's centre where it was.
   const have = ids.filter((id) => current.has(id));
   if (have.length === 0) return laid;
@@ -70,18 +76,21 @@ export function placeUnpositioned(project: Project, level: DetailLevel): Placeme
   if (unplaced.size === 0) return { positions, provisional };
 
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
+  const mode = scalingOf(project);
+  const scales = personScales(project, mode, adj);
   const h = cardHeight(level);
-  const occupied: { x: number; y: number }[] = [...positions.values()];
-  const overlaps = (p: Position) => occupied.some((o) => Math.abs(o.x - p.x) < card.width + 8 && Math.abs(o.y - p.y) < h + 8);
+  const occupied: { x: number; y: number; w: number; h: number }[] = [];
+  for (const [id, p] of positions) occupied.push({ x: p.x, y: p.y, w: card.width * (scales.get(id) ?? 1), h: h * (scales.get(id) ?? 1) });
+  const overlaps = (p: Position, w: number, hh: number) => occupied.some((o) => p.x < o.x + o.w + 8 && o.x < p.x + w + 8 && p.y < o.y + o.h + 8 && o.y < p.y + hh + 8);
   let rightEdge = 0;
-  for (const o of occupied) rightEdge = Math.max(rightEdge, o.x + card.width + layout.clusterGutter);
+  for (const o of occupied) rightEdge = Math.max(rightEdge, o.x + o.w + layout.clusterGutter);
   const pending: { w: number; h: number; positions: Map<string, Position> }[] = [];
 
   for (const comp of connectedComponents(project)) {
     const missing = comp.filter((id) => unplaced.has(id));
     if (missing.length === 0) continue;
     const placedMembers = comp.filter((id) => !unplaced.has(id));
-    const laid = layoutComponent(project, comp, level, adj);
+    const laid = layoutComponent(project, comp, level, adj, mode);
     if (placedMembers.length === 0) {
       pending.push({ w: laid.width, h: laid.height, positions: laid.positions });
       continue;
@@ -92,11 +101,12 @@ export function placeUnpositioned(project: Project, level: DetailLevel): Placeme
     for (const id of missing) {
       const p = laid.positions.get(id)!;
       const cand = { x: Math.round(p.x + realC.x - laidC.x), y: Math.round(p.y + realC.y - laidC.y) };
+      const sc = scales.get(id) ?? 1;
       let guard = 0;
-      while (overlaps(cand) && guard++ < 200) cand.x += card.width + layout.columnGap;
+      while (overlaps(cand, card.width * sc, h * sc) && guard++ < 200) cand.x += card.width + layout.columnGap;
       positions.set(id, cand);
       provisional.add(id);
-      occupied.push(cand);
+      occupied.push({ ...cand, w: card.width * sc, h: h * sc });
     }
   }
   // Fully unplaced components go to the right of everything, packed as clusters.

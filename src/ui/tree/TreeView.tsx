@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { TKey } from '@/i18n';
 import { useT, formatNumber } from '@/i18n';
 import type { Position } from '@/model/types';
 import { personName } from '@/model/types';
@@ -6,7 +7,9 @@ import { useAppStore, updateUi, transact } from '@/store/store';
 import { addPerson } from '@/model/edits';
 import { Canvas } from '@/render/Canvas';
 import { CanvasErrorBoundary } from '@/render/CanvasErrorBoundary';
-import { layoutAll, layoutSubset, placeUnpositioned } from '@/render/layout';
+import { layoutAll, layoutSubset, placeUnpositioned, scalingOf } from '@/render/layout';
+import { personScales } from '@/render/layout/scale';
+import type { GenerationScaling } from '@/model/types';
 import { clusterFrames } from '@/render/layout/clusters';
 import type { ClusterFrame } from '@/render/layout/clusters';
 import { announce } from '../status';
@@ -54,15 +57,17 @@ export function TreeView() {
   const editing = editor.kind === 'person' || editor.kind === 'union';
 
   const placement = useMemo(() => (project ? placeUnpositioned(project, level) : null), [project, level]);
-  const frames = useMemo(() => (project && placement ? clusterFrames(project, placement.positions, level) : []), [project, placement, level]);
+  const scaling: GenerationScaling = project ? scalingOf(project) : 'off';
+  const scales = useMemo(() => (project ? personScales(project, scaling) : new Map<string, number>()), [project, scaling]);
+  const frames = useMemo(() => (project && placement ? clusterFrames(project, placement.positions, level, scales) : []), [project, placement, level, scales]);
   const [layoutOpen, setLayoutOpen] = useState(false);
   const visible = useMemo(() => (project ? visiblePersons(project, ui.filter) : new Set<string>()), [project, ui.filter]);
   const warningIds = useMemo(() => new Set(warnings.map((w) => w.personIds[0]!)), [warnings]);
   const boundsAll = useMemo(() => {
     if (!placement) return null;
-    const boxes = [...placement.positions.entries()].filter(([id]) => visible.has(id)).map(([, p]) => cardBox(p.x, p.y, level));
+    const boxes = [...placement.positions.entries()].filter(([id]) => visible.has(id)).map(([id, p]) => cardBox(p.x, p.y, level, false, scales.get(id) ?? 1));
     return boundsOf(boxes);
-  }, [placement, visible, level]);
+  }, [placement, visible, level, scales]);
 
   const storedViewport = ui.viewport;
   const viewport: Viewport = useMemo(() => storedViewport ?? { x: 40, y: 40, zoom: 1 }, [storedViewport]);
@@ -163,7 +168,8 @@ export function TreeView() {
     if (!p) return;
     updateUi({ selectedPersonId: id, filter: visible.has(id) ? ui.filter : null });
     setMenu('none');
-    setViewport(centerOn({ ...viewport, zoom: Math.max(viewport.zoom, 0.8) }, p.x + card.width / 2, p.y + cardBox(0, 0, level).h / 2, size.w, size.h));
+    const box = cardBox(p.x, p.y, level, false, scales.get(id) ?? 1);
+    setViewport(centerOn({ ...viewport, zoom: Math.max(viewport.zoom, 0.8) }, box.x + box.w / 2, box.y + box.h / 2, size.w, size.h));
     setQuery('');
   };
   const fit = () => setViewport(fitTo(boundsAll, size.w, size.h));
@@ -182,6 +188,19 @@ export function TreeView() {
         if (p) p.position = m.pos;
       }
     });
+  };
+  const setBalance = (mode: GenerationScaling) => {
+    // Card sizes change, so the tree is arranged again in the same undo step.
+    const next = layoutAll(project, level, mode);
+    transact(t('layout.balance'), (d) => {
+      d.settings.generationScaling = mode;
+      for (const [id, pos] of next) {
+        const p = d.persons[id];
+        if (p) p.position = pos;
+      }
+    });
+    announce(t('layout.balanceDone', { mode: t(`layout.balanceValue.${mode}` as TKey) }));
+    updateUi({ viewport: null });
   };
   const arrangeAll = () => {
     const next = layoutAll(project, level);
@@ -349,6 +368,19 @@ export function TreeView() {
               </div>
               <p className="hint">{t('layout.autoHint')}</p>
               {placement.provisional.size > 0 && <p className="hint">{t('layout.unplacedHint')}</p>}
+              <div className="field">
+                <label htmlFor="balance-select">{t('layout.balance')}</label>
+                <select id="balance-select" className="select select-inline" value={scaling} onChange={(e) => setBalance(e.target.value as GenerationScaling)} aria-describedby="balance-hint">
+                  {(['off', 'gentle', 'strong'] as GenerationScaling[]).map((m) => (
+                    <option key={m} value={m}>
+                      {t(`layout.balanceValue.${m}` as TKey)}
+                    </option>
+                  ))}
+                </select>
+                <p className="hint" id="balance-hint">
+                  {t('layout.balanceHint')}
+                </p>
+              </div>
             </div>
           )}
           {frames.length > 1 && (
@@ -455,6 +487,7 @@ export function TreeView() {
               provisional={placement.provisional}
               frames={frames}
               frameLabel={frameLabel}
+              scales={scales}
               labels={labels}
               cardLabel={cardLabel}
               onViewport={setViewport}
