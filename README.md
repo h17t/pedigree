@@ -43,6 +43,10 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   can be marked **private**: prints, SVG/PNG files and GEDCOM exports leave private people out
   while "Hide private people" is on there (it is by default), and a toolbar button hides them on
   the canvas too.
+- **Select area**: a toolbar toggle on the Tree view; while it is on, dragging a rectangle on
+  the background selects the people inside (on touch screens too), and dragging one of the
+  selected cards moves them all as one undo step. Without the toggle, Shift+drag does the same
+  on a laptop; the middle mouse button, Space or two fingers pan meanwhile.
 - **Charts**: with a person selected, the details column offers an **Ancestor chart** (the person
   on the left, parents to the right, four to eight generations) and a **Descendant chart** (the
   person on top, descendants below, depth selectable). Charts are drawn from the data each time,

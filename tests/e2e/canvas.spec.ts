@@ -115,6 +115,51 @@ test.describe('desktop only', () => {
     expect(Math.round(after.x - canvasAfter.x)).toBe(Math.round(moved.x - canvasBefore.x));
     expect(Math.round(after.y - canvasAfter.y)).toBe(Math.round(moved.y - canvasBefore.y));
   });
+
+  test('select area: a plain drag draws a rectangle, dragging one selected card moves the group', async ({ page }) => {
+    await openTree(page);
+    await page.getByLabel('Type a name to jump to a person').fill('otto');
+    await page.getByRole('button', { name: /Otto Weber, born 1885/ }).first().click();
+    await page.waitForTimeout(200);
+    const select = page.getByRole('button', { name: 'Select area' });
+    await expect(select).toHaveAttribute('aria-pressed', 'false');
+    await select.click();
+    await expect(select).toHaveAttribute('aria-pressed', 'true');
+    const canvas = page.getByRole('group', { name: /Family tree canvas/ });
+    const c = (await canvas.boundingBox())!;
+    const bottom = Math.min(c.y + c.height, page.viewportSize()!.height) - 20;
+    // A rectangle over most of the canvas (started on empty background at the bottom left, away
+    // from the hint callout at the top) catches Otto and his neighbours.
+    await page.mouse.move(c.x + 20, bottom);
+    await page.mouse.down();
+    await page.mouse.move(c.x + c.width - 20, c.y + 20, { steps: 10 });
+    await expect(page.locator('.rubber-band')).toBeVisible();
+    await page.mouse.up();
+    const bar = page.getByRole('status').filter({ hasText: /people selected/ });
+    await expect(bar).toBeVisible();
+    const count = Number(/(\d+) people selected/.exec((await bar.textContent()) ?? '')?.[1]);
+    expect(count).toBeGreaterThan(1);
+    const otto = page.locator('.person-card[data-person-id]').filter({ hasText: 'Otto Weber' });
+    const other = page.locator('.person-card[data-person-id]').filter({ hasText: 'Marie Koch' }).first();
+    const before = (await other.boundingBox())!;
+    const box = (await otto.boundingBox())!;
+    await page.mouse.move(box.x + 30, box.y + 30);
+    await page.mouse.down();
+    await page.mouse.move(box.x + 110, box.y + 70, { steps: 8 });
+    await page.mouse.up();
+    const after = (await other.boundingBox())!;
+    expect(Math.round(after.x - before.x)).toBe(80);
+    expect(Math.round(after.y - before.y)).toBe(40);
+    // Undo puts the whole group back in one step.
+    await page.keyboard.press('Control+z');
+    const undone = (await other.boundingBox())!;
+    expect(Math.round(undone.x - before.x)).toBe(0);
+    // A click on the background in select mode clears the selection; the mode is a toggle.
+    await page.mouse.click(c.x + 10, bottom);
+    await expect(bar).toHaveCount(0);
+    await select.click();
+    await expect(select).toHaveAttribute('aria-pressed', 'false');
+  });
 });
 
 test('layout panel: arrange the whole tree stores positions, families can be shown one by one, snap toggles', async ({ page }) => {

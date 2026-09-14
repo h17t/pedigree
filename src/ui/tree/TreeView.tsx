@@ -68,6 +68,7 @@ export function TreeView() {
   const frames = useMemo(() => (project && placement ? clusterFrames(project, placement.positions, level, scales) : []), [project, placement, level, scales]);
   const [layoutOpen, setLayoutOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
   const chartSpec = ui.chart && project && project.persons[ui.chart.personId] ? ui.chart : null;
   const chart = useMemo(() => (project && chartSpec ? buildChart(project, chartSpec, level) : null), [project, chartSpec, level]);
   const visible = useMemo(() => {
@@ -399,6 +400,11 @@ export function TreeView() {
             {t('layout.panel')}
           </button>
         )}
+        {!chart && !readOnly && (
+          <button type="button" className="btn btn-select" aria-pressed={selectMode} title={t('tree.selectAreaHint')} onClick={() => setSelectMode((v) => !v)}>
+            {t('tree.selectArea')}
+          </button>
+        )}
         <button type="button" className="btn btn-search-more" aria-expanded={searchOpen} onClick={() => setSearchOpen((v) => !v)}>
           {t('search.open')}
         </button>
@@ -609,6 +615,7 @@ export function TreeView() {
               chartLines={chart?.lines}
               hideUnions={chart ? !chart.useUnions : false}
               locked={!!chart}
+              selectMode={selectMode}
               labels={labels}
               cardLabel={cardLabel}
               onViewport={setViewport}

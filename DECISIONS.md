@@ -283,3 +283,9 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 177 | "Great" prefixes are composed per language: the prefix joins the last word of the term, articles stay in front (with French and Italian elision), Romance prefixes merge a doubled vowel ("tatara" + "abuelo"), and `great2` names the second step where a language has its own word. | Readable terms in ten languages from a handful of dictionary entries. | decided |
 | 178 | East Asian fonts are Noto Sans JP/KR/SC as fontsource unicode-range chunks (400 and 700) under their own family names, with one stylesheet per family injected only when the language or the tree's names need it; the font stack puts the language's family first. Card text is measured again when a web font finishes loading; the estimate treats CJK glyphs as full-width. | Keeps the initial payload unchanged, downloads only the ranges shown, and gives Han ideographs the regional form. | decided |
 | 179 | SVG exports embed only the Noto chunks whose ranges the drawing's characters use (the chunk table is fetched on demand); above 5 MB of embedded fonts the dialog says so and suggests PNG, but still saves. | Meets the roadmap's size rule without refusing the export. | decided |
+
+## Follow-ups (2026-09-14)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 180 | "Select area" is a toolbar toggle (not a modifier key): while on, a plain drag on the background draws the selection rectangle with any pointer, a tap on the background clears the selection, and a finger can drag cards; panning falls back to two fingers, the middle button or Space. Shift+drag keeps working with the toggle off. | Touch screens have no Shift key, and a toggle with `aria-pressed` is discoverable; dragging a selected card already moved the group. | decided |

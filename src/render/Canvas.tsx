@@ -60,6 +60,8 @@ export interface CanvasProps {
   hideUnions?: boolean;
   /** Chart mode: cards cannot be dragged or multi-selected. */
   locked?: boolean;
+  /** "Select area" mode: a plain drag on the background draws the selection rectangle (works with touch and pen too); panning needs two fingers, Space or the middle button. */
+  selectMode?: boolean;
 }
 
 type Gesture =
@@ -140,6 +142,7 @@ export function Canvas(props: CanvasProps) {
     chartLines,
     hideUnions,
     locked,
+    selectMode,
   } = props;
   const [guides, setGuides] = useState<{ x: number[]; y: number[] }>({
     x: [],
@@ -244,7 +247,8 @@ export function Canvas(props: CanvasProps) {
     if (g.kind !== 'none') return;
     if (e.button !== 0 && e.button !== 1) return;
     const p = localPoint(e);
-    if (e.shiftKey && e.pointerType !== 'touch' && e.button === 0) {
+    const bandByKey = e.shiftKey && e.pointerType !== 'touch';
+    if (e.button === 0 && !spaceDown.current && (bandByKey || (selectMode && !locked))) {
       gestureRef.current = {
         kind: 'band',
         pointerId: e.pointerId,
@@ -276,6 +280,7 @@ export function Canvas(props: CanvasProps) {
     viewport,
     multiSelected,
     onMultiSelect,
+    selectMode: !!selectMode && !locked,
   });
   useLayoutEffect(() => {
     latest.current = {
@@ -284,10 +289,11 @@ export function Canvas(props: CanvasProps) {
       viewport,
       multiSelected,
       onMultiSelect,
+      selectMode: !!selectMode && !locked,
     };
   });
   const onCardPointerDown = useCallback((e: ReactPointerEvent<SVGGElement>, id: string) => {
-    const { positions, readOnly, viewport, multiSelected, onMultiSelect } = latest.current;
+    const { positions, readOnly, viewport, multiSelected, onMultiSelect, selectMode } = latest.current;
     const g = gestureRef.current;
     if (g.kind !== 'none') return;
     if (e.button !== 0) return;
@@ -297,7 +303,8 @@ export function Canvas(props: CanvasProps) {
       onMultiSelect([id], 'toggle');
       return;
     }
-    const canDrag = !readOnly && e.pointerType !== 'touch' && !spaceDown.current;
+    // Touch drags pan, except in "Select area" mode where a finger moves cards like a mouse does.
+    const canDrag = !readOnly && (e.pointerType !== 'touch' || selectMode) && !spaceDown.current;
     if (canDrag) {
       e.stopPropagation();
       // Dragging one of several selected cards moves the whole group.
@@ -437,7 +444,7 @@ export function Canvas(props: CanvasProps) {
           y2 = y1 + band.h / viewport.zoom;
         const hits = [...boxes.entries()].filter(([, b]) => b.x < x2 && b.x + b.w > x1 && b.y < y2 && b.y + b.h > y1).map(([id]) => id);
         onMultiSelect(hits, 'set');
-      }
+      } else onSelect(null);
       setBand(null);
       gestureRef.current = { kind: 'none' };
     } else if (g.kind === 'pinch') {
@@ -499,7 +506,7 @@ export function Canvas(props: CanvasProps) {
   return (
     <svg
       ref={svgRef}
-      className="tree-canvas"
+      className={selectMode && !locked ? 'tree-canvas tree-canvas-select' : 'tree-canvas'}
       role="group"
       aria-label={labels.canvas}
       tabIndex={0}

@@ -263,6 +263,10 @@ characters fall into; above 5 MB of embedded fonts it says so and points to PNG.
 reads 1923年3月14日 / 1923년 3월 14일 and 頃/约/경 qualifiers. Screenshots (Japanese canvas,
 Russian list) in `docs/screenshots/stage-n/`.
 
+Follow-up: the "Select area" toggle in the Tree toolbar makes a plain drag on the background draw
+the selection rectangle (mouse, pen and touch); dragging one of the selected cards moves the whole
+group as one step. Shift+drag still works without the toggle.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
