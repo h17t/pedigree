@@ -14,6 +14,7 @@ export type EditorState =
   | { kind: 'merge'; aId: string; bId: string | null }
   | { kind: 'link'; personId: string; role: 'partner' | 'child' | 'parent' | 'sibling'; unionId?: string }
   | { kind: 'sheet'; id: string }
+  | { kind: 'relation'; aId: string }
   | { kind: 'warnings' };
 
 interface Store {

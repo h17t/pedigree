@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
 import { card, color, tagColor, tagPattern } from '@/design/tokens';
+import type { TagColor } from '@/design/tokens';
 import type { Person } from '@/model/types';
 import { cardHeight, cardText } from './geometry';
 import type { DetailLevel } from './geometry';
@@ -22,6 +23,8 @@ export interface PersonCardProps {
   sparse?: boolean;
   /** "Balance generations": the card is drawn at this fraction of its size. */
   scale?: number;
+  /** The person's colour group (stripe + name), resolved by the caller. */
+  group?: { name: string; color: TagColor } | null;
   /** Accessible name for the card ("Name, years"). */
   ariaLabel: string;
   labels: { née: string; living: string; unknownDate: string; warning: string };
@@ -35,13 +38,13 @@ export interface PersonCardProps {
  * Deceased: † plus a slate border. Sex: square/circle/diamond marker. Branch tag: stripe +
  * label. Rendered identically on screen and in print (only the detail level differs).
  */
-export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, scale = 1, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
+export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, scale = 1, group = null, ariaLabel, labels, onPointerDown, onSelect, onOpen }: PersonCardProps) {
   const h = cardHeight(level, print);
   const w = card.width;
   const textLevel: DetailLevel = sparse ? 'minimal' : level;
   const text = useMemo(() => cardText(person, textLevel, locale, print, labels), [person, textLevel, locale, print, labels]);
   const border = text.deceased ? color.slate : color.ink;
-  const stripe = person.tag ? (blackAndWhite ? `url(#pat-${tagPattern[person.tag.color]})` : tagColor[person.tag.color]) : null;
+  const stripe = group ? (blackAndWhite ? `url(#pat-${tagPattern[group.color]})` : tagColor[group.color]) : null;
   const left = card.padding.left + card.stripeWidth;
   const nameTop = card.padding.top + card.name.line - 5;
   const secondaryTop = card.padding.top + card.name.line * card.name.maxLines + card.secondary.line - 5;
@@ -72,9 +75,9 @@ export const PersonCard = memo(function PersonCard({ person, x, y, level, locale
       {selected && <rect x={-3} y={-3} width={w + 6} height={h + 6} rx={card.radius + 3} fill={color.selectBg} stroke={color.select} strokeWidth={3} />}
       <rect x={card.border / 2} y={card.border / 2} width={w - card.border} height={h - card.border} rx={card.radius} fill={color.paper} stroke={border} strokeWidth={card.border} strokeDasharray={provisional ? '4 3' : undefined} />
       {stripe && <rect x={card.border} y={card.border} width={card.stripeWidth} height={h - card.border * 2} fill={stripe} />}
-      {stripe && person.tag && (
+      {stripe && group && (
         <text x={w - card.padding.right - card.marker - 8} y={card.padding.top + 11} fontSize={12} fontWeight={500} fill={color.slate} textAnchor="end">
-          {person.tag.label}
+          {group.name}
         </text>
       )}
       <SexMarker sex={person.sex} x={w - card.padding.right - card.marker} y={card.padding.top} />

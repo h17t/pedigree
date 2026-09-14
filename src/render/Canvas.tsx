@@ -134,6 +134,7 @@ export function Canvas(props: CanvasProps) {
     return [...boxes.entries()].filter(([, b]) => b.x + b.w >= world.x1 && b.x <= world.x2 && b.y + b.h >= world.y1 && b.y <= world.y2);
   }, [boxes, world]);
   const sparseAt = (sc: number) => large && viewport.zoom * sc < 0.4;
+  const groupOf = (gid: string | null) => (gid ? (project.groups.find((g) => g.id === gid) ?? null) : null);
 
   const localPoint = (e: { clientX: number; clientY: number }) => {
     const r = svgRef.current?.getBoundingClientRect();
@@ -385,6 +386,7 @@ export function Canvas(props: CanvasProps) {
               level={level}
               sparse={sparseAt(scales?.get(id) ?? 1)}
               scale={scales?.get(id) ?? 1}
+              group={groupOf(person.groupId)}
               locale={locale}
               selected={id === selectedId || multiSelected.has(id)}
               provisional={provisional.has(id)}

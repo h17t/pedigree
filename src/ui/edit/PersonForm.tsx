@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useT } from '@/i18n';
 import type { TKey } from '@/i18n';
-import type { LifeEvent, Person, Sex, LifeStatus, TagName } from '@/model/types';
+import type { LifeEvent, Person, Sex, LifeStatus } from '@/model/types';
 import { newId, personName } from '@/model/types';
-import { transact } from '@/store/store';
+import { useAppStore, transact } from '@/store/store';
 import { DateField } from './DateField';
 import { announce } from '../status';
 
 const SEXES: Sex[] = ['female', 'male', 'diverse', 'unknown'];
 const STATUSES: LifeStatus[] = ['unknown', 'living', 'deceased'];
-const TAGS: TagName[] = ['green', 'amber', 'plum', 'red', 'steel', 'blue'];
 const EVENT_TYPES: LifeEvent['type'][] = ['baptism', 'burial', 'residence', 'emigration', 'other'];
 
 /**
@@ -17,6 +16,7 @@ const EVENT_TYPES: LifeEvent['type'][] = ['baptism', 'burial', 'residence', 'emi
  * forces "deceased" and disables the status control with an explanation.
  */
 export function PersonForm({ person, isNew, onDone, onDelete }: { person: Person; isNew: boolean; onDone: () => void; onDelete: () => void }) {
+  const groups = useAppStore((s) => s.project?.groups ?? []);
   const { t } = useT();
   const [p, setP] = useState<Person>(() => structuredClone(person));
   const firstField = useRef<HTMLInputElement>(null);
@@ -211,24 +211,19 @@ export function PersonForm({ person, isNew, onDone, onDelete }: { person: Person
         <button type="button" className="btn" onClick={() => set('customFields', [...p.customFields, { label: '', value: '' }])}>
           {t('edit.addCustomField')}
         </button>
-        <div className="field-row">
-          <div className="field">
-            <label htmlFor="pf-tagcolor">{t('edit.tagColor')}</label>
-            <select id="pf-tagcolor" className="select" value={p.tag?.color ?? ''} onChange={(e) => set('tag', e.target.value ? { color: e.target.value as TagName, label: p.tag?.label ?? '' } : null)}>
-              <option value="">{t('edit.tagNone')}</option>
-              {TAGS.map((c) => (
-                <option key={c} value={c}>
-                  {t(`edit.tagColors.${c}` as TKey)}
-                </option>
-              ))}
-            </select>
-          </div>
-          {p.tag && (
-            <div className="field">
-              <label htmlFor="pf-taglabel">{t('edit.tagLabel')}</label>
-              <input id="pf-taglabel" className="input" value={p.tag.label} onChange={(e) => set('tag', { color: p.tag!.color, label: e.target.value })} autoComplete="off" />
-            </div>
-          )}
+        <div className="field">
+          <label htmlFor="pf-group">{t('person.tag')}</label>
+          <select id="pf-group" className="select" value={p.groupId ?? ''} onChange={(e) => set('groupId', e.target.value || null)} aria-describedby="pf-group-hint">
+            <option value="">{t('edit.tagNone')}</option>
+            {groups.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name || t(`edit.tagColors.${g.color}` as TKey)}
+              </option>
+            ))}
+          </select>
+          <p className="hint" id="pf-group-hint">
+            {t('edit.groupHint')}
+          </p>
         </div>
       </fieldset>
 

@@ -43,6 +43,16 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   as shown").
 - **Family sheet**: a one-page report of a person (fields, parents, siblings, partnerships with
   children, events, notes, sources), printable and saved as a standalone HTML file.
+- **Search & filter** (Tree view, also Ctrl+Shift+F) searches every field (names, places,
+  occupations, notes, custom fields) and filters for missing dates of birth or death, missing
+  parents, a range of birth years and places; results are listed, and "Show only these" restricts
+  the canvas to them.
+- **Colour groups** (Data page): up to eight named groups with a colour; a person belongs to one
+  group, chosen in the editor. The group shows as a coloured edge with its name on the card, in
+  the legend and in print (as a pattern in black and white).
+- **How is this person related to…** (details column) names the relationship between two people
+  in plain words: parents and grandparents, siblings and half-siblings, aunts, uncles, nieces,
+  nephews, cousins of any degree with removals, partners and in-laws.
 - **Timeline** shows one lifespan bar per person, zoomable, with an optional layer of a few
   historical events (off by default). **Statistics** shows counts, ages and most common names, and
   every figure says how many people it is based on.

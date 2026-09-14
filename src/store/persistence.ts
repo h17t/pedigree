@@ -116,7 +116,7 @@ export interface ProjectUiMeta {
   backupBannerDismissedAt: number | null;
   viewport: { x: number; y: number; zoom: number } | null;
   detailLevel: 'minimal' | 'standard' | 'full';
-  filter: { kind: 'ancestors'; personId: string } | { kind: 'descendants'; personId: string } | { kind: 'around'; personId: string; generations: number } | null;
+  filter: { kind: 'ancestors'; personId: string } | { kind: 'descendants'; personId: string } | { kind: 'around'; personId: string; generations: number } | { kind: 'ids'; ids: string[] } | null;
   legendOpen: boolean;
   snapToGrid: boolean;
   /** Chart mode of the tree view (pedigree or descendants), or the ordinary canvas. */

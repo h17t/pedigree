@@ -57,7 +57,7 @@ export function computeTimeline(project: Project, currentYear = new Date().getUT
       kind = 'unknownEnd';
       end = start + 10;
     }
-    bars.push({ personId: p.id, start, end, kind, startUncertain: p.birth.qualifier !== 'exact', endUncertain: deathYear !== null && p.death.qualifier !== 'exact', family: family.get(p.id) ?? 1, tagLabel: p.tag?.label ?? null });
+    bars.push({ personId: p.id, start, end, kind, startUncertain: p.birth.qualifier !== 'exact', endUncertain: deathYear !== null && p.death.qualifier !== 'exact', family: family.get(p.id) ?? 1, tagLabel: p.groupId ? (project.groups.find((g) => g.id === p.groupId)?.name ?? null) : null });
   }
   const years = bars.flatMap((b) => [b.start, b.end]);
   const minYear = years.length ? Math.floor(Math.min(...years) / 10) * 10 : currentYear - 100;

@@ -140,7 +140,7 @@ describe('generation compaction and determinism', () => {
       const b = build();
       const names = ['Karl', 'Anna', 'Otto', 'Lena', 'Max', 'Eva'];
       const order = shuffle ? [...names].reverse() : names;
-      const people = new Map(order.map((n, i) => [n, b.person(n, born(`19${(names.indexOf(n) + 1) * 10}`))]));
+      const people = new Map(order.map((n) => [n, b.person(n, born(`19${(names.indexOf(n) + 1) * 10}`))]));
       b.family([people.get('Karl')!, people.get('Anna')!], [people.get('Otto')!, people.get('Lena')!, people.get('Max')!]);
       b.family([people.get('Lena')!, people.get('Eva')!], []);
       const r = layoutComponent(b.project, Object.keys(b.project.persons), 'standard');

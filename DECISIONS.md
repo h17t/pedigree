@@ -246,3 +246,12 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 155 | The final placement pass centres each sibling run under its parents' junction and widens the rows above (shifting parents and everything to their right) rather than pushing the run sideways. | Straight drops and buses that never cross cards; a complicated family becomes wider, which the user accepts. Crossings remain only where a family graph is not a tree (e.g. a partner from another drawn family); those buses get their own lane and a halo. | decided |
 | 156 | Status messages: one row, newest message, plain messages fade after six seconds, warnings and errors stay, a log keeps the last thirty. | Stacked persistent notices hid the canvas. | decided |
 | 157 | The print legend flows items into rows measured from the text length and returns its height. | Fixed columns overlapped long German labels. | decided |
+
+## Stage (l) (2026-09-14)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 158 | Schema version 2 replaces the per-person branch tag with tree-level colour groups (id, name, colour) and a `groupId` per person; the migration builds one group per distinct tag and keeps older files loadable. | The roadmap asks for named groups a person belongs to; a shared list is what makes renaming and the legend possible. | decided |
+| 159 | The search panel matches every word of the query somewhere in the person's fields (names, places, occupation, notes, custom fields, events) and combines with the completeness filters; "Show only these" stores the result as a filter of ids. | One box for everything the user might remember; storing ids keeps the canvas filter simple and printable. | decided |
+| 160 | The relationship calculator uses the nearest common ancestors (shortest combined distance, ties to the closer side) and treats in-laws as the partner of a relative or a relative of the partner, one step only. | Matches how people describe relationships; deeper in-law chains are not natural language. | decided |
+| 161 | Relationship sentences are composed from dictionary terms per language; German terms carry their article and "Ur" is repeated in lower case after the first. | Correct German ("die Ururgroßmutter") needs language-specific composition rather than string concatenation. | decided |

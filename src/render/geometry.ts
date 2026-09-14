@@ -59,7 +59,7 @@ function years(p: Person, locale: Locale): string {
 
 /** Builds the text content of a card at a detail level. Never changes the card height. */
 export function cardText(p: Person, level: DetailLevel, locale: Locale, print = false, labels?: { née: string; living: string; unknownDate: string }): CardText {
-  const nameW = textWidth - (p.tag ? 0 : 0) - card.marker - 6;
+  const nameW = textWidth - card.marker - 6;
   const name = wrapText(displayName(p, labels?.née ?? 'née') || '—', nameW, card.name.maxLines, card.name.size, card.name.weight);
   const secondary: string[] = [];
   const cut = (s: string) => truncateLine(s, textWidth, card.secondary.size, card.secondary.weight);

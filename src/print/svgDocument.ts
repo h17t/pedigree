@@ -7,7 +7,8 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { Position, Project } from '@/model/types';
 import { personName } from '@/model/types';
-import { color, card } from '@/design/tokens';
+import { color, card, tagColor, tagPattern } from '@/design/tokens';
+import type { TagColor } from '@/design/tokens';
 import { PersonCard } from '@/render/PersonCard';
 import { UnionNode } from '@/render/UnionNode';
 import { Connectors } from '@/render/Connectors';
@@ -29,8 +30,10 @@ export interface Header {
 }
 
 export interface LegendLine {
-  kind: 'marriage' | 'divorced' | 'dashed' | 'plain' | 'biological' | 'adopted' | 'step' | 'text';
+  kind: 'marriage' | 'divorced' | 'dashed' | 'plain' | 'biological' | 'adopted' | 'step' | 'text' | 'swatch';
   text: string;
+  /** For 'swatch': the colour group's colour. */
+  color?: TagColor;
 }
 
 export interface TreeSvgOptions {
@@ -82,7 +85,7 @@ export function treeContent(o: TreeSvgOptions): { markup: string; bounds: Box; t
     const person = o.project.persons[id]!;
     const ct = cardText(person, o.level, o.locale, true, labels);
     text += ct.nameLines.join(' ') + ct.lines.join(' ') + ct.noteLines.join(' ');
-    return createElement(PersonCard, { key: id, person, x: b.x, y: b.y, level: o.level, locale: o.locale, selected: false, hasWarning: false, print: true, blackAndWhite: o.blackAndWhite, scale: scales.get(id) ?? 1, ariaLabel: personName(person), labels });
+    return createElement(PersonCard, { key: id, person, x: b.x, y: b.y, level: o.level, locale: o.locale, selected: false, hasWarning: false, print: true, blackAndWhite: o.blackAndWhite, scale: scales.get(id) ?? 1, group: person.groupId ? (o.project.groups.find((g) => g.id === person.groupId) ?? null) : null, ariaLabel: personName(person), labels });
   });
   const markup = renderToStaticMarkup(
     createElement('g', null, o.lines && o.lines.length ? createElement('g', { fill: 'none', stroke: color.ink, strokeWidth: 2 }, ...o.lines.map((l, i) => createElement('path', { key: `cl${i}`, d: l.d }))) : null, createElement(Connectors, { unions, background: color.paper }), ...unions.map((u) => createElement(UnionNode, { key: u.unionId, cx: u.cx, cy: u.cy, unknownParents: u.unknownParents, label: o.labels.unknownParents })), ...cards),
@@ -123,7 +126,7 @@ function legendLayout(lines: LegendLine[], w: number): { items: { x: number; y: 
   return { items, rows: row + 1 };
 }
 
-export function legendMarkup(lines: LegendLine[], w: number): string {
+export function legendMarkup(lines: LegendLine[], w: number, bw = false): string {
   const { items } = legendLayout(lines, w);
   const parts: string[] = [];
   lines.forEach((l, i) => {
@@ -146,6 +149,9 @@ export function legendMarkup(lines: LegendLine[], w: number): string {
       case 'plain':
       case 'biological':
         sample = `<line x1="${cx}" x2="${cx + 40}" y1="${cy}" y2="${cy}" stroke="${color.ink}" stroke-width="2"/>`;
+        break;
+      case 'swatch':
+        sample = `<rect x="${cx + 10}" y="${cy - 8}" width="20" height="16" rx="2" fill="${color.paper}" stroke="${color.ink}" stroke-width="1"/><rect x="${cx + 11}" y="${cy - 7}" width="5" height="14" fill="${l.color ? (bw ? `url(#pat-${tagPattern[l.color]})` : tagColor[l.color]) : color.ink}"/>`;
         break;
       default:
         sample = '';

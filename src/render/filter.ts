@@ -8,11 +8,13 @@
 import type { Project } from '@/model/types';
 import { ancestorsOf, breakCycles, buildAdjacency, childrenOf, descendantsOf, parentsOf } from '@/model/graph';
 
-export type Filter = { kind: 'ancestors'; personId: string } | { kind: 'descendants'; personId: string } | { kind: 'around'; personId: string; generations: number };
+export type Filter = { kind: 'ancestors'; personId: string } | { kind: 'descendants'; personId: string } | { kind: 'around'; personId: string; generations: number } | { kind: 'ids'; ids: string[] };
 
 export function visiblePersons(project: Project, filter: Filter | null): Set<string> {
   const all = new Set(Object.keys(project.persons));
-  if (!filter || !project.persons[filter.personId]) return all;
+  if (!filter) return all;
+  if (filter.kind === 'ids') return new Set(filter.ids.filter((id) => project.persons[id]));
+  if (!project.persons[filter.personId]) return all;
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
   const set = new Set<string>([filter.personId]);
   if (filter.kind === 'ancestors') {

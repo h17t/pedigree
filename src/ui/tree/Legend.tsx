@@ -1,6 +1,7 @@
 import { useT } from '@/i18n';
 import type { TKey } from '@/i18n';
-import { color } from '@/design/tokens';
+import { color, tagColor } from '@/design/tokens';
+import { useAppStore } from '@/store/store';
 
 const LINE_ITEMS: { key: string; draw: React.ReactNode }[] = [
   { key: 'marriage', draw: (<><line x1="0" y1="10" x2="48" y2="10" stroke={color.ink} strokeWidth="8" /><line x1="0" y1="10" x2="48" y2="10" stroke={color.paper} strokeWidth="4" /></>) },
@@ -21,6 +22,7 @@ const TEXT_ITEMS = ['deceased', 'about', 'before', 'after', 'unknownSex', 'trunc
 /** The legend explains every line style and mark on the canvas in words. */
 export function Legend({ onClose }: { onClose: () => void }) {
   const { t } = useT();
+  const groups = useAppStore((s) => s.project?.groups ?? []);
   return (
     <section className="legend panel" aria-labelledby="legend-title">
       <div className="legend-head">
@@ -36,6 +38,15 @@ export function Legend({ onClose }: { onClose: () => void }) {
               {it.draw}
             </svg>
             <span>{t(`tree.legendItems.${it.key}` as TKey)}</span>
+          </li>
+        ))}
+        {groups.map((g) => (
+          <li key={g.id}>
+            <svg width="48" height="20" viewBox="0 0 48 20" aria-hidden="true">
+              <rect x="14" y="2" width="20" height="16" rx="2" fill={color.paper} stroke={color.ink} strokeWidth="1.5" />
+              <rect x="15" y="3" width="4" height="14" fill={tagColor[g.color]} />
+            </svg>
+            <span>{g.name || t(`edit.tagColors.${g.color}` as TKey)}</span>
           </li>
         ))}
         {TEXT_ITEMS.map((k) => (

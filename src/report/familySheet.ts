@@ -71,7 +71,7 @@ export function buildFamilySheet(project: Project, personId: string, locale: Loc
   add(t('person.religion'), person.religion);
   add(t('person.residence'), person.residence);
   for (const f of person.customFields) add(f.label, f.value);
-  add(t('person.tag'), person.tag?.label ?? '');
+  add(t('person.tag'), person.groupId ? (project.groups.find((g) => g.id === person.groupId)?.name ?? '') : '');
 
   const parentUnions = parentUnionsOf(project, personId);
   const parents = parentUnions.flatMap((u) => u.partnerIds).map(brief);

@@ -13,6 +13,7 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
   const warnings = useAppStore((s) => s.warnings).filter((w) => w.personIds[0] === person.id);
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
   const status = effectiveLifeStatus(person);
+  const group = person.groupId ? project.groups.find((g) => g.id === person.groupId) : undefined;
   const name = (id: string) => {
     const p = project.persons[id];
     return p ? displayName(p, t('person.née')) || t('person.unnamed') : t('common.unknown');
@@ -43,9 +44,9 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
           ? `${person.birth.date ? `* ${formatDateWithQualifier(locale, person.birth.date, person.birth.qualifier)}` : ''}${person.death.date ? ` † ${formatDateWithQualifier(locale, person.death.date, person.death.qualifier)}` : ''}`.trim()
           : t('dates.unknownDate')}
       </p>
-      {person.tag && (
+      {group && (
         <p>
-          <span className={`tag tag-${person.tag.color}`}>{person.tag.label}</span>
+          <span className={`tag tag-${group.color}`}>{group.name || t(`edit.tagColors.${group.color}` as TKey)}</span>
         </p>
       )}
       {warnings.length > 0 && (

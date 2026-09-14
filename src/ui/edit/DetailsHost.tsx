@@ -47,6 +47,9 @@ export function DetailsHost({ project, person, onSelect, extra }: { project: Pro
             <button type="button" className="btn" onClick={() => openEditor({ kind: 'sheet', id: person.id })}>
               {t('sheet.open')}
             </button>
+            <button type="button" className="btn" onClick={() => openEditor({ kind: 'relation', aId: person.id })}>
+              {t('relation.open')}
+            </button>
           </div>
         </>
       ) : (
@@ -57,6 +60,9 @@ export function DetailsHost({ project, person, onSelect, extra }: { project: Pro
           <div className="btn-row">
             <button type="button" className="btn" onClick={() => openEditor({ kind: 'sheet', id: person.id })}>
               {t('sheet.open')}
+            </button>
+            <button type="button" className="btn" onClick={() => openEditor({ kind: 'relation', aId: person.id })}>
+              {t('relation.open')}
             </button>
             <button type="button" className="btn" onClick={() => openEditor({ kind: 'merge', aId: person.id, bId: null })}>
               {t('edit.merge')}

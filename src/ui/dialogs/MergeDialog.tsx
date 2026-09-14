@@ -13,7 +13,7 @@ import { searchPersons } from '../list/outline';
 const FIELD_LABEL: Record<MergeField, TKey> = {
   givenNames: 'person.givenNames', surname: 'person.surname', birthName: 'person.birthName', nickname: 'person.nickname', titlePrefix: 'person.titlePrefix',
   sex: 'person.sex', lifeStatus: 'person.lifeStatus', occupation: 'person.occupation', religion: 'person.religion', residence: 'person.residence',
-  sources: 'person.sources', notes: 'person.notes', tag: 'person.tag', birth: 'person.birth', death: 'person.death',
+  sources: 'person.sources', notes: 'person.notes', groupId: 'person.tag', birth: 'person.birth', death: 'person.death',
 };
 
 /**
@@ -57,7 +57,7 @@ export function MergeDialog({ aId, bId }: { aId: string; bId: string | null }) {
 
   const conflicts = conflictingFields(a, b);
   const all: MergeField[] = [...MERGE_FIELDS, ...MERGE_EVENT_FIELDS];
-  const rows = all.filter((f) => fieldValue(a, f) !== '' || fieldValue(b, f) !== '');
+  const rows = all.filter((f) => fieldValue(a, f, project.groups) !== '' || fieldValue(b, f, project.groups) !== '');
   const confirm = () => {
     transact(t('edit.mergeConfirm'), (d) => mergePersons(d, { survivorId: aId, loserId: b.id, choices, keepConflictsInNotes: keep }, { mergedFrom: t('edit.mergedFrom') }));
     updateUi({ selectedPersonId: aId });
@@ -81,7 +81,7 @@ export function MergeDialog({ aId, bId }: { aId: string; bId: string | null }) {
             </thead>
             <tbody>
               {rows.map((f) => {
-                const va = fieldValue(a, f), vb = fieldValue(b, f);
+                const va = fieldValue(a, f, project.groups), vb = fieldValue(b, f, project.groups);
                 const conflict = conflicts.includes(f);
                 const current = choices[f] ?? (va === '' && vb !== '' ? 'b' : 'a');
                 return (

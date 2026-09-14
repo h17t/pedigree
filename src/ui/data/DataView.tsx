@@ -12,6 +12,7 @@ import { FilePicker } from '../components/FilePicker';
 import { DuplicatesPanel } from '../edit/DuplicatesPanel';
 import { GedcomPanel } from './GedcomPanel';
 import { InstallPanel } from './InstallPanel';
+import { GroupsPanel } from './GroupsPanel';
 import { announce } from '../status';
 import { useRouter } from '../router';
 import { SCHEMA_VERSION } from '@/model/types';
@@ -135,6 +136,8 @@ export function DataView() {
       </section>
 
       <GedcomPanel />
+
+      <GroupsPanel />
 
       <DuplicatesPanel />
 

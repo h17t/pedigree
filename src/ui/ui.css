@@ -258,3 +258,8 @@
 .status-text { flex: 1 1 200px; }
 .status-log { margin-top: var(--sp-2); padding: var(--sp-3); display: grid; gap: var(--sp-2); }
 .status-log ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+
+/* Colour groups */
+.group-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
+.group-row { display: grid; gap: var(--sp-2); align-items: end; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .group-row { grid-template-columns: auto 1fr auto auto auto; align-items: end; } }

@@ -65,8 +65,9 @@ export function PrintDialog() {
       { kind: 'step', text: t('tree.legendItems.step') },
       { kind: 'text', text: `${t('tree.legendItems.deceased')} · ${t('tree.legendItems.about')} · ${t('tree.legendItems.before')} · ${t('tree.legendItems.after')}` },
       { kind: 'text', text: level === 'full' ? t('print.notesShortened') : t('tree.legendItems.truncated') },
+      ...(project?.groups ?? []).map((g): LegendLine => ({ kind: 'swatch', text: g.name || t(`edit.tagColors.${g.color}` as TKey), color: g.color })),
     ],
-    [t, level],
+    [t, level, project],
   );
 
   // Which people are in scope.
@@ -106,7 +107,7 @@ export function PrintDialog() {
   const overlayFor = (sheetIndex: number, total: number) => {
     const parts: string[] = [];
     if (headerPx) parts.push(`<g transform="translate(${marginPx} ${marginPx})">${headerMarkup({ title, subtitle: total > 1 ? `${subtitle ? subtitle + ' · ' : ''}${t('print.sheetLabel', { index: sheetIndex, count: total })}` : subtitle, date: dateText }, areaPx.w)}</g>`);
-    if (legendPx) parts.push(`<g transform="translate(${marginPx} ${marginPx + areaPx.h - legendPx + 8})">${legendMarkup(legendLines, areaPx.w)}</g>`);
+    if (legendPx) parts.push(`<g transform="translate(${marginPx} ${marginPx + areaPx.h - legendPx + 8})">${legendMarkup(legendLines, areaPx.w, bw)}</g>`);
     if (total > 1) {
       // crop marks at the printable-area corners
       const m = marginPx, L = 14;
@@ -150,7 +151,7 @@ export function PrintDialog() {
     return svgDocument({
       widthMm: wPx / mmToPx(1), heightMm: hPx / mmToPx(1), viewBox: { x: drawing.bounds.x - DRAWING_PAD, y: drawing.bounds.y - DRAWING_PAD, w: drawing.bounds.w + 2 * DRAWING_PAD, h: drawing.bounds.h + 2 * DRAWING_PAD },
       content: drawing.markup,
-      overlay: (headerPx ? `<g transform="translate(${marginPx} ${marginPx})">${headerMarkup({ title, subtitle, date: dateText }, areaW)}</g>` : '') + (legendPx ? `<g transform="translate(${marginPx} ${marginPx + areaH - legendPx + 8})">${legendMarkup(legendLines, areaW)}</g>` : ''),
+      overlay: (headerPx ? `<g transform="translate(${marginPx} ${marginPx})">${headerMarkup({ title, subtitle, date: dateText }, areaW)}</g>` : '') + (legendPx ? `<g transform="translate(${marginPx} ${marginPx + areaH - legendPx + 8})">${legendMarkup(legendLines, areaW, bw)}</g>` : ''),
       fontCss, title, areaPx: { w: areaW, h: areaH }, marginPx, headerPx, legendPx, sheetPx: { w: wPx, h: hPx },
     });
   };

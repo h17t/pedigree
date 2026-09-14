@@ -186,6 +186,19 @@ relationship, siblings, partnerships with children and relation, events, notes, 
 dialog, printed through the print root, and saved as a standalone HTML file without scripts.
 206 unit tests and 98 Playwright tests pass.
 
+Stage (l) delivered (2026-09-14): search across every field with the completeness filters (no
+date of birth, deceased without a date of death, no parents, born between years, place contains),
+a results list that jumps to a person and "Show only these on the canvas" as a filter of ids
+(Ctrl+Shift+F opens the panel, Ctrl+F still jumps to a name); colour groups as schema version 2
+(the per-person branch tags became a list of up to eight named groups of the tree, with a
+migration that keeps every existing tag; a person is in one group or none; the group shows as the
+card stripe with its name, in the legend and in the print legend with a black-and-white pattern;
+managed on the Data page, chosen in the person editor, merged like any field); and the
+relationship calculator (nearest common ancestors: direct line, full and half siblings, aunts,
+uncles, nieces, nephews, cousins of any degree with removals, partners, partner of a relative,
+relative of the partner) with plain-language sentences composed per language, including German
+articles and "Ur"-prefixes. 214 unit tests and 104 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist
@@ -204,6 +217,7 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - [x] **(g)** print dialog, preview, fit / tile, legibility warning, SVG / PNG export with embedded fonts, PDF instructions — screenshots in `docs/screenshots/stage-g/`
 - [x] **(h)** first-run screen, guided start (resumable, one undo step), contextual tips, help page with printable quick start — screenshots in `docs/screenshots/stage-h/`
 - [x] **(i)** manifest, service worker with prompt-style updates, update and offline notices, install entry with iOS instructions, offline verification — screenshots in `docs/screenshots/stage-i/`
+- [x] **(l)** search and filters, colour groups (schema 2), relationship calculator — screenshots in `docs/screenshots/stage-l/`
 - [x] **(k)** ancestor and descendant charts, family sheet — screenshots in `docs/screenshots/stage-k/`
 - [x] **(j)** final accessibility audit, 500-person performance pass (with three rendering optimisations), README numbers, network verification, screen-reader checklist, deployment note — screenshots in `docs/screenshots/stage-j/`
 

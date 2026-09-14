@@ -4,12 +4,12 @@
  * re-pointed to the survivor. One undoable step (the caller wraps it in a transaction).
  */
 import type { Draft } from 'immer';
-import type { Person, Project } from './types';
+import type { ColourGroup, Person, Project } from './types';
 import { createChildLink } from './types';
 
 /** Scalar fields the user can choose between. */
 export const MERGE_FIELDS = [
-  'givenNames', 'surname', 'birthName', 'nickname', 'titlePrefix', 'sex', 'lifeStatus', 'occupation', 'religion', 'residence', 'sources', 'notes', 'tag',
+  'givenNames', 'surname', 'birthName', 'nickname', 'titlePrefix', 'sex', 'lifeStatus', 'occupation', 'religion', 'residence', 'sources', 'notes', 'groupId',
 ] as const;
 export type MergeScalarField = (typeof MERGE_FIELDS)[number];
 export const MERGE_EVENT_FIELDS = ['birth', 'death'] as const;
@@ -25,14 +25,14 @@ export interface MergePlan {
   keepConflictsInNotes: boolean;
 }
 
-export function fieldValue(p: Person, f: MergeField): string {
+export function fieldValue(p: Person, f: MergeField, groups: ColourGroup[] = []): string {
   switch (f) {
     case 'birth':
       return [p.birth.date ?? '', p.birth.qualifier !== 'exact' ? p.birth.qualifier : '', p.birth.place].filter(Boolean).join(' ');
     case 'death':
       return [p.death.date ?? '', p.death.qualifier !== 'exact' ? p.death.qualifier : '', p.death.place, p.death.cause].filter(Boolean).join(' ');
-    case 'tag':
-      return p.tag ? `${p.tag.label} (${p.tag.color})` : '';
+    case 'groupId':
+      return p.groupId ? (groups.find((g) => g.id === p.groupId)?.name ?? p.groupId) : '';
     default:
       return p[f];
   }
@@ -69,8 +69,7 @@ export function mergePersons(d: Draft<Project>, plan: MergePlan, labels: { merge
   }
   for (const f of MERGE_FIELDS) {
     if (f === 'notes') continue;
-    if (f === 'tag') a.tag = pick('tag', a.tag, b.tag);
-    else (a as unknown as Record<string, unknown>)[f] = pick(f, a[f], b[f]);
+    (a as unknown as Record<string, unknown>)[f] = pick(f, a[f], b[f]);
   }
   a.birth = pick('birth', a.birth, b.birth);
   a.death = pick('death', a.death, b.death);

@@ -3,7 +3,7 @@
  * migrations. See the brief and DECISIONS.md for the reasoning behind each field.
  */
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export type Sex = 'male' | 'female' | 'diverse' | 'unknown';
 export type LifeStatus = 'living' | 'deceased' | 'unknown';
@@ -55,10 +55,19 @@ export interface Position {
 
 export type TagName = 'green' | 'amber' | 'plum' | 'red' | 'steel' | 'blue';
 
+/** Schema 1 per-person tag; schema 2 turned these into named colour groups. */
 export interface Tag {
   color: TagName;
   label: string;
 }
+
+/** A named colour group of the tree (at most MAX_GROUPS); a person is in one group or none. */
+export interface ColourGroup {
+  id: string;
+  name: string;
+  color: TagName;
+}
+export const MAX_GROUPS = 8;
 
 export interface Person {
   id: string;
@@ -80,7 +89,8 @@ export interface Person {
   customFields: CustomField[];
   /** null = not yet laid out (e.g. freshly imported). */
   position: Position | null;
-  tag: Tag | null;
+  /** The colour group this person belongs to (see Project.groups), or none. */
+  groupId: string | null;
   /** Unknown GEDCOM lines belonging to this person, preserved verbatim for export. */
   rawGedcom: string[];
   /** Original GEDCOM cross-reference id (e.g. "@I12@") so exports keep references valid. */
@@ -140,6 +150,8 @@ export interface Project {
   /** Unreferenced top-level GEDCOM records (SOUR, REPO, OBJE, SUBM, NOTE, _custom), verbatim. */
   rawRecords: string[];
   settings: ProjectSettings;
+  /** Named colour groups shown as a stripe on the cards. */
+  groups: ColourGroup[];
 }
 
 /** Lightweight entry of the project index kept in localStorage. */
@@ -185,7 +197,7 @@ export function createPerson(partial: Partial<Person> = {}): Person {
     notes: '',
     customFields: [],
     position: null,
-    tag: null,
+    groupId: null,
     rawGedcom: [],
     ...partial,
   };
@@ -226,6 +238,7 @@ export function createProject(name: string, partial: Partial<Project> = {}): Pro
     childLinks: {},
     rawRecords: [],
     settings: { preserveRawGedcom: true, generationScaling: 'off' },
+    groups: [],
     ...partial,
   };
 }

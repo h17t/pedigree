@@ -30,6 +30,7 @@ import { AddMenu } from '../edit/AddMenu';
 import { closeEditor, openEditor, useEditor } from '../edit/editorStore';
 import { openPrint } from '../print/printStore';
 import { Hint } from '../onboarding/Hint';
+import { SearchPanel } from './SearchPanel';
 import { useHints } from '@/onboarding/hints';
 import { startGuidedHere } from '../onboarding/start';
 
@@ -66,6 +67,7 @@ export function TreeView() {
   const scales = useMemo(() => (project ? personScales(project, scaling) : new Map<string, number>()), [project, scaling]);
   const frames = useMemo(() => (project && placement ? clusterFrames(project, placement.positions, level, scales) : []), [project, placement, level, scales]);
   const [layoutOpen, setLayoutOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const chartSpec = ui.chart && project && project.persons[ui.chart.personId] ? ui.chart : null;
   const chart = useMemo(() => (project && chartSpec ? buildChart(project, chartSpec, level) : null), [project, chartSpec, level]);
   const visible = useMemo(() => (chart ? chart.visible : project ? visiblePersons(project, ui.filter) : new Set<string>()), [project, ui.filter, chart]);
@@ -92,7 +94,10 @@ export function TreeView() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        setSearchOpen(true);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
         e.preventDefault();
         searchRef.current?.focus();
       } else if ((e.ctrlKey || e.metaKey) && e.key === '0') {
@@ -258,7 +263,9 @@ export function TreeView() {
       ? t('tree.filterAncestors', { name: nameOf(ui.filter.personId) })
       : ui.filter.kind === 'descendants'
         ? t('tree.filterDescendants', { name: nameOf(ui.filter.personId) })
-        : t('tree.filterAround', { count: ui.filter.generations, name: nameOf(ui.filter.personId) })
+        : ui.filter.kind === 'around'
+          ? t('tree.filterAround', { count: ui.filter.generations, name: nameOf(ui.filter.personId) })
+          : t('tree.filterSearch', { count: ui.filter.ids.length })
     : '';
 
   const applyFilter = (filter: NonNullable<typeof ui.filter>) => {
@@ -370,6 +377,9 @@ export function TreeView() {
             {t('layout.panel')}
           </button>
         )}
+        <button type="button" className="btn btn-search-more" aria-expanded={searchOpen} onClick={() => setSearchOpen((v) => !v)}>
+          {t('search.open')}
+        </button>
         <button type="button" className="btn btn-print" onClick={() => openPrint({ selection: multiLive.size > 1 ? [...multiLive] : ui.selectedPersonId ? [ui.selectedPersonId] : [], filtered: ui.filter ? [...visible] : null, clusters: frames.map((f) => ({ index: f.index, personIds: f.personIds })), defaultContent: 'tree', chart: chart ? { positions: [...chart.positions.entries()], visible: [...chart.visible], lines: chart.lines, useUnions: chart.useUnions, label: chartLabel } : null })}>
           {t('print.open')}
         </button>
@@ -380,6 +390,17 @@ export function TreeView() {
         )}
       </div>
 
+      {searchOpen && (
+        <SearchPanel
+          project={project}
+          onJump={(id) => jumpTo(id)}
+          onShowOnly={(ids) => {
+            updateUi({ filter: { kind: 'ids', ids }, viewport: null, chart: null });
+            setSearchOpen(false);
+          }}
+          onClose={() => setSearchOpen(false)}
+        />
+      )}
       {layoutOpen && (
         <section className="filter-bar layout-panel panel" aria-label={t('layout.panel')}>
           {!readOnly && (
