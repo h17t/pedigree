@@ -171,17 +171,25 @@ test.describe('desktop only', () => {
     const dist = (b: { x: number; y: number; w: number; h: number }) => Math.hypot(b.x + b.w / 2 - cx, b.y + b.h / 2 - cy);
     const byDistance = [...cards].sort((p, q) => dist(p) - dist(q));
     const drag = byDistance[0], other = byDistance[1];
-    const rel = async (id: string) => {
-      const b = (await page.locator(`.person-card[data-person-id="${id}"]`).boundingBox())!;
-      const cb = (await canvas.boundingBox())!;
-      return { x: b.x - cb.x, y: b.y - cb.y };
-    };
+    // One evaluate reads a card and the canvas in the same frame, so a notice appearing above the
+    // canvas between two reads cannot fake a move.
+    const rel = (id: string) =>
+      page.evaluate((pid) => {
+        const card = document.querySelector(`.person-card[data-person-id="${pid}"]`)!.getBoundingClientRect();
+        const cv = document.querySelector('svg.tree-canvas')!.getBoundingClientRect();
+        return { x: card.x - cv.x, y: card.y - cv.y };
+      }, id);
     const dragBefore = await rel(drag.id), otherBefore = await rel(other.id);
-    await page.mouse.move(drag.x + 30, drag.y + 30);
+    // hover() waits until the card really receives pointer events at that point (nothing covers it)
+    // and uses the card's position at that moment.
+    const dragCard = page.locator(`.person-card[data-person-id="${drag.id}"]`);
+    await dragCard.hover({ position: { x: 30, y: 30 } });
+    const grip = (await dragCard.boundingBox())!;
     await page.mouse.down();
-    await page.mouse.move(drag.x + 110, drag.y + 70, { steps: 8 });
+    await page.mouse.move(grip.x + 110, grip.y + 70, { steps: 8 });
     await page.mouse.up();
-    await expect.poll(async () => (await rel(drag.id)).x - dragBefore.x).toBeGreaterThan(40);
+    const under = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.outerHTML.slice(0, 120) ?? 'none', [grip.x + 30, grip.y + 30]);
+    await expect.poll(async () => (await rel(drag.id)).x - dragBefore.x, { message: `card did not move; under the pointer: ${under}` }).toBeGreaterThan(40);
     const dragAfter = await rel(drag.id), otherAfter = await rel(other.id);
     const dx = dragAfter.x - dragBefore.x, dy = dragAfter.y - dragBefore.y;
     expect(Math.abs(dx - 80)).toBeLessThanOrEqual(2);
