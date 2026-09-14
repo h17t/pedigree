@@ -214,3 +214,14 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 138 | The scale of a generation depends only on the head counts of its family's rows: target width = max(minimum scale × widest row, median row); rows narrower than the target stay at 100 %, wider rows shrink to it, never below the minimum (60 % gentle, 35 % strong). | Deterministic, survives manual moves and imports, and leaves families with evenly sized generations untouched. | decided |
 | 139 | Changing the setting re-arranges the whole tree in the same undo step. | Stored positions assume the previous card sizes; without a re-arrangement cards would overlap. | decided |
 | 140 | The setting is stored in the tree's settings (schema unchanged, missing value reads as "off"). | Backups and older trees keep loading; GEDCOM is unaffected. | decided |
+
+## Usability pass (2026-09-14)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 141 | All relationship editing happens in one "Family" panel under the person's name that shows the slots (father, mother, partners with their children, siblings) with "New person" / "Choose existing" next to each and "Remove" on each link. | Users could not see where parents go; a slot with two ways to fill it is self-explaining, and one place replaces four separate control groups. | decided |
+| 142 | Removing one parent moves the child into a union with the remaining parent when siblings exist, otherwise the parent leaves the union. | "This is not my father" must not change the siblings' parents. | decided |
+| 143 | The list mode is a flat alphabetical people list; the family outline is removed (it supersedes decision 24's outline). | The outline duplicated the tree and the Family panel, confused the first user, and its expand toggles were broken by a style override; a plain list is what people expect when searching for a name. | decided |
+| 144 | Cards show no "living" label; only a death date or † appears. | A living person is the default reading of a card without a death date; the label added noise. | decided |
+| 145 | The divorce mark is two strokes through the junction between the partners. | The gap between partner cards is the only place not covered by cards; a small slash beside the junction was invisible. | decided |
+| 146 | "Close family" includes parents, siblings, children, grandparents, grandchildren and the person's own partners, never the partners of relatives; "Ancestors" is exactly the ancestors; "Descendants" keeps the descendants' partners. | The old rule added partners of everyone visible, which showed a partner's ex-partners and in-laws. | decided |

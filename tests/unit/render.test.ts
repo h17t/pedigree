@@ -206,6 +206,25 @@ describe('focus filter', () => {
     const around = visiblePersons(b.project, { kind: 'around', personId: k.id, generations: 1 });
     expect([...around].sort()).toEqual([k.id, m.id, f.id, gk.id].sort());
   });
+
+  it('close family brings siblings and own partners, but not the partners of relatives', () => {
+    const b = build();
+    const me = b.person('Me'), mum = b.person('Mum'), dad = b.person('Dad'), sis = b.person('Sis');
+    const wife = b.person('Wife'), exOfWife = b.person('ExOfWife'), sisHusband = b.person('SisHusband');
+    const kid = b.person('Kid'), grandma = b.person('Grandma');
+    b.family([mum, dad], [me, sis]);
+    b.family([grandma], [mum]);
+    b.family([me, wife], [kid]);
+    b.family([wife, exOfWife], []);
+    b.family([sis, sisHusband], []);
+    const around = visiblePersons(b.project, { kind: 'around', personId: me.id, generations: 2 });
+    expect([...around].sort()).toEqual([me.id, mum.id, dad.id, sis.id, wife.id, kid.id, grandma.id].sort());
+    expect(around.has(exOfWife.id)).toBe(false);
+    expect(around.has(sisHusband.id)).toBe(false);
+    // Ancestors are exactly the ancestors; descendants bring their partners.
+    expect([...visiblePersons(b.project, { kind: 'ancestors', personId: me.id })].sort()).toEqual([me.id, mum.id, dad.id, grandma.id].sort());
+    expect([...visiblePersons(b.project, { kind: 'descendants', personId: mum.id })].sort()).toEqual([mum.id, dad.id, me.id, sis.id, kid.id, wife.id, sisHusband.id].sort());
+  });
   it('is cycle-safe and shows everyone without a filter', () => {
     const b = build();
     const a = b.person('A'), c = b.person('C');

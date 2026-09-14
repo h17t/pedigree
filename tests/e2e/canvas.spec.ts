@@ -82,9 +82,9 @@ test('keyboard: Enter on a focused card selects it, Escape clears', async ({ pag
 test('legend opens and lists the line styles', async ({ page }) => {
   await openTree(page);
   await page.getByRole('button', { name: 'Legend' }).click();
-  await expect(page.getByText('Divorced: double line with a strike')).toBeVisible();
+  await expect(page.getByText('Divorced: double line crossed by two strokes')).toBeVisible();
   await page.getByRole('button', { name: 'Close' }).click();
-  await expect(page.getByText('Divorced: double line with a strike')).toHaveCount(0);
+  await expect(page.getByText('Divorced: double line crossed by two strokes')).toHaveCount(0);
 });
 
 test.describe('desktop only', () => {

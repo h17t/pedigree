@@ -20,7 +20,6 @@ export function AddMenu({ person, onAdded }: { person: Person; onAdded?: (id: st
   const unions = unionsOf(project, person.id);
   const hasFather = Object.values(project.childLinks).some((l) => l.childId === person.id && project.unions[l.unionId]?.partnerIds.some((p) => project.persons[p]?.sex === 'male'));
   const hasMother = Object.values(project.childLinks).some((l) => l.childId === person.id && project.unions[l.unionId]?.partnerIds.some((p) => project.persons[p]?.sex === 'female'));
-  const others = Object.keys(project.persons).length - 1;
   const parentSlots = Object.values(project.childLinks).filter((l) => l.childId === person.id).reduce((n, l) => n + (project.unions[l.unionId]?.partnerIds.length ?? 0), 0);
 
   const nameOf = (id: string) => {
@@ -83,25 +82,6 @@ export function AddMenu({ person, onAdded }: { person: Person; onAdded?: (id: st
       <button type="button" className="btn" onClick={() => run(t('edit.what.sibling'), (d) => addSibling(d, person.id, { surname: person.birthName || person.surname }).person.id)}>
         {t('edit.addSibling')}
       </button>
-      {others > 0 && (
-        <div className="add-submenu link-menu" role="group" aria-label={t('edit.linkExisting')}>
-          <span className="hint">{t('edit.linkExisting')}</span>
-          <button type="button" className="btn" onClick={() => openEditor({ kind: 'link', personId: person.id, role: 'partner' })}>
-            {t('edit.linkAsPartner')}
-          </button>
-          <button type="button" className="btn" onClick={() => openEditor({ kind: 'link', personId: person.id, role: 'child' })}>
-            {t('edit.linkAsChild')}
-          </button>
-          {parentSlots < 2 && (
-            <button type="button" className="btn" onClick={() => openEditor({ kind: 'link', personId: person.id, role: 'parent' })}>
-              {t('edit.linkAsParent')}
-            </button>
-          )}
-          <button type="button" className="btn" onClick={() => openEditor({ kind: 'link', personId: person.id, role: 'sibling' })}>
-            {t('edit.linkAsSibling')}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

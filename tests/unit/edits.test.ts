@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { produce } from 'immer';
 import { build, born } from './fixtures';
-import { addChild, addParent, addPartner, addSibling, makeSiblings, unionsOf, parentUnionsOf, canLinkChild, canLinkParent, canLinkPartner, linkChild, linkParent, linkPartners, setChildRelation, unlinkPartner } from '@/model/edits';
+import { addChild, addParent, addPartner, addSibling, makeSiblings, unionsOf, parentUnionsOf, canLinkChild, canLinkParent, canLinkPartner, linkChild, linkParent, linkPartners, setChildRelation, unlinkPartner, removeParent } from '@/model/edits';
 import { deletePerson, deleteUnion, previewDeletePerson, unlinkChild } from '@/model/delete';
 import { conflictingFields, mergePersons } from '@/model/merge';
 import { findDuplicates, editDistance } from '@/model/duplicates';
@@ -133,6 +133,29 @@ describe('linking existing people', () => {
     const p6 = produce(p5, (d) => unlinkPartner(d, cu.id, c.id));
     const p7 = produce(p6, (d) => unlinkPartner(d, cu.id, Object.values(p6.unions[cu.id]!.partnerIds)[0]!));
     expect(p7.unions[cu.id]).toBeUndefined();
+  });
+});
+
+describe('removeParent', () => {
+  it('moves the child to a union with the remaining parent when there are siblings, else the parent leaves the union', () => {
+    const b = build();
+    const dad = b.person('Dad'), mum = b.person('Mum'), a = b.person('A'), s = b.person('S');
+    const u = b.family([dad, mum], [a, s]);
+    const p1 = produce(b.project, (d) => removeParent(d, a.id, dad.id));
+    // The sibling keeps both parents; A now has only Mum.
+    expect(p1.unions[u.id]!.partnerIds).toEqual([dad.id, mum.id]);
+    expect(parentUnionsOf(p1, s.id)[0]!.id).toBe(u.id);
+    const aParents = parentUnionsOf(p1, a.id);
+    expect(aParents).toHaveLength(1);
+    expect(aParents[0]!.partnerIds).toEqual([mum.id]);
+    expect(aParents[0]!.status).toBe('unknown');
+    // An only child: the parent simply leaves the union.
+    const c = build();
+    const d2 = c.person('D'), m2 = c.person('M'), only = c.person('Only');
+    const u2 = c.family([d2, m2], [only]);
+    const p2 = produce(c.project, (d) => removeParent(d, only.id, d2.id));
+    expect(p2.unions[u2.id]!.partnerIds).toEqual([m2.id]);
+    expect(p2.persons[d2.id]).toBeDefined();
   });
 });
 

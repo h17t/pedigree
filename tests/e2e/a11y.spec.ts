@@ -43,7 +43,7 @@ test('language switch reaches German everywhere', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Daten und Einstellungen' })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   await page.getByRole('button', { name: 'Liste', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Familienliste' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Personen', exact: true })).toBeVisible();
   await expectNoViolations(page, 'German list view');
 });
 
@@ -53,5 +53,5 @@ test('search finds a person and the details show the full record', async ({ page
   await expect(page.getByText('1 match')).toBeVisible();
   await page.getByRole('button', { name: /Wilhelmine/ }).click();
   await expect(page.getByRole('heading', { name: /Wilhelmine Charlotte Weber/ })).toBeVisible();
-  await expect(page.getByText('Parents unknown')).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Father', exact: true })).toContainText('not recorded');
 });

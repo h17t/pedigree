@@ -75,7 +75,8 @@ export function cardText(p: Person, level: DetailLevel, locale: Locale, print = 
     push(years(p, locale) || (labels?.unknownDate ?? ''));
   } else {
     const birth = p.birth.date ? `* ${formatDateWithQualifier(locale, p.birth.date, p.birth.qualifier)}${p.birth.place ? `, ${p.birth.place}` : ''}` : p.birth.place ? `* ${p.birth.place}` : '';
-    const death = p.death.date ? `† ${formatDateWithQualifier(locale, p.death.date, p.death.qualifier)}${p.death.place ? `, ${p.death.place}` : ''}` : status === 'living' ? (labels?.living ?? '') : status === 'deceased' ? '†' : '';
+    // Living people carry no label: the absence of a death date is enough.
+    const death = p.death.date ? `† ${formatDateWithQualifier(locale, p.death.date, p.death.qualifier)}${p.death.place ? `, ${p.death.place}` : ''}` : status === 'deceased' ? '†' : '';
     push(birth);
     push(death);
     push(p.occupation);

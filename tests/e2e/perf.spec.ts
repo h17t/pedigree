@@ -52,8 +52,8 @@ test('500 people: import, arrange, fit, zoom, list and timeline under 4× CPU th
 
   await time('listMs', async () => {
     await page.getByRole('button', { name: 'List', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Family list' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Open all' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'People', exact: true })).toBeVisible();
+    await expect(page.getByText('500 people', { exact: true })).toBeVisible();
   });
   await time('timelineMs', async () => {
     await page.getByRole('button', { name: 'Timeline', exact: true }).click();

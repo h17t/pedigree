@@ -28,9 +28,13 @@ test('tree states: selection with details, add menu, legend, layout panel, filte
   await page.waitForTimeout(200);
   await axe(page, 'tree with a selection');
   // Laptops list the add actions in the details column; phones open them from the bar.
-  if (w < 1024) await page.getByRole('button', { name: 'Add', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Add child' }).first()).toBeVisible();
-  await axe(page, 'add menu open');
+  if (w < 1024) {
+    await page.getByRole('button', { name: 'Add', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Add child' }).first()).toBeVisible();
+  } else {
+    await expect(page.getByRole('group', { name: 'Add partner' })).toBeVisible();
+  }
+  await axe(page, 'add menu / family panel open');
   if (w < 1024) await page.getByRole('button', { name: 'Add', exact: true }).click();
   await page.getByRole('button', { name: 'Legend' }).click();
   await axe(page, 'legend open');
@@ -61,7 +65,7 @@ test('tree states: selection with details, add menu, legend, layout panel, filte
 test('dialogs: partnership form, warnings, and the wizard summary step', async ({ page }) => {
   await openSample(page);
   await page.getByRole('button', { name: /Heinrich Weber/ }).first().click();
-  await page.getByRole('button', { name: /Partnership with Gertrud Meyer/ }).click();
+  await page.getByRole('group', { name: 'Partnership with Gertrud Meyer' }).getByRole('button', { name: 'Edit' }).click();
   await expect(page.getByRole('heading', { name: 'Edit partnership' })).toBeVisible();
   await axe(page, 'partnership form');
   await page.getByRole('button', { name: 'Discard changes' }).click();

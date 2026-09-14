@@ -142,6 +142,21 @@ placement of unplaced people and the print output all use the scaled boxes, and 
 "smallest text" figure accounts for the smallest card. Changing the setting re-arranges the tree
 in the same undo step. 200 unit tests and 92 Playwright tests pass.
 
+Usability pass after the second round of use (2026-09-14): relationships are edited in one
+"Family" panel directly under the person's name (father, mother, parents' relationship, each
+partner with the children of that partnership, siblings; "New person" / "Choose existing" next to
+every empty slot, "Remove" on every link, "Edit" on every partnership), replacing the add menu,
+the link menu, the partnership buttons and the parent-link button; removing one parent moves the
+child to a union with the remaining parent so siblings are untouched. The list mode is now a flat
+alphabetical people list with search (the family outline had a real bug: its grid styling
+overrode the `hidden` attribute, so the plus/minus toggles appeared to do nothing, and it
+duplicated what the tree and the Family panel show). Cards no longer print "living"; the absence
+of a death date is enough. Divorced partnerships show two clear strokes through the junction
+instead of a small slash beside it. "Close family" no longer brings the partners of relatives (a
+partner's ex-partners, siblings' spouses): it shows parents, siblings, children, grandparents,
+grandchildren and the person's own partners; "Ancestors" shows exactly the ancestors and
+"Descendants" keeps the descendants' partners. 202 unit tests and 92 Playwright tests pass.
+
 Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Decisions: `DECISIONS.md`.
 
 ## Stage checklist

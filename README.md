@@ -25,15 +25,17 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   generations** (off by default; gentle or strong) shrinks crowded generations, so a family with
   20 great-grandparents and 6 people today still reads as one balanced drawing on screen and in
   print; the scale depends only on how many people each generation holds.
-- **List** shows every family as an indented outline; choose a person to see their details.
-- Choose a person, then **Edit**, **Add** (partner, child, father, mother, sibling) or **Delete**.
-  Deleting explains exactly what else changes; **Undo** and **Redo** are always in the header.
-- **Link an existing person** (under Add) connects two people who are already in the tree as
-  partners, child, parent or sibling; people who cannot take the role are listed with the reason.
-  A person can have any number of partnerships. Nothing about a relationship is assumed: a new
-  partnership, and the parents of a person, are "not recorded" until you set the kind in the
-  partnership editor, which also lists the children (with adopted, step or foster) and lets you
-  remove a person from a partnership or a family without deleting them.
+- **List** is everyone in the tree, alphabetical by surname, with search; choose a person to see
+  their details.
+- Below a person's name sits the **Family** panel: father, mother, the parents' relationship, each
+  partner with the children of that partnership, and siblings. Every empty slot has two buttons,
+  **New person** and **Choose existing** (someone already in the tree); **Remove** takes a link
+  away without deleting anyone, and **Edit** next to a partner opens the partnership (married,
+  divorced, widowed, separated, unmarried or not recorded, with dates). A person can have any number
+  of partnerships. Nothing about a relationship is assumed: it stays "not recorded" until you set
+  it. When choosing an existing person, people who cannot take the role are listed with the reason.
+  **Edit** and **Delete** at the top act on the person; deleting explains what else changes, and
+  **Undo** and **Redo** are always in the header.
 - **Timeline** shows one lifespan bar per person, zoomable, with an optional layer of a few
   historical events (off by default). **Statistics** shows counts, ages and most common names, and
   every figure says how many people it is based on.
@@ -107,11 +109,11 @@ Budget: initial JS under 250 KB gzipped, total initial payload under 500 KB. Mea
 
 | Asset group | gzipped | budget |
 |---|---|---|
-| Initial JS (entry + static imports) | 148.5 KB | 250.0 KB |
+| Initial JS (entry + static imports) | 148.8 KB | 250.0 KB |
 | Initial CSS | 5.6 KB | — |
 | index.html | 0.5 KB | — |
 | Fonts loaded at startup | 24.3 KB | — |
-| **Initial payload** | 179.0 KB | 500.0 KB |
+| **Initial payload** | 179.5 KB | 500.0 KB |
 
 The sample family, the GEDCOM module, the timeline/statistics views, the guided start, the help
 page and the print dialog load lazily and do not count.

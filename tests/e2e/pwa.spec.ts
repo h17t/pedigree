@@ -22,15 +22,17 @@ test('a tree opened once stays available offline, and an app update leaves local
   await openSample(page);
   // Wait for the service worker to control the page (precache complete).
   await page.waitForFunction(async () => {
-    const reg = await navigator.serviceWorker?.getRegistration();
-    return !!reg?.active && !!navigator.serviceWorker.controller;
+    const reg = await navigator.serviceWorker.ready;
+    const keys = await caches.keys();
+    return !!reg.active && !!navigator.serviceWorker.controller && keys.some((k) => k.includes('precache'));
   }, undefined, { timeout: 30_000 });
+  await page.waitForTimeout(500);
   const before = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('pedigree:')).sort());
   expect(before.length).toBeGreaterThan(0);
 
   await context.setOffline(true);
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Family list' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'People', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: /Friedrich Weber/ }).first()).toBeVisible();
   await expect(page.getByText('You are offline.')).toBeVisible();
   // The lazy views load from the cache too.

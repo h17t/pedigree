@@ -8,7 +8,7 @@ import { useAppStore } from '@/store/store';
 import { warningText } from '../warnings';
 
 /** Read-only detail panel for one person: all fields, relations and the warnings about them. */
-export function PersonDetails({ project, person, onSelect }: { project: Project; person: Person; onSelect: (id: string) => void }) {
+export function PersonDetails({ project, person, onSelect, relations = true, section = 'all' }: { project: Project; person: Person; onSelect: (id: string) => void; relations?: boolean; section?: 'all' | 'header' | 'fields' }) {
   const { t, locale } = useT();
   const warnings = useAppStore((s) => s.warnings).filter((w) => w.personIds[0] === person.id);
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
@@ -35,6 +35,8 @@ export function PersonDetails({ project, person, onSelect }: { project: Project;
 
   return (
     <div className="details">
+      {section !== 'fields' && (
+        <>
       <h2 className="details-name">{personName(person) || t('person.unnamed')}</h2>
       <p className="muted tnum">
         {person.birth.date || person.death.date
@@ -55,6 +57,10 @@ export function PersonDetails({ project, person, onSelect }: { project: Project;
           </ul>
         </section>
       )}
+        </>
+      )}
+      {section !== 'header' && (
+        <>
       <dl className="detail-list">
         {field(t('person.givenNames'), person.givenNames)}
         {field(t('person.surname'), person.surname)}
@@ -92,6 +98,8 @@ export function PersonDetails({ project, person, onSelect }: { project: Project;
         {field(t('person.notes'), person.notes)}
       </dl>
 
+      {relations && (
+        <>
       <section className="detail-relations" aria-label={t('person.parents')}>
         <h3>{t('person.parents')}</h3>
         {parentUnions.length === 0 ? (
@@ -183,6 +191,10 @@ export function PersonDetails({ project, person, onSelect }: { project: Project;
           </ul>
         )}
       </section>
+        </>
+      )}
+        </>
+      )}
     </div>
   );
 }

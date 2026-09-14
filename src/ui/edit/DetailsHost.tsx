@@ -1,15 +1,12 @@
 import type { ReactNode } from 'react';
 import { useT } from '@/i18n';
 import type { Person, Project } from '@/model/types';
-import { personName } from '@/model/types';
-import { transact, useAppStore } from '@/store/store';
-import { unionsOf } from '@/model/edits';
-import { unlinkChild } from '@/model/delete';
-import { announce } from '../status';
+
+import { useAppStore } from '@/store/store';
 import { PersonDetails } from '../list/PersonDetails';
 import { PersonForm } from './PersonForm';
 import { UnionForm } from './UnionForm';
-import { AddMenu } from './AddMenu';
+import { FamilyPanel } from './FamilyPanel';
 import { closeEditor, openEditor, useEditor } from './editorStore';
 
 /**
@@ -31,8 +28,6 @@ export function DetailsHost({ project, person, onSelect, extra }: { project: Pro
   }
   if (!person) return <p className="muted">{t('tree.noSelection')}</p>;
 
-  const unions = unionsOf(project, person.id);
-  const parentLinks = Object.values(project.childLinks).filter((l) => l.childId === person.id);
   return (
     <div className="stack">
       {!readOnly && (
@@ -45,53 +40,13 @@ export function DetailsHost({ project, person, onSelect, extra }: { project: Pro
           </button>
         </div>
       )}
-      <PersonDetails project={project} person={person} onSelect={onSelect} />
-      {!readOnly && (
+      {readOnly ? (
+        <PersonDetails project={project} person={person} onSelect={onSelect} />
+      ) : (
         <>
-          <h3>{t('edit.addMenu')}</h3>
-          <AddMenu person={person} />
-          {unions.length > 0 && (
-            <>
-              <h3>{t('person.partners')}</h3>
-              <div className="btn-row">
-                {unions.map((u) => {
-                  const others = u.partnerIds.filter((p) => p !== person.id).map((p) => {
-                    const other = project.persons[p];
-                    return other ? personName(other) : t('common.unknown');
-                  });
-                  return (
-                    <button key={u.id} type="button" className="btn" onClick={() => openEditor({ kind: 'union', id: u.id })}>
-                      {others.length ? t('edit.partnershipWith', { name: others.join(' & ') }) : t('edit.editPartnership')}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-          {parentLinks.length > 0 && (
-            <>
-              <div className="btn-row" role="group" aria-label={t('edit.parentsSection', { name: personName(person) || t('person.unnamed') })}>
-                {parentLinks.map((l) => {
-                  const u = project.unions[l.unionId];
-                  const names = (u?.partnerIds ?? []).map((p) => (project.persons[p] ? personName(project.persons[p]) : t('common.unknown'))).join(' & ');
-                  return (
-                    <button
-                      key={l.id}
-                      type="button"
-                      className="btn"
-                      onClick={() => {
-                        transact(t('edit.unlinkChild'), (d) => unlinkChild(d, l.id));
-                        announce(t('edit.unlinkedChild', { name: personName(person) }));
-                      }}
-                    >
-                      {t('edit.leaveParents')}
-                      {names ? ` (${names})` : ''}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          <PersonDetails project={project} person={person} onSelect={onSelect} relations={false} section="header" />
+          <FamilyPanel project={project} person={person} onSelect={onSelect} />
+          <PersonDetails project={project} person={person} onSelect={onSelect} relations={false} section="fields" />
           <div className="btn-row">
             <button type="button" className="btn" onClick={() => openEditor({ kind: 'merge', aId: person.id, bId: null })}>
               {t('edit.merge')}

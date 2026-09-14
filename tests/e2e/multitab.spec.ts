@@ -11,7 +11,7 @@ test('second tab is read-only, take-over hands the lock over', async ({ context,
 
   const second = await context.newPage();
   await second.goto('');
-  await expect(second.getByRole('heading', { name: 'Family list' })).toBeVisible();
+  await expect(second.getByRole('heading', { name: 'People', exact: true })).toBeVisible();
   await expect(second.getByText('Read-only: another tab is editing')).toBeVisible();
   await expect(second.getByText('This family tree is open for editing in another tab')).toBeVisible();
 
@@ -31,7 +31,7 @@ test('closing the owning tab releases the lock for a new tab', async ({ context,
   await page.close();
   const fresh = await context.newPage();
   await fresh.goto('');
-  await expect(fresh.getByRole('heading', { name: 'Family list' })).toBeVisible();
+  await expect(fresh.getByRole('heading', { name: 'People', exact: true })).toBeVisible();
   await expect(fresh.getByText('Read-only: another tab is editing')).toHaveCount(0);
 });
 

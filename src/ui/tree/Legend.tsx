@@ -4,7 +4,7 @@ import { color } from '@/design/tokens';
 
 const LINE_ITEMS: { key: string; draw: React.ReactNode }[] = [
   { key: 'marriage', draw: (<><line x1="0" y1="10" x2="48" y2="10" stroke={color.ink} strokeWidth="8" /><line x1="0" y1="10" x2="48" y2="10" stroke={color.paper} strokeWidth="4" /></>) },
-  { key: 'divorced', draw: (<><line x1="0" y1="10" x2="48" y2="10" stroke={color.ink} strokeWidth="8" /><line x1="0" y1="10" x2="48" y2="10" stroke={color.paper} strokeWidth="4" /><line x1="18" y1="19" x2="32" y2="1" stroke={color.ink} strokeWidth="2.5" /></>) },
+  { key: 'divorced', draw: (<><line x1="0" y1="10" x2="48" y2="10" stroke={color.ink} strokeWidth="8" /><line x1="0" y1="10" x2="48" y2="10" stroke={color.paper} strokeWidth="4" /><path d="M14 19 l8 -18 M24 19 l8 -18" stroke={color.ink} strokeWidth="3" strokeLinecap="round" /></>) },
   { key: 'partnership', draw: <line x1="0" y1="10" x2="48" y2="10" stroke={color.ink} strokeWidth="2" strokeDasharray="8 6" /> },
   { key: 'unknownUnion', draw: <line x1="0" y1="10" x2="48" y2="10" stroke={color.ink} strokeWidth="2" /> },
   { key: 'biological', draw: <line x1="0" y1="10" x2="48" y2="10" stroke={color.ink} strokeWidth="2" /> },

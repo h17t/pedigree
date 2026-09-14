@@ -19,7 +19,7 @@ async function selectKarl(page: Page) {
 test('add a child through the add menu, edit the name, save, then undo', async ({ page }) => {
   await openSample(page);
   await selectKarl(page);
-  await page.getByRole('button', { name: 'Add child' }).click();
+  await page.getByRole('group', { name: /Add child to the family with/ }).getByRole('button', { name: 'New person' }).click();
   await expect(page.getByRole('heading', { name: 'New person' })).toBeVisible();
   await axe(page, 'person form');
   await expect(page.getByLabel('Surname')).toHaveValue('Weber');
@@ -32,11 +32,11 @@ test('add a child through the add menu, edit the name, save, then undo', async (
   await expect(page.getByRole('heading', { name: 'Emil Weber' })).toBeVisible();
   if (isPhone(page)) await page.getByRole('button', { name: 'Back' }).click();
   await page.getByLabel('Find a person by name').fill('');
-  await expect(page.getByText('Family 1 of 3: 41 people')).toBeVisible();
+  await expect(page.getByText('49 people')).toBeVisible();
   // Undo the edit and the creation with the visible button
   await page.getByRole('button', { name: 'Undo' }).click();
   await page.getByRole('button', { name: 'Undo' }).click();
-  await expect(page.getByText('Family 1 of 3: 40 people')).toBeVisible();
+  await expect(page.getByText('48 people')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Undo' })).toBeDisabled();
 });
 
@@ -61,7 +61,7 @@ test('delete shows the impact and can be undone; a death date forces deceased', 
   await expect(page.getByText('1 match')).toBeVisible();
   // Life status rule
   await selectKarl(page);
-  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
   await expect(page.getByLabel('Living or deceased')).toBeDisabled();
   await expect(page.getByText('This person has a date of death, so they are recorded as deceased.')).toBeVisible();
 });

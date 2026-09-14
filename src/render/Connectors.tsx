@@ -29,7 +29,13 @@ export const Connectors = memo(function Connectors({ unions, background = color.
           )}
           {u.partnerLine && u.partnerLine.style === 'dashed' && <path d={u.partnerLine.d} stroke={color.ink} strokeWidth={2} strokeDasharray="8 6" />}
           {u.partnerLine && u.partnerLine.style === 'plain' && <path d={u.partnerLine.d} stroke={color.ink} strokeWidth={2} />}
-          {u.partnerLine?.strike && <path d={`M${u.partnerLine.strike.x - 24 - 7} ${u.partnerLine.strike.y + 9} l14 -18`} stroke={color.ink} strokeWidth={2.5} />}
+          {u.partnerLine?.strike && (
+            // Divorced: two clear strokes through the junction, the one spot between the cards.
+            <g className="divorce-mark">
+              <path d={`M${u.partnerLine.strike.x - 10} ${u.partnerLine.strike.y + 13} l8 -26 M${u.partnerLine.strike.x + 2} ${u.partnerLine.strike.y + 13} l8 -26`} stroke={background} strokeWidth={7} strokeLinecap="round" />
+              <path d={`M${u.partnerLine.strike.x - 10} ${u.partnerLine.strike.y + 13} l8 -26 M${u.partnerLine.strike.x + 2} ${u.partnerLine.strike.y + 13} l8 -26`} stroke={color.ink} strokeWidth={3} strokeLinecap="round" />
+            </g>
+          )}
         </g>
       ))}
     </g>

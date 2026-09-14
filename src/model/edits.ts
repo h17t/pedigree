@@ -196,6 +196,28 @@ export function linkParent(d: P, childId: string, parentId: string): Union {
   return union;
 }
 
+/**
+ * Take one parent away from a child without touching the child's siblings: when the parent
+ * union has other children, the child moves to a new union with the remaining parent(s);
+ * when this child is its only child, the parent simply leaves the union.
+ */
+export function removeParent(d: P, childId: string, parentId: string): void {
+  const link = Object.values(d.childLinks).find((l) => l.childId === childId && d.unions[l.unionId]?.partnerIds.includes(parentId));
+  if (!link) return;
+  const u = d.unions[link.unionId]!;
+  const siblings = Object.values(d.childLinks).filter((l) => l.unionId === u.id && l.childId !== childId);
+  if (siblings.length === 0) {
+    unlinkPartner(d, u.id, parentId);
+    return;
+  }
+  const rest = u.partnerIds.filter((p) => p !== parentId);
+  delete d.childLinks[link.id];
+  const fresh = createUnion({ partnerIds: rest, type: 'unknown', status: 'unknown' });
+  d.unions[fresh.id] = fresh;
+  const nl = createChildLink(fresh.id, childId, link.relationType);
+  d.childLinks[nl.id] = nl;
+}
+
 /** Change how a child is related to the parents of a union (biological, adopted, ...). */
 export function setChildRelation(d: P, linkId: string, relationType: RelationType): void {
   const l = d.childLinks[linkId];

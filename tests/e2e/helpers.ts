@@ -7,7 +7,7 @@ export async function openSample(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Look at the sample family' }).click();
   await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
   await page.getByRole('button', { name: 'List', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Family list' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'People', exact: true })).toBeVisible();
 }
 
 /** The page must never scroll horizontally (brief: no horizontal page scrolling on mobile). */
