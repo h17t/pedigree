@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@/i18n';
 import type { DateQualifier, Project } from '@/model/types';
-import { personName } from '@/model/types';
+import { displayName } from '@/model/types';
 import { useAppStore, updateUi, transact } from '@/store/store';
 import { addPerson } from '@/model/edits';
 import { DetailsHost } from '../edit/DetailsHost';
@@ -156,7 +156,7 @@ function PersonButton({ project, id, selected, onSelect }: { project: Project; i
   const deathYear = p.death.date ? `† ${formatYear(p.death.date, p.death.qualifier)}` : '';
   return (
     <button type="button" className={`person-btn${selected ? ' person-btn-selected' : ''}`} aria-pressed={selected} onClick={() => onSelect(id)}>
-      <span className="person-btn-name">{personName(p) || t('person.unnamed')}</span>
+      <span className="person-btn-name">{displayName(p, t('person.née')) || t('person.unnamed')}</span>
       <span className="person-btn-years tnum">{[birthYear, deathYear].filter(Boolean).join(' – ')}</span>
     </button>
   );

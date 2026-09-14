@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { layoutComponent } from '@/render/layout/generational';
+import { layoutComponent, rankMembers } from '@/render/layout/generational';
+import { buildAdjacency, breakCycles } from '@/model/graph';
 import { packBoxes, clusterFrames } from '@/render/layout/clusters';
 import { layoutAll, layoutSubset, placeUnpositioned } from '@/render/layout';
 import { connectedComponents } from '@/model/graph';
@@ -117,6 +118,62 @@ describe('layoutAll on the sample', () => {
     expect(p.size).toBe(500);
     noOverlaps(p, cardHeight('standard'), 'perf');
     expect(ms).toBeLessThan(2000);
+  });
+});
+
+describe('generation compaction and determinism', () => {
+  it('puts the parents of a partner who married in level with their child, not with the other side\'s grandparents', () => {
+    const b = build();
+    const gg = b.person('GG'), g = b.person('G'), a = b.person('A'), bb = b.person('B'), bParent = b.person('BP');
+    b.family([gg], [g]);
+    b.family([g], [a]);
+    b.family([a, bb], []);
+    b.family([bParent], [bb]);
+    const rank = rankMembers(b.project, Object.keys(b.project.persons), buildAdjacency(b.project, breakCycles(b.project).ignoredLinks));
+    expect(rank.get(a.id)).toBe(rank.get(bb.id));
+    expect(rank.get(bParent.id)).toBe(rank.get(g.id)); // one above the couple, like A's parent
+    expect(rank.get(bParent.id)).toBe(rank.get(bb.id)! - 1);
+  });
+
+  it('gives the same drawing whatever order the people were entered in', () => {
+    const make = (shuffle: boolean) => {
+      const b = build();
+      const names = ['Karl', 'Anna', 'Otto', 'Lena', 'Max', 'Eva'];
+      const order = shuffle ? [...names].reverse() : names;
+      const people = new Map(order.map((n, i) => [n, b.person(n, born(`19${(names.indexOf(n) + 1) * 10}`))]));
+      b.family([people.get('Karl')!, people.get('Anna')!], [people.get('Otto')!, people.get('Lena')!, people.get('Max')!]);
+      b.family([people.get('Lena')!, people.get('Eva')!], []);
+      const r = layoutComponent(b.project, Object.keys(b.project.persons), 'standard');
+      return names.map((n) => `${n}:${r.positions.get(people.get(n)!.id)!.x},${r.positions.get(people.get(n)!.id)!.y}`).join(' ');
+    };
+    expect(make(true)).toBe(make(false));
+    // Siblings are ordered by birth: Otto (1930) left of Lena (1940) left of Max (1950).
+    const b = build();
+    const k = b.person('K'), a = b.person('A');
+    const otto = b.person('Otto', born('1930')), lena = b.person('Lena', born('1940')), max = b.person('Max', born('1950'));
+    b.family([k, a], [max, otto, lena]);
+    const r = layoutComponent(b.project, Object.keys(b.project.persons), 'standard');
+    expect(r.positions.get(otto.id)!.x).toBeLessThan(r.positions.get(lena.id)!.x);
+    expect(r.positions.get(lena.id)!.x).toBeLessThan(r.positions.get(max.id)!.x);
+  });
+
+  it('keeps every sibling run centred under its parents by widening the rows above', () => {
+    // Two couples on one row, each with many children: the runs must not be pushed sideways.
+    const b = build();
+    const gp1 = b.person('GP1'), gp2 = b.person('GP2');
+    const p1 = b.person('P1', born('1900')), s1 = b.person('S1'), p2 = b.person('P2', born('1902')), s2 = b.person('S2');
+    b.family([gp1, gp2], [p1, p2]);
+    const kids1 = [1, 2, 3, 4].map((i) => b.person(`K1${i}`, born(`193${i}`)));
+    const kids2 = [1, 2, 3, 4].map((i) => b.person(`K2${i}`, born(`193${i}`)));
+    b.family([p1, s1], kids1);
+    b.family([p2, s2], kids2);
+    const r = layoutComponent(b.project, Object.keys(b.project.persons), 'standard');
+    const P = (id: string) => r.positions.get(id)!;
+    const centre = (ids: string[]) => (Math.min(...ids.map((i) => P(i).x)) + Math.max(...ids.map((i) => P(i).x + card.width))) / 2;
+    const junction = (a: string, c: string) => (Math.min(P(a).x, P(c).x) + Math.max(P(a).x, P(c).x) + card.width) / 2;
+    expect(Math.abs(centre(kids1.map((k) => k.id)) - junction(p1.id, s1.id))).toBeLessThan(2);
+    expect(Math.abs(centre(kids2.map((k) => k.id)) - junction(p2.id, s2.id))).toBeLessThan(2);
+    noOverlaps(r.positions, cardHeight('standard'), 'runs');
   });
 });
 

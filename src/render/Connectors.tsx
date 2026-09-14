@@ -12,14 +12,16 @@ export const Connectors = memo(function Connectors({ unions, background = color.
       {unions.map((u) => (
         <g key={u.unionId}>
           {u.childLines.map((c) => (
-            <path
-              key={c.linkId}
-              d={c.d}
-              stroke={c.style === 'unknown' ? color.rule : color.ink}
-              strokeWidth={2}
-              strokeDasharray={c.style === 'adopted' ? '8 6' : c.style === 'step' ? '2 5' : undefined}
-              strokeLinecap={c.style === 'step' ? 'round' : 'butt'}
-            />
+            <g key={c.linkId}>
+              <path d={c.d} stroke={background} strokeWidth={6} />
+              <path
+                d={c.d}
+                stroke={c.style === 'unknown' ? color.rule : color.ink}
+                strokeWidth={2}
+                strokeDasharray={c.style === 'adopted' ? '8 6' : c.style === 'step' ? '2 5' : undefined}
+                strokeLinecap={c.style === 'step' ? 'round' : 'butt'}
+              />
+            </g>
           ))}
           {u.partnerLine && (u.partnerLine.style === 'marriage' || u.partnerLine.style === 'divorced') && (
             <>

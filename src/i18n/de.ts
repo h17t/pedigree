@@ -143,6 +143,10 @@ export const de: Dictionary = {
     generated: 'Erstellt mit Pedigree am {date}',
     filePrefix: 'familienblatt',
   },
+  status: {
+    log: 'Meldungen ({count})',
+    clear: 'Meldungen löschen',
+  },
   person: {
     details: 'Details',
     givenNames: 'Vornamen',

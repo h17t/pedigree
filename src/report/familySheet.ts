@@ -3,7 +3,7 @@
  * and as a standalone HTML document (inline styles, no scripts) for printing and saving.
  */
 import type { Person, Project, Union } from '@/model/types';
-import { personName } from '@/model/types';
+import { displayName } from '@/model/types';
 import { formatDateWithQualifier } from '@/model/dates';
 import type { Locale, TKey } from '@/i18n';
 import { parentUnionsOf, unionsOf } from '@/model/edits';
@@ -49,7 +49,7 @@ export function buildFamilySheet(project: Project, personId: string, locale: Loc
   const brief = (id: string): SheetPerson => {
     const p = project.persons[id];
     if (!p) return { name: t('common.unknown'), years: '', detail: '' };
-    return { name: personName(p) || t('person.unnamed'), years: years(p), detail: [p.birth.place, p.occupation].filter(Boolean).join(' · ') };
+    return { name: displayName(p, t('person.née')) || t('person.unnamed'), years: years(p), detail: [p.birth.place, p.occupation].filter(Boolean).join(' · ') };
   };
   const unionInfo = (u: Union) => {
     const status = u.status !== 'unknown' ? t(`union.status.${u.status}` as TKey) : u.type !== 'unknown' ? t(`union.type.${u.type}` as TKey) : t('family.notRecorded');
@@ -92,7 +92,7 @@ export function buildFamilySheet(project: Project, personId: string, locale: Loc
     value: [date(e.date, e.qualifier), e.place, e.note].filter(Boolean).join(', '),
   }));
   return {
-    name: personName(person) || t('person.unnamed'),
+    name: displayName(person, t('person.née')) || t('person.unnamed'),
     years: years(person),
     fields,
     parents,

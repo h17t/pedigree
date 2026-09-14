@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { TKey } from '@/i18n';
 import { useT, formatNumber } from '@/i18n';
 import type { Position } from '@/model/types';
-import { personName } from '@/model/types';
+import { displayName, personName } from '@/model/types';
 import { useAppStore, updateUi, transact } from '@/store/store';
 import { addPerson } from '@/model/edits';
 import { Canvas } from '@/render/Canvas';
@@ -112,7 +112,7 @@ export function TreeView() {
       const p = project?.persons[id];
       if (!p) return '';
       const years = cardText(p, 'minimal', locale).lines[0] || t('dates.unknownDate');
-      return t('tree.cardLabel', { name: personName(p) || t('person.unnamed'), years });
+      return t('tree.cardLabel', { name: displayName(p, t('person.née')) || t('person.unnamed'), years });
     },
     [project, locale, t],
   );
@@ -252,7 +252,7 @@ export function TreeView() {
   };
 
   const matches = query.trim() ? searchPersons(project, query).slice(0, 8) : [];
-  const nameOf = (id: string) => personName(project.persons[id] ?? { givenNames: '', surname: '', titlePrefix: '' });
+  const nameOf = (id: string) => displayName(project.persons[id] ?? { givenNames: '', surname: '', titlePrefix: '', birthName: '' }, t('person.née'));
   const filterLabel = ui.filter
     ? ui.filter.kind === 'ancestors'
       ? t('tree.filterAncestors', { name: nameOf(ui.filter.personId) })

@@ -1,5 +1,5 @@
 import type { Person, Project } from '@/model/types';
-import { effectiveLifeStatus, personName } from '@/model/types';
+import { displayName, effectiveLifeStatus } from '@/model/types';
 import { formatDateWithQualifier } from '@/model/dates';
 import { useT } from '@/i18n';
 import type { TKey } from '@/i18n';
@@ -15,7 +15,7 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
   const status = effectiveLifeStatus(person);
   const name = (id: string) => {
     const p = project.persons[id];
-    return p ? personName(p) || t('person.unnamed') : t('common.unknown');
+    return p ? displayName(p, t('person.née')) || t('person.unnamed') : t('common.unknown');
   };
   const date = (d: string | null, q: Person['birth']['qualifier']) => (d ? formatDateWithQualifier(locale, d, q, 'long') : t('dates.unknownDate'));
 
@@ -37,7 +37,7 @@ export function PersonDetails({ project, person, onSelect, relations = true, sec
     <div className="details">
       {section !== 'fields' && (
         <>
-      <h2 className="details-name">{personName(person) || t('person.unnamed')}</h2>
+      <h2 className="details-name">{displayName(person, t('person.née')) || t('person.unnamed')}</h2>
       <p className="muted tnum">
         {person.birth.date || person.death.date
           ? `${person.birth.date ? `* ${formatDateWithQualifier(locale, person.birth.date, person.birth.qualifier)}` : ''}${person.death.date ? ` † ${formatDateWithQualifier(locale, person.death.date, person.death.qualifier)}` : ''}`.trim()

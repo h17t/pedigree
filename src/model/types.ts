@@ -236,6 +236,13 @@ export function personName(p: Pick<Person, 'givenNames' | 'surname' | 'titlePref
 }
 
 /** A death date always means deceased; otherwise the explicit field wins. */
+/** Name with the birth name in brackets: "Anna Schuster (née Wiese)" / "(geb. Wiese)". */
+export function displayName(p: Pick<Person, 'givenNames' | 'surname' | 'titlePrefix' | 'birthName'>, neeLabel: string): string {
+  const base = personName(p);
+  const nee = p.birthName.trim();
+  return nee && nee !== p.surname.trim() ? `${base} (${neeLabel} ${nee})` : base;
+}
+
 export function effectiveLifeStatus(p: Pick<Person, 'death' | 'lifeStatus'>): LifeStatus {
   return p.death.date ? 'deceased' : p.lifeStatus;
 }

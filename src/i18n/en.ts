@@ -147,6 +147,10 @@ export const en = {
     generated: 'Created with Pedigree on {date}',
     filePrefix: 'family-sheet',
   },
+  status: {
+    log: 'Messages ({count})',
+    clear: 'Clear messages',
+  },
   person: {
     details: 'Details',
     givenNames: 'Given names',

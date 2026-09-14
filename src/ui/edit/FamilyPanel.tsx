@@ -1,7 +1,7 @@
 import { useT } from '@/i18n';
 import type { TKey } from '@/i18n';
 import type { Person, Project, Union } from '@/model/types';
-import { personName } from '@/model/types';
+import { displayName } from '@/model/types';
 import { formatDateWithQualifier } from '@/model/dates';
 import { transact, updateUi, useAppStore } from '@/store/store';
 import { addChild, addParent, addPartner, addSibling, parentUnionsOf, removeParent, unionsOf, unlinkPartner } from '@/model/edits';
@@ -19,7 +19,7 @@ export function FamilyPanel({ project, person, onSelect }: { project: Project; p
   const readOnly = useAppStore((s) => s.lockState !== 'owner');
   const name = (id: string) => {
     const p = project.persons[id];
-    return p ? personName(p) || t('person.unnamed') : t('common.unknown');
+    return p ? displayName(p, t('person.née')) || t('person.unnamed') : t('common.unknown');
   };
   const parentUnions = parentUnionsOf(project, person.id);
   const parents = parentUnions.flatMap((u) => u.partnerIds.map((pid) => ({ pid, union: u })));

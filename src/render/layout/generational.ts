@@ -74,15 +74,68 @@ export function rankMembers(project: Project, members: string[], adj: Adjacency)
     }
     if (!changed) break;
   }
+  // Compaction: everyone sits as close to their children as possible, so parents are always
+  // directly above their children and a partner who married in is level with their partner
+  // rather than with the other side's grandparents. Ranks only grow, so this terminates.
+  const kidsOf = (id: string): string[] => {
+    const out: string[] = [];
+    for (const uid of adj.partnerUnions.get(id) ?? []) for (const l of adj.unionChildren.get(uid) ?? []) if (memberSet.has(l.childId) && !out.includes(l.childId)) out.push(l.childId);
+    return out;
+  };
+  for (let iter = 0; iter < members.length + 10; iter++) {
+    let changed = false;
+    for (const id of members) {
+      const kids = kidsOf(id);
+      if (!kids.length) continue;
+      const hi = Math.min(...kids.map((k) => rank.get(k) ?? 0)) - 1;
+      if (hi > (rank.get(id) ?? 0)) {
+        rank.set(id, hi);
+        changed = true;
+      }
+    }
+    for (const u of Object.values(project.unions)) {
+      const ps = u.partnerIds.filter((p) => memberSet.has(p));
+      if (ps.length > 1) {
+        const r = Math.max(...ps.map((p) => rank.get(p) ?? 0));
+        for (const p of ps) {
+          if ((rank.get(p) ?? 0) < r) {
+            rank.set(p, r);
+            changed = true;
+          }
+        }
+      }
+    }
+    // Children stay below their parents after partners moved.
+    for (const id of members) {
+      const ps = parentsOf(id);
+      if (ps.length) {
+        const r = Math.max(...ps.map((p) => rank.get(p) ?? 0)) + 1;
+        if (r > (rank.get(id) ?? 0)) {
+          rank.set(id, r);
+          changed = true;
+        }
+      }
+    }
+    if (!changed) break;
+  }
+  const min = Math.min(...members.map((m) => rank.get(m) ?? 0));
+  if (min > 0) for (const id of members) rank.set(id, (rank.get(id) ?? 0) - min);
   return rank;
 }
 
-export function layoutComponent(project: Project, members: string[], level: DetailLevel, adjIn?: Adjacency, mode: GenerationScaling = 'off'): LayoutResult {
+export function layoutComponent(project: Project, membersIn: string[], level: DetailLevel, adjIn?: Adjacency, mode: GenerationScaling = 'off'): LayoutResult {
   const positions = new Map<string, Position>();
-  const memberSet = new Set(members);
-  if (members.length === 0) return { positions, width: 0, height: 0, rows: 0 };
+  const memberSet = new Set(membersIn);
+  if (membersIn.length === 0) return { positions, width: 0, height: 0, rows: 0 };
   const adj = adjIn ?? buildAdjacency(project, breakCycles(project).ignoredLinks);
   const birth = (id: string) => toOrdinal(project.persons[id]?.birth.date ?? null) ?? Number.MAX_SAFE_INTEGER;
+  const nameKey = (id: string) => {
+    const p = project.persons[id];
+    return p ? `${p.surname}\u0001${p.givenNames}\u0001${id}` : id;
+  };
+  /** Deterministic: birth date first, then name, then id, whatever order the data came in. */
+  const byBirthThenName = (a: string, b: string) => birth(a) - birth(b) || nameKey(a).localeCompare(nameKey(b));
+  const members = [...membersIn].sort(byBirthThenName);
 
   const parentsOf = (id: string): string[] => {
     const out: string[] = [];
@@ -130,7 +183,7 @@ export function layoutComponent(project: Project, members: string[], level: Deta
         group.push(cur);
         for (const u of unionsOf(cur)) for (const p of u.partnerIds) if (memberSet.has(p) && rank.get(p) === r && !seen.has(p)) stack.push(p);
       }
-      const ordered = orderBlock(group, unionsOf, memberSet);
+      const ordered = orderBlock(group.sort(byBirthThenName), unionsOf, memberSet, nameKey);
       rowBlocks.push(ordered);
       for (const m of ordered) blockOf.set(m, ordered);
     }
@@ -149,12 +202,13 @@ export function layoutComponent(project: Project, members: string[], level: Deta
       order.get(rank.get(id) ?? 0)!.push(b);
     }
     for (const m of b) {
-      for (const u of unionsOf(m).sort((x, y) => (toOrdinal(x.marriageDate) ?? 0) - (toOrdinal(y.marriageDate) ?? 0))) {
-        for (const c of childrenOfUnion(u.id).sort((x, y) => birth(x) - birth(y))) if (!placedBlock.has(blockOf.get(c)!)) visit(c);
+      const unionKey = (u: { marriageDate: string | null; partnerIds: string[] }) => `${toOrdinal(u.marriageDate) ?? 0}`.padStart(12, '0') + u.partnerIds.map(nameKey).sort().join('|');
+      for (const u of [...unionsOf(m)].sort((x, y) => unionKey(x).localeCompare(unionKey(y)))) {
+        for (const c of childrenOfUnion(u.id).sort(byBirthThenName)) if (!placedBlock.has(blockOf.get(c)!)) visit(c);
       }
     }
   };
-  const roots = members.filter((id) => parentsOf(id).length === 0).sort((a, b) => (rank.get(a) ?? 0) - (rank.get(b) ?? 0) || birth(a) - birth(b));
+  const roots = members.filter((id) => parentsOf(id).length === 0).sort((a, b) => (rank.get(a) ?? 0) - (rank.get(b) ?? 0) || byBirthThenName(a, b));
   for (const rt of roots) visit(rt);
   for (const id of members) if (!placedBlock.has(blockOf.get(id)!)) visit(id);
 
@@ -190,10 +244,12 @@ export function layoutComponent(project: Project, members: string[], level: Deta
 
   // ---- 3. Coordinates ------------------------------------------------------------------
   const rowOrder = new Map<number, string[]>();
+  const blockStart = new Map<string, boolean>();
   for (const [r, rowBlocks] of order) {
     const flat: string[] = [];
     let cursor = 0;
     for (const b of rowBlocks) {
+      blockStart.set(b[0]!, true);
       for (const m of b) {
         x.set(m, cursor);
         flat.push(m);
@@ -203,8 +259,6 @@ export function layoutComponent(project: Project, members: string[], level: Deta
     }
     rowOrder.set(r, flat);
   }
-  const blockStart = new Map<string, boolean>();
-  for (const [, rowBlocks] of order) for (const b of rowBlocks) blockStart.set(b[0]!, true);
 
   // Resolve overlaps in a row left-to-right keeping order; blocks keep the extra gap.
   const compact = (r: number) => {
@@ -215,24 +269,36 @@ export function layoutComponent(project: Project, members: string[], level: Deta
       if (x.get(cur)! < minX) x.set(cur, minX);
     }
   };
+  // Parents over their children (bottom-up): a block aims at the mean centre of its children.
   const centreOn = (ids: string[], targets: (id: string) => string[]) => {
-    // Desired x for a block = mean centre of targets minus half the block width.
     for (const b of [...new Set(ids.map((id) => blockOf.get(id)!))]) {
       const t = b.flatMap(targets).filter((id) => x.has(id));
       if (!t.length) continue;
-      // Centres, not left edges: rows may have different card widths.
       const mean = t.reduce((a, id) => a + cx(id), 0) / t.length;
       const span = (b.length - 1) * colOf(b[0]!) + cardW(b[0]!);
-      const left = x.get(b[0]!)!;
-      const desired = mean - span / 2;
-      const shift = desired - left;
+      const shift = mean - span / 2 - x.get(b[0]!)!;
       for (const m of b) x.set(m, x.get(m)! + shift);
     }
   };
-  // Children under parents: consecutive blocks that share the same parents are centred as one
-  // run, otherwise each block would aim at the same point and the run would drift right.
-  const centreRuns = (r: number) => {
+  for (let it = 0; it < 2; it++) {
+    for (let r = maxRank - 1; r >= 0; r--) {
+      centreOn(rowOrder.get(r)!, childrenOfPerson);
+      orderKeep(rowOrder.get(r)!, x);
+      compact(r);
+    }
+  }
+
+  // Children under their parents (top-down, final pass). Consecutive blocks with the same
+  // parents form a run that is centred under the junction. When a run would collide with the
+  // run to its left, the run is not pushed aside: the parents and everything to their right on
+  // the rows above move right instead. Lines therefore stay straight and never run through
+  // cards; a complicated family simply gets wider.
+  const shiftAbove = (r: number, fromX: number, delta: number) => {
+    for (let rr = 0; rr < r; rr++) for (const m of rowOrder.get(rr)!) if (x.get(m)! >= fromX - 0.5) x.set(m, x.get(m)! + delta);
+  };
+  for (let r = 1; r <= maxRank; r++) {
     const flat = rowOrder.get(r)!;
+    let minLeft = -Infinity;
     let i = 0;
     while (i < flat.length) {
       const first = blockOf.get(flat[i]!)!;
@@ -245,38 +311,34 @@ export function layoutComponent(project: Project, members: string[], level: Deta
         run.push(nb);
         j += nb.length;
       }
-      if (key !== '') {
-        const targets = first.flatMap(parentsOf).filter((id) => x.has(id));
-        if (targets.length) {
-          const mean = targets.reduce((a, id) => a + cx(id), 0) / targets.length;
-          const members = run.reduce((n, b) => n + b.length, 0);
-          const lead = first[0]!;
-          const span = (members - 1) * colOf(lead) + (run.length - 1) * BLOCK_GAP + cardW(lead);
-          let cursor = mean - span / 2;
-          for (const b of run) {
-            for (const m of b) {
-              x.set(m, cursor);
-              cursor += colOf(m);
-            }
-            cursor += BLOCK_GAP;
-          }
+      const lead = first[0]!;
+      const count = run.reduce((n, b) => n + b.length, 0);
+      const span = (count - 1) * colOf(lead) + (run.length - 1) * BLOCK_GAP + cardW(lead);
+      const targets = first.flatMap(parentsOf).filter((id) => x.has(id));
+      let left: number;
+      if (targets.length) {
+        // A couple's junction is between the two partner cards; a single parent's is its centre.
+        const mean = targets.reduce((a, id) => a + cx(id), 0) / targets.length;
+        left = mean - span / 2;
+        if (left < minLeft) {
+          const delta = minLeft - left;
+          const parentBlock = blockOf.get(targets[0]!)!;
+          shiftAbove(r, Math.min(...parentBlock.map((id) => x.get(id)!)), delta);
+          left = minLeft;
         }
+      } else {
+        left = Math.max(x.get(lead)!, minLeft);
       }
+      let cursor = left;
+      for (const b of run) {
+        for (const m of b) {
+          x.set(m, cursor);
+          cursor += colOf(m);
+        }
+        cursor += BLOCK_GAP;
+      }
+      minLeft = cursor;
       i = j;
-    }
-  };
-  for (let it = 0; it < 3; it++) {
-    // parents over children (bottom-up)
-    for (let r = maxRank - 1; r >= 0; r--) {
-      centreOn(rowOrder.get(r)!, childrenOfPerson);
-      orderKeep(rowOrder.get(r)!, x);
-      compact(r);
-    }
-    // children under parents (top-down)
-    for (let r = 1; r <= maxRank; r++) {
-      centreRuns(r);
-      orderKeep(rowOrder.get(r)!, x);
-      compact(r);
     }
   }
 
@@ -305,11 +367,11 @@ function orderKeep(flat: string[], x: Map<string, number>) {
 }
 
 /** Arrange a partnership-connected group: the hub (most unions) in the middle, partners around it. */
-function orderBlock(group: string[], unionsOf: (id: string) => { partnerIds: string[]; marriageDate: string | null }[], memberSet: Set<string>): string[] {
+function orderBlock(group: string[], unionsOf: (id: string) => { partnerIds: string[]; marriageDate: string | null }[], memberSet: Set<string>, nameKey: (id: string) => string): string[] {
   if (group.length <= 2) return group.length === 2 ? sortCouple(group as [string, string], unionsOf) : group;
-  const hub = [...group].sort((a, b) => unionsOf(b).length - unionsOf(a).length)[0]!;
+  const hub = [...group].sort((a, b) => unionsOf(b).length - unionsOf(a).length || nameKey(a).localeCompare(nameKey(b)))[0]!;
   const partners = unionsOf(hub)
-    .sort((a, b) => (toOrdinal(a.marriageDate) ?? 0) - (toOrdinal(b.marriageDate) ?? 0))
+    .sort((a, b) => (toOrdinal(a.marriageDate) ?? 0) - (toOrdinal(b.marriageDate) ?? 0) || a.partnerIds.map(nameKey).sort().join('|').localeCompare(b.partnerIds.map(nameKey).sort().join('|')))
     .flatMap((u) => u.partnerIds.filter((p) => p !== hub && memberSet.has(p) && group.includes(p)));
   const unique = [...new Set(partners)];
   const left = unique.slice(0, Math.ceil(unique.length / 2)).reverse();

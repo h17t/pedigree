@@ -157,6 +157,21 @@ partner's ex-partners, siblings' spouses): it shows parents, siblings, children,
 grandchildren and the person's own partners; "Ancestors" shows exactly the ancestors and
 "Descendants" keeps the descendants' partners. 202 unit tests and 92 Playwright tests pass.
 
+Third round of use (2026-09-14): names show the birth name in brackets ("Anna Schuster (geb.
+Wiese)") on cards, in the list, the details, the Family panel, the link dialog and the family
+sheet; junction squares are gone from all partnerships (the lines say everything, and the legend
+never showed squares); a single parent's children hang straight from the card; generations are
+compacted so parents are always directly above their children and a partner who married in sits
+level with their partner, not with the other side's grandparents; the layout is deterministic
+(siblings by birth date, then name, then id; partners by marriage date, then name) whatever the
+entry order; every sibling run is centred under its parents' junction and, when runs would
+collide, the rows above are widened instead of pushing a run sideways, so lines stay straight and
+never pass through a card; partners with cards between them are joined over the top; buses of
+different families in the same gap take separate lanes, and every line carries a paper halo so
+crossings read as tunnels; the print legend flows into rows measured from the text (it used to
+overlap); status messages are one quiet row that fades after six seconds (warnings stay) with a
+log of the last thirty. 210 unit tests pass.
+
 ## Roadmap stages (k)–(n)
 
 Stage (k) delivered (2026-09-14): two chart modes in the Tree view, the ancestor chart (pedigree:

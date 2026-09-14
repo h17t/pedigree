@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { color } from '@/design/tokens';
-import { junctionSize, unknownParentsBox } from './geometry';
+import { unknownParentsBox } from './geometry';
 
 /** The junction on a partner line, or the labelled "Parents unknown" box for a zero-partner union. */
 export const UnionNode = memo(function UnionNode({ cx, cy, unknownParents, label }: { cx: number; cy: number; unknownParents: boolean; label: string }) {
@@ -15,5 +15,8 @@ export const UnionNode = memo(function UnionNode({ cx, cy, unknownParents, label
       </g>
     );
   }
-  return <rect x={cx - junctionSize / 2} y={cy - junctionSize / 2} width={junctionSize} height={junctionSize} fill={color.ink} />;
+  // No marker on ordinary junctions: the lines themselves say everything.
+  void cx;
+  void cy;
+  return null;
 });

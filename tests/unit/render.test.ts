@@ -57,7 +57,7 @@ describe('card text and geometry', () => {
   });
   it('minimal shows name and years with marks', () => {
     const t = cardText(p, 'minimal', 'en');
-    expect(t.nameLines).toEqual(['Anna Maria Weber']);
+    expect(t.nameLines.join(' ')).toBe('Anna Maria Weber (née Schmidt)');
     expect(t.lines).toEqual(['1923 – † 2001']);
     expect(t.deceased).toBe(true);
   });
@@ -67,7 +67,8 @@ describe('card text and geometry', () => {
   });
   it('full adds birth name and residence; print full clamps notes to four lines', () => {
     const t = cardText(p, 'full', 'en', false, { née: 'née', living: 'living', unknownDate: '' });
-    expect(t.lines.slice(3)).toEqual(['née Schmidt', 'Berlin']);
+    // The birth name is part of the name line now; the fourth line is the nickname slot.
+    expect(t.lines.slice(3)).toEqual(['', 'Berlin']);
     expect(t.noteLines).toEqual([]);
     const tp = cardText(p, 'full', 'en', true, { née: 'née', living: 'living', unknownDate: '' });
     expect(tp.noteLines).toHaveLength(4);
@@ -189,6 +190,35 @@ describe('viewport', () => {
   it('zooms around the pointer', () => {
     const v = zoomAt({ x: 0, y: 0, zoom: 1 }, 2, 100, 100);
     expect(v).toEqual({ zoom: 2, x: -100, y: -100 });
+  });
+});
+
+describe('routing without markers', () => {
+  it('a single parent has no stub; partners with a card between them are joined over the top; overlapping buses take lanes', () => {
+    const b = build();
+    const solo = b.person('Solo'), kid = b.person('Kid');
+    b.family([solo], [kid]);
+    const boxes = new Map([[solo.id, { x: 0, y: 0, w: 220, h: 124 }], [kid.id, { x: 0, y: 204, w: 220, h: 124 }]]);
+    const g = routeUnions({ project: b.project, boxes, visible: new Set([solo.id, kid.id]) });
+    expect(g[0]!.partnerLine).toBeNull();
+    expect(g[0]!.childLines[0]!.d.startsWith('M110 124')).toBe(true);
+
+    const c = build();
+    const a = c.person('A'), m = c.person('M'), z = c.person('Z');
+    const u = c.family([a, z], []);
+    void u;
+    const boxes2 = new Map([[a.id, { x: 0, y: 0, w: 220, h: 124 }], [m.id, { x: 260, y: 0, w: 220, h: 124 }], [z.id, { x: 520, y: 0, w: 220, h: 124 }]]);
+    const g2 = routeUnions({ project: c.project, boxes: boxes2, visible: new Set([a.id, m.id, z.id]) });
+    expect(g2[0]!.partnerLine!.d).toMatch(/^M110 0 V-18 H630 V0$/);
+
+    const d = build();
+    const f1 = d.person('F1'), f2 = d.person('F2'), c1 = d.person('C1'), c2 = d.person('C2');
+    d.family([f1], [c2]);
+    d.family([f2], [c1]);
+    const boxes3 = new Map([[f1.id, { x: 0, y: 0, w: 220, h: 124 }], [f2.id, { x: 260, y: 0, w: 220, h: 124 }], [c1.id, { x: 0, y: 204, w: 220, h: 124 }], [c2.id, { x: 260, y: 204, w: 220, h: 124 }]]);
+    const g3 = routeUnions({ project: d.project, boxes: boxes3, visible: new Set([f1.id, f2.id, c1.id, c2.id]) });
+    const ys = g3.map((x) => Number(x.childLines[0]!.d.match(/V([\d.]+) H/)![1]));
+    expect(new Set(ys).size).toBe(2); // crossing buses lie in different lanes
   });
 });
 

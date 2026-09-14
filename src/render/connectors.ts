@@ -73,9 +73,24 @@ export interface RoutingInput {
   unionPositions?: Map<string, Position>;
 }
 
+/** True when another card sits between two partner cards on the same row. */
+function cardBetween(a: Box, b: Box, boxes: Map<string, Box>, ignore: Set<string>): boolean {
+  const left = Math.min(a.x + a.w, b.x + b.w), right = Math.max(a.x, b.x);
+  if (right <= left) return false;
+  const yTop = Math.max(a.y, b.y), yBottom = Math.min(a.y + a.h, b.y + b.h);
+  for (const [id, box] of boxes) {
+    if (ignore.has(id)) continue;
+    if (box.x < right && box.x + box.w > left && box.y < yBottom && box.y + box.h > yTop) return true;
+  }
+  return false;
+}
+
 export function routeUnions({ project, boxes, visible, unionPositions }: RoutingInput): UnionGeometry[] {
   const out: UnionGeometry[] = [];
   const links = Object.values(project.childLinks);
+  const idOf = new Map<Box, string>();
+  for (const [id, b] of boxes) idOf.set(b, id);
+  const pendingBuses: { index: number; cx: number; startY: number; ybus: number; kids: { l: ChildLink; b: Box }[] }[] = [];
   for (const u of Object.values(project.unions)) {
     const partners = u.partnerIds.filter((id) => visible.has(id) && boxes.has(id)).map((id) => boxes.get(id)!);
     const children = links.filter((l) => l.unionId === u.id && visible.has(l.childId) && boxes.has(l.childId));
@@ -91,20 +106,31 @@ export function routeUnions({ project, boxes, visible, unionPositions }: Routing
       const ya = a.y + a.h / 2, yb = b.y + b.h / 2;
       const x1 = a.x + a.w, x2 = b.x;
       const overlapping = x2 < x1;
-      const ym = (ya + yb) / 2;
-      const xm = overlapping ? Math.max(a.x + a.w, b.x + b.w) + 24 : (x1 + x2) / 2;
-      cx = xm;
-      cy = Math.abs(ya - yb) < 0.5 ? ya : ym;
-      const d = overlapping
-        ? `M${r(x1)} ${r(ya)} H${r(xm)} V${r(yb)} H${r(b.x + b.w)}`
-        : orthogonalH(x1, ya, x2, yb, ym);
       const style = partnerStyle(u);
-      partnerLine = { unionId: u.id, d, style, strike: style === 'divorced' ? { x: cx, y: cy } : null };
+      const ignore = new Set(partners.map((p) => idOf.get(p)!));
+      if (!overlapping && cardBetween(a, b, boxes, ignore)) {
+        // Partners apart on the row with cards between them: the line goes over the top so it
+        // never runs through a card; the children hang from the first partner.
+        const top = Math.min(a.y, b.y) - 18;
+        const xa = a.x + a.w / 2, xb = b.x + b.w / 2;
+        cx = xa;
+        cy = a.y + a.h;
+        const d = `M${r(xa)} ${r(a.y)} V${r(top)} H${r(xb)} V${r(b.y)}`;
+        partnerLine = { unionId: u.id, d, style, strike: style === 'divorced' ? { x: (xa + xb) / 2, y: top } : null };
+      } else {
+        const ym = (ya + yb) / 2;
+        const xm = overlapping ? Math.max(a.x + a.w, b.x + b.w) + 24 : (x1 + x2) / 2;
+        cx = xm;
+        cy = Math.abs(ya - yb) < 0.5 ? ya : ym;
+        const d = overlapping ? `M${r(x1)} ${r(ya)} H${r(xm)} V${r(yb)} H${r(b.x + b.w)}` : orthogonalH(x1, ya, x2, yb, ym);
+        partnerLine = { unionId: u.id, d, style, strike: style === 'divorced' ? { x: cx, y: cy } : null };
+      }
     } else if (partners.length === 1) {
+      // A single parent: the children hang straight from the bottom of the card, no stub, no marker.
       const a = partners[0]!;
       cx = a.x + a.w / 2;
-      cy = a.y + a.h + 24;
-      partnerLine = { unionId: u.id, d: `M${r(cx)} ${r(a.y + a.h)} V${r(cy)}`, style: 'plain', strike: null };
+      cy = a.y + a.h;
+      partnerLine = null;
     } else {
       // Parents unknown: box above the children (or at the stored union position).
       const pos = unionPositions?.get(u.id) ?? u.position;
@@ -123,16 +149,32 @@ export function routeUnions({ project, boxes, visible, unionPositions }: Routing
     if (children.length) {
       const kids = children.map((l) => ({ l, b: boxes.get(l.childId)! }));
       const topOfKids = Math.min(...kids.map((k) => k.b.y));
-      const startY = unknownParents ? cy + unknownParentsBox.h / 2 : cy + junctionSize / 2;
+      const startY = unknownParents ? cy + unknownParentsBox.h / 2 : partners.length >= 2 && partnerLine ? cy + junctionSize / 2 : cy;
       // The bus sits halfway between the junction and the highest child, but never above the junction.
       const ybus = topOfKids > startY ? (startY + topOfKids) / 2 : startY + 20;
-      for (const { l, b } of kids) {
-        const x2 = b.x + b.w / 2;
-        const y2 = b.y > ybus ? b.y : b.y + b.h; // child above the bus: connect to its bottom edge
-        childLines.push({ linkId: l.id, childId: l.childId, d: orthogonalV(cx, startY, x2, y2, ybus), style: childStyle(l) });
-      }
+      pendingBuses.push({ index: out.length, cx, startY, ybus, kids });
+      for (const { l } of kids) childLines.push({ linkId: l.id, childId: l.childId, d: '', style: childStyle(l) });
     }
     out.push({ unionId: u.id, cx, cy, unknownParents, partnerLine, childLines });
+  }
+  // Bus lanes: buses in the same gap whose spans overlap get their own lane, so two families'
+  // lines never lie on top of each other. Lanes alternate below and above the middle.
+  const lanes = [0, 10, -10, 20, -20, 30, -30];
+  const placed: { y: number; left: number; right: number; lane: number }[] = [];
+  pendingBuses.sort((a, b) => Math.min(a.cx, ...a.kids.map((k) => k.b.x)) - Math.min(b.cx, ...b.kids.map((k) => k.b.x)));
+  for (const p of pendingBuses) {
+    const left = Math.min(p.cx, ...p.kids.map((k) => k.b.x + k.b.w / 2)), right = Math.max(p.cx, ...p.kids.map((k) => k.b.x + k.b.w / 2));
+    const same = placed.filter((q) => Math.abs(q.y - p.ybus) < 1 && q.left < right && left < q.right);
+    let lane = 0;
+    while (same.some((q) => q.lane === lane) && lane < lanes.length - 1) lane++;
+    placed.push({ y: p.ybus, left, right, lane });
+    const y = p.ybus + lanes[lane]!;
+    const g = out[p.index]!;
+    p.kids.forEach(({ b }, i) => {
+      const x2 = b.x + b.w / 2;
+      const y2 = b.y > y ? b.y : b.y + b.h; // child above the bus: connect to its bottom edge
+      g.childLines[i]!.d = orthogonalV(p.cx, p.startY, x2, y2, y);
+    });
   }
   return out;
 }

@@ -248,3 +248,13 @@
 .family-child { display: inline-flex; align-items: center; gap: var(--sp-1); }
 .family-actions { display: inline-flex; flex-wrap: wrap; gap: var(--sp-1); margin-left: auto; }
 .btn-sm { min-height: 36px; padding: 0 var(--sp-2); font-size: var(--fs-sm); }
+
+/* Status row */
+.status-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); min-height: 0; padding: var(--sp-1) var(--sp-3); border-radius: var(--r-control); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.status-row.status-empty { padding: 0; }
+.status-row.status-info { background: var(--line-bg); border-left: 3px solid var(--line); }
+.status-row.status-warn { background: var(--warn-bg); border-left: 3px solid var(--warn); }
+.status-row.status-danger { background: var(--danger-bg); border-left: 3px solid var(--danger); }
+.status-text { flex: 1 1 200px; }
+.status-log { margin-top: var(--sp-2); padding: var(--sp-3); display: grid; gap: var(--sp-2); }
+.status-log ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); font-size: var(--fs-sm); line-height: var(--lh-sm); }

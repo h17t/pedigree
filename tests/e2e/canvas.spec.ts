@@ -66,7 +66,7 @@ test('selecting a card shows the details; search jumps to a person; filter hides
 test('keyboard: Enter on a focused card selects it, Escape clears', async ({ page }) => {
   await openTree(page);
   await page.getByLabel('Type a name to jump to a person').fill('anna weber');
-  await page.getByRole('button', { name: /Anna Weber, 1884/ }).first().click();
+  await page.getByRole('button', { name: /Anna Weber.*1884/ }).first().click();
   await page.waitForTimeout(200);
   const card = page.locator('.person-card[data-person-id]').filter({ hasText: 'Anna Weber' }).first();
   await page.getByRole('group', { name: /Family tree canvas/ }).focus();

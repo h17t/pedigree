@@ -11,7 +11,7 @@ import { fitToSheet, smallestTextAt, isLegible, LEGIBILITY_PT, DRAWING_PAD } fro
 import { tile, MAX_SHEETS } from '@/print/tiling';
 import { pngSize, PNG_DPIS, svgToPngBlob } from '@/print/png';
 import type { PngDpi } from '@/print/png';
-import { treeContent, timelineContent, statisticsContent, headerMarkup, legendMarkup, svgDocument, fontsFor, HEADER_H, LEGEND_H, CARD_FONT_WEIGHTS } from '@/print/svgDocument';
+import { treeContent, timelineContent, statisticsContent, headerMarkup, legendMarkup, legendHeight, svgDocument, fontsFor, HEADER_H, CARD_FONT_WEIGHTS } from '@/print/svgDocument';
 import type { LegendLine } from '@/print/svgDocument';
 import { BASE_PATH } from '@/basePath';
 import { color, card } from '@/design/tokens';
@@ -90,8 +90,8 @@ export function PrintDialog() {
 
   const sheet = sheetFor(paper, orientation, margin);
   const headerPx = title || subtitle || withDate ? HEADER_H : 0;
-  const legendPx = withLegend && content === 'tree' ? LEGEND_H : 0;
   const areaPx = { w: mmToPx(sheet.areaW), h: mmToPx(sheet.areaH) };
+  const legendPx = withLegend && content === 'tree' ? legendHeight(legendLines, areaPx.w) : 0;
   const sheetPx = { w: mmToPx(sheet.width), h: mmToPx(sheet.height) };
   const marginPx = mmToPx(sheet.margin);
   const effectiveMode = content === 'tree' ? mode : 'fit';

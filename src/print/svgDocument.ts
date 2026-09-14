@@ -102,19 +102,39 @@ export function headerMarkup(h: Header, w: number): string {
 }
 
 /** Legend as SVG markup: line samples and text, wrapped into columns. */
+/** Height of the legend block for a given width (items flow into rows, never overlapping). */
+export function legendHeight(lines: LegendLine[], w: number): number {
+  return legendLayout(lines, w).rows * 22 + 12;
+}
+
+function legendLayout(lines: LegendLine[], w: number): { items: { x: number; y: number }[]; rows: number } {
+  const items: { x: number; y: number }[] = [];
+  let x = 0, row = 0;
+  const gap = 28;
+  for (const l of lines) {
+    const width = (l.kind === 'text' ? 0 : 48) + l.text.length * 6.6;
+    if (x > 0 && x + width > w) {
+      x = 0;
+      row++;
+    }
+    items.push({ x, y: row * 22 + 14 });
+    x += width + gap;
+  }
+  return { items, rows: row + 1 };
+}
+
 export function legendMarkup(lines: LegendLine[], w: number): string {
-  const colW = Math.max(200, w / Math.min(4, Math.max(1, Math.ceil(lines.length / 2))));
-  const cols = Math.max(1, Math.floor(w / colW));
+  const { items } = legendLayout(lines, w);
   const parts: string[] = [];
   lines.forEach((l, i) => {
-    const cx = (i % cols) * colW, cy = Math.floor(i / cols) * 22 + 14;
+    const cx = items[i]!.x, cy = items[i]!.y;
     let sample = '';
     switch (l.kind) {
       case 'marriage':
         sample = `<line x1="${cx}" x2="${cx + 40}" y1="${cy}" y2="${cy}" stroke="${color.ink}" stroke-width="8"/><line x1="${cx}" x2="${cx + 40}" y1="${cy}" y2="${cy}" stroke="${color.paper}" stroke-width="4"/>`;
         break;
       case 'divorced':
-        sample = `<line x1="${cx}" x2="${cx + 40}" y1="${cy}" y2="${cy}" stroke="${color.ink}" stroke-width="8"/><line x1="${cx}" x2="${cx + 40}" y1="${cy}" y2="${cy}" stroke="${color.paper}" stroke-width="4"/><line x1="${cx + 14}" x2="${cx + 26}" y1="${cy + 8}" y2="${cy - 8}" stroke="${color.ink}" stroke-width="2.5"/>`;
+        sample = `<line x1="${cx}" x2="${cx + 40}" y1="${cy}" y2="${cy}" stroke="${color.ink}" stroke-width="8"/><line x1="${cx}" x2="${cx + 40}" y1="${cy}" y2="${cy}" stroke="${color.paper}" stroke-width="4"/><path d="M${cx + 12} ${cy + 9} l7 -18 M${cx + 22} ${cy + 9} l7 -18" stroke="${color.ink}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
         break;
       case 'dashed':
       case 'adopted':

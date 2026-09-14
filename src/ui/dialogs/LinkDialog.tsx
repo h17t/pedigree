@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useT } from '@/i18n';
 import type { TKey } from '@/i18n';
 import type { RelationType, UnionStatus } from '@/model/types';
-import { personName } from '@/model/types';
+import { displayName } from '@/model/types';
 import { transact, updateUi, useAppStore } from '@/store/store';
 import { canLinkChild, canLinkParent, canLinkPartner, linkChild, linkParent, linkPartners, makeSiblings, unionsOf, parentUnionsOf } from '@/model/edits';
 import type { LinkProblem } from '@/model/edits';
@@ -32,7 +32,7 @@ export function LinkDialog({ personId, role, unionId: presetUnion }: { personId:
   if (!person) return null;
   const name = (id: string) => {
     const p = project.persons[id];
-    return p ? personName(p) || t('person.unnamed') : t('common.unknown');
+    return p ? displayName(p, t('person.née')) || t('person.unnamed') : t('common.unknown');
   };
   const matches = query.trim() ? searchPersons(project, query).slice(0, 8) : [];
 

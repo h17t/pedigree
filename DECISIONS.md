@@ -234,3 +234,15 @@ Status column: **brief** = given in the brief, **proposed** = mine and awaiting 
 | 148 | The pedigree chart is a dedicated left-to-right layout with orthogonal child→parent lines and no partnership junctions; the descendant chart reuses the generational engine on the descendant sub-graph with partners. | A pedigree reads by columns and has no need for junctions; a descendant chart is the main canvas restricted to one family line. | decided |
 | 149 | A repeated ancestor (cousin marriage) is drawn once in the pedigree; the second branch ends there. | Positions are keyed by person; duplicating cards would double every ancestor above the repeat. | decided |
 | 150 | The family sheet is plain HTML with inline CSS and no scripts, rendered from the same builder in the app's dialog, the print root and the saved file. | One report, three outputs, identical content; a saved file must open anywhere and carry nothing executable. | decided |
+
+## Third round of use (2026-09-14)
+
+| # | Decision | Rationale | Status |
+|---|---|---|---|
+| 151 | Names everywhere are "Given Surname (née Birthname)", localised ("geb." in German); the birth name is no longer a separate card line. | The user expects the maiden name with the name; a separate line was easy to miss. | decided |
+| 152 | No junction markers on partnerships; the divorce mark stays; a single parent's children hang straight from the card. | The squares looked like data; the legend never explained them. | decided |
+| 153 | Ranks are compacted downwards after longest-path ranking: everyone sits as low as their children allow, partners equalised, children kept below parents. | Parents belong directly above their children; the previous top-down ranks put a partner's parents next to the other side's grandparents. | decided |
+| 154 | Layout order is fully deterministic: members, siblings and roots by birth date, then surname and given names, then id; partners by marriage date, then partner names. | The same tree must arrange the same way after any import or edit order. | decided |
+| 155 | The final placement pass centres each sibling run under its parents' junction and widens the rows above (shifting parents and everything to their right) rather than pushing the run sideways. | Straight drops and buses that never cross cards; a complicated family becomes wider, which the user accepts. Crossings remain only where a family graph is not a tree (e.g. a partner from another drawn family); those buses get their own lane and a halo. | decided |
+| 156 | Status messages: one row, newest message, plain messages fade after six seconds, warnings and errors stay, a log keeps the last thirty. | Stacked persistent notices hid the canvas. | decided |
+| 157 | The print legend flows items into rows measured from the text length and returns its height. | Fixed columns overlapped long German labels. | decided |
