@@ -181,6 +181,33 @@ export function PrintDialog() {
       setBusy(false);
     }
   };
+  const onPdf = async () => {
+    if (!drawing) return;
+    setBusy(true);
+    try {
+      // One page per sheet, drawn from the very SVG the SVG export writes; the fonts are
+      // embedded by the PDF writer, so the sheets are built without the CSS copies.
+      const { exportPdf, CjkNotSupported } = await import('@/print/pdf');
+      const sheets = Array.from({ length: sheetTotal }, (_, i) => ({ svg: buildSheet(i + 1, ''), widthMm: sheet.width, heightMm: sheet.height }));
+      const text = (drawing.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join('');
+      try {
+        const bytes = await exportPdf(
+          { sheets, text, weights: CARD_FONT_WEIGHTS, base: BASE_PATH, title: title || (project?.name ?? 'Pedigree'), creator: 'Pedigree' },
+          async (file) => (await fetch(`${BASE_PATH}${file}`)).arrayBuffer(),
+          (svg) => new DOMParser().parseFromString(svg, 'image/svg+xml'),
+        );
+        download(new Blob([bytes as BlobPart], { type: 'application/pdf' }), `${fileBase()}.pdf`);
+      } catch (e) {
+        // East Asian fonts are far too large to embed; the browser's own print route has them.
+        if (e instanceof CjkNotSupported) announce(t('print.pdfCjk'), 'warn');
+        else throw e;
+      }
+    } catch {
+      announce(t('print.saveFailed'), 'danger');
+    } finally {
+      setBusy(false);
+    }
+  };
   const png = pngSize(sheet.width, sheet.height, dpi);
   const onPng = async () => {
     if (!png.allowed) return;
@@ -439,7 +466,12 @@ export function PrintDialog() {
                       </button>
                     </div>
                     <p className="hint">{t('print.printHint', { orientation: t(`print.${orientation}` as TKey) })}</p>
-                    <p className="hint">{t('print.pdfHint')}</p>
+                    <div className="btn-row">
+                      <button type="button" className="btn" onClick={() => void onPdf()} disabled={busy}>
+                        {t('print.savePdf')}
+                      </button>
+                    </div>
+                    <p className="hint">{t('print.savePdfHint', { count: sheetTotal })}</p>
                     <div className="btn-row">
                       <button type="button" className="btn" onClick={() => void onSvg()} disabled={busy}>
                         {t('print.saveSvg')}

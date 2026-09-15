@@ -357,6 +357,14 @@ Card appearance (2026-09-15): Layout → Cards holds the tint by sex and the thr
 prints in colour and is left out in black and white; a unit test checks the contrast of ink and
 slate on every tint in both palettes.
 
+PDF export (2026-09-15): "Save a PDF" in the print dialog writes one page per sheet, vector, with
+the fonts embedded and the text searchable. The pieces are `src/print/pdf/`: `woff.ts` (WOFF back
+to TrueType), `sfnt.ts` (the cmap / hmtx / head tables a PDF asks for), `writer.ts` (objects,
+Flate-compressed streams, Type0 fonts, tiling patterns, the cross-reference table) and `svg.ts`
+(the SVG subset the sheets use, as PDF operators). The code is a lazy chunk of about 19 KB, so the
+initial payload is unchanged, and the .woff copies of the font chunks are precached so a PDF can
+be saved offline.
+
 ## Pending items that need the user
 
 - [x] Technical plan approved (repository name / base path, font subsetting approach)

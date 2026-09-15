@@ -21,7 +21,7 @@ test('print dialog: preview, legibility warning, tiling and sheet count, accessi
   await expect(dialog.getByText(/At this size the smallest text/)).toBeVisible();
   const items = dialog.locator('.notice-warn ol li');
   await expect(items.first()).toHaveText('Spread the tree across several sheets');
-  await expect(items.nth(1)).toHaveText('Save an SVG file and have it printed larger at a print shop');
+  await expect(items.nth(1)).toHaveText('Save a PDF or an SVG file and have it printed larger at a print shop');
   await page.waitForTimeout(200);
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']).analyze();
   expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
@@ -74,4 +74,24 @@ test('timeline and statistics can be printed as sheets', async ({ page }) => {
   await expect(dialog.locator('.print-sheet > svg')).toBeVisible();
   await dialog.getByLabel('Timeline').check();
   await expect(dialog.locator('.print-sheet svg text', { hasText: 'Karl Weber' }).first()).toBeAttached();
+});
+
+test('saves a PDF with one page per sheet, real text and the fonts inside it', async ({ page }) => {
+  await openPrint(page);
+  const dialog = page.getByRole('dialog', { name: 'Print and export' });
+  const download = page.waitForEvent('download');
+  await dialog.getByRole('button', { name: 'Save a PDF' }).click();
+  const d = await download;
+  expect(d.suggestedFilename()).toMatch(/^family-tree-Sample-family-Weber-and-Koch-\d{4}-\d{2}-\d{2}\.pdf$/);
+  const bytes = (await import('node:fs')).readFileSync(await d.path());
+  const text = bytes.toString('latin1');
+  expect(text.startsWith('%PDF-1.7')).toBe(true);
+  expect(text.endsWith('%%EOF\n')).toBe(true);
+  expect(text.match(/\/Type \/Page\b/g)).toHaveLength(1);
+  // A4 landscape in points, the fonts embedded, and the text kept as text.
+  expect(text).toContain('/MediaBox [0 0 841.89 595.28]');
+  expect(text).toContain('/FontFile2');
+  expect(text).toContain('/Encoding /Identity-H');
+  expect(text).toContain('/ToUnicode');
+  expect(bytes.length).toBeGreaterThan(20_000);
 });

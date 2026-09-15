@@ -23,7 +23,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       injectRegister: null,
-      includeAssets: ['favicon.svg', 'fonts/*.woff2', 'icons/*.png'],
+      includeAssets: ['favicon.svg', 'fonts/*.woff2', 'fonts/*.woff', 'icons/*.png'],
       manifest: {
         id: base,
         name: 'Pedigree',
@@ -42,7 +42,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest,txt}'],
+        // The .woff copies are what the PDF export embeds (a PDF cannot read WOFF2); they are
+        // precached so saving a PDF works offline like everything else.
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2,woff,webmanifest,txt}'],
         navigateFallback: `${base}index.html`,
         cleanupOutdatedCaches: true,
         clientsClaim: false,

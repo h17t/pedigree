@@ -79,8 +79,13 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   every figure says how many people it is based on.
 - **Print & export** (in the Tree, Timeline and Statistics views) opens a dialog with paper size,
   orientation, margins, "fit on one page" or "spread across several sheets", detail level, title
-  and legend, a to-scale preview, and buttons to print, to save an SVG file (fonts embedded) or a
-  PNG image. See "Printing large trees" below.
+  and legend, a to-scale preview, and buttons to print, to save a **PDF** (one page per sheet,
+  drawn as lines and text with the fonts inside it, so it stays sharp at any size and the names
+  can be searched and copied), an SVG file (fonts embedded) or a PNG image. All four come from
+  the same drawing, so the preview, the paper and the files agree. A tree written in Japanese,
+  Chinese or Korean is the one exception to the PDF: those fonts are larger than the tree itself,
+  so the dialog points at the browser's own "Save as PDF" instead, which has them already.
+  See "Printing large trees" below.
 - **Data → Settings** holds the language (English, German, French, Spanish, Italian, Portuguese,
   Dutch, Polish, Russian, Turkish, Japanese, Chinese and Korean, each complete; the browser
   language is the default; Japanese, Chinese and Korean fonts load only when needed), the
