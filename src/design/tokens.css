@@ -120,6 +120,9 @@
   --warn-bg-strong: #ffe8b3;
   --danger: #a3212b;
   --danger-bg: #fbe9ea;
+  --tint-male: #e8f1fa;
+  --tint-female: #fbedf1;
+  --tint-diverse: #f1edfa;
   --backdrop: rgba(27, 39, 51, 0.45);
   --shadow-sheet: 0 -2px 12px rgba(27, 39, 51, 0.18);
   --shadow-menu: 0 4px 16px rgba(27, 39, 51, 0.18);
@@ -161,6 +164,9 @@
   --warn-bg-strong: #4d3c14;
   --danger: #ff8c96;
   --danger-bg: #3f1f24;
+  --tint-male: #233549;
+  --tint-female: #3d2a33;
+  --tint-diverse: #2e2a45;
   --backdrop: rgba(0, 0, 0, 0.6);
   --shadow-sheet: 0 -2px 12px rgba(0, 0, 0, 0.5);
   --shadow-menu: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -185,6 +191,9 @@
     --warn-bg-strong: #4d3c14;
     --danger: #ff8c96;
     --danger-bg: #3f1f24;
+    --tint-male: #233549;
+    --tint-female: #3d2a33;
+    --tint-diverse: #2e2a45;
     --backdrop: rgba(0, 0, 0, 0.6);
     --shadow-sheet: 0 -2px 12px rgba(0, 0, 0, 0.5);
     --shadow-menu: 0 4px 16px rgba(0, 0, 0, 0.5);

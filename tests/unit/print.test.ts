@@ -4,6 +4,9 @@ import { fitToSheet, isLegible, smallestTextAt, LEGIBILITY_PT } from '@/print/sc
 import { tile, sheetCount, MAX_SHEETS } from '@/print/tiling';
 import { pngSize, PNG_MAX_EDGE } from '@/print/png';
 import { chunksFor, fontFaceCss, fontFaceCssWithSize, toBase64 } from '@/print/fonts';
+import { treeContent } from '@/print/svgDocument';
+import { color } from '@/design/tokens';
+import { build } from './fixtures';
 
 describe('paper', () => {
   it('knows ISO sizes, orientation and margins', () => {
@@ -94,5 +97,31 @@ describe('font chunks', () => {
     const { bytes, css } = await fontFaceCssWithSize(chunksFor('abc', [400]), () => Promise.resolve(new Uint8Array(3000).buffer));
     expect(bytes).toBe(4000);
     expect(css.length).toBeGreaterThan(bytes);
+  });
+});
+
+describe('cards in the print output', () => {
+  const sheet = (blackAndWhite: boolean, sexTint = true) => {
+    const b = build();
+    b.person('P', { sex: 'female' });
+    const project = { ...b.project, settings: { ...b.project.settings, cards: { sexTint, places: true, occupation: true, groupName: true } } };
+    const positions = new Map(Object.keys(project.persons).map((id) => [id, { x: 0, y: 0 }]));
+    return treeContent({
+      project,
+      positions,
+      visible: new Set(Object.keys(project.persons)),
+      level: 'standard',
+      locale: 'en',
+      labels: { née: 'née', living: 'living', unknownDate: '', warning: 'warning', private: 'private', unknownParents: 'unknown' },
+      header: null,
+      legend: null,
+      blackAndWhite,
+    }).markup;
+  };
+
+  it('prints the sex tint in colour and leaves it out in black and white', () => {
+    expect(sheet(false)).toContain(color.tintFemale);
+    expect(sheet(true)).not.toContain(color.tintFemale);
+    expect(sheet(false, false)).not.toContain(color.tintFemale);
   });
 });

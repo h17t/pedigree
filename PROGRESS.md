@@ -352,6 +352,11 @@ Layout → Spacing — across for the room between cards of one generation, down
 the generations. Trees saved before the split keep their look: the one stored value is used for
 both axes until either is changed.
 
+Card appearance (2026-09-15): Layout → Cards holds the tint by sex and the three field toggles
+(places, occupation, group name). The tint is drawn from palette tokens, so it follows the theme,
+prints in colour and is left out in black and white; a unit test checks the contrast of ink and
+slate on every tint in both palettes.
+
 ## Pending items that need the user
 
 - [x] Technical plan approved (repository name / base path, font subsetting approach)

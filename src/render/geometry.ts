@@ -4,7 +4,8 @@
  */
 import { card } from '@/design/tokens';
 import type { CardVariant } from '@/design/tokens';
-import type { Person, Union } from '@/model/types';
+import type { CardAppearance, Person, Union } from '@/model/types';
+import { defaultCardAppearance } from '@/model/types';
 import { displayName, effectiveLifeStatus } from '@/model/types';
 import { formatDateWithQualifier, formatYearWithQualifier } from '@/model/dates';
 import type { Locale } from '@/i18n';
@@ -58,8 +59,11 @@ function years(p: Person, locale: Locale): string {
   return [b, d].filter(Boolean).join(' – ');
 }
 
-/** Builds the text content of a card at a detail level. Never changes the card height. */
-export function cardText(p: Person, level: DetailLevel, locale: Locale, print = false, labels?: { née: string; living: string; unknownDate: string }): CardText {
+/**
+ * Builds the text content of a card at a detail level. Never changes the card height: a line the
+ * appearance setting leaves out stays empty, so the same person always occupies the same box.
+ */
+export function cardText(p: Person, level: DetailLevel, locale: Locale, print = false, labels?: { née: string; living: string; unknownDate: string }, cards: CardAppearance = defaultCardAppearance()): CardText {
   const nameW = textWidth - card.marker - 6;
   const name = wrapText(displayName(p, labels?.née ?? 'née') || '—', nameW, card.name.maxLines, card.name.size, card.name.weight);
   const secondary: string[] = [];
@@ -75,12 +79,13 @@ export function cardText(p: Person, level: DetailLevel, locale: Locale, print = 
   if (level === 'minimal') {
     push(years(p, locale) || (labels?.unknownDate ?? ''));
   } else {
-    const birth = p.birth.date ? `* ${formatDateWithQualifier(locale, p.birth.date, p.birth.qualifier, 'short', p.birth.dateEnd)}${p.birth.place ? `, ${p.birth.place}` : ''}` : p.birth.place ? `* ${p.birth.place}` : '';
+    const place = (s: string) => (cards.places && s ? `, ${s}` : '');
+    const birth = p.birth.date ? `* ${formatDateWithQualifier(locale, p.birth.date, p.birth.qualifier, 'short', p.birth.dateEnd)}${place(p.birth.place)}` : cards.places && p.birth.place ? `* ${p.birth.place}` : '';
     // Living people carry no label: the absence of a death date is enough.
-    const death = p.death.date ? `† ${formatDateWithQualifier(locale, p.death.date, p.death.qualifier, 'short', p.death.dateEnd)}${p.death.place ? `, ${p.death.place}` : ''}` : status === 'deceased' ? '†' : '';
+    const death = p.death.date ? `† ${formatDateWithQualifier(locale, p.death.date, p.death.qualifier, 'short', p.death.dateEnd)}${place(p.death.place)}` : status === 'deceased' ? '†' : '';
     push(birth);
     push(death);
-    push(p.occupation);
+    push(cards.occupation ? p.occupation : '');
     if (level === 'full') {
       push(p.nickname ? `„${p.nickname}“` : '');
       push(p.residence);

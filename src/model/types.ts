@@ -154,6 +154,20 @@ export interface SpacingPair {
   rows: Spacing;
 }
 
+/** What a card shows and how it is coloured; the same on screen, on paper and in the exports. */
+export interface CardAppearance {
+  /** A whisper of colour behind the card, by sex (never in black and white). */
+  sexTint: boolean;
+  /** Show the place beside a birth or death date. */
+  places: boolean;
+  /** Show the occupation line. */
+  occupation: boolean;
+  /** Show the colour group's name in the top corner (the stripe stays either way). */
+  groupName: boolean;
+}
+
+export const defaultCardAppearance = (): CardAppearance => ({ sexTint: true, places: true, occupation: true, groupName: true });
+
 export interface ProjectSettings {
   /** Whether unknown GEDCOM data is kept for round-trips (it costs storage). */
   preserveRawGedcom: boolean;
@@ -163,6 +177,8 @@ export interface ProjectSettings {
   spacing: Spacing;
   /** Gap between the generations; follows `spacing` on trees saved before it existed. */
   rowSpacing: Spacing;
+  /** What the cards show and how they are coloured. */
+  cards: CardAppearance;
 }
 
 export interface Project {
@@ -265,7 +281,7 @@ export function createProject(name: string, partial: Partial<Project> = {}): Pro
     unions: {},
     childLinks: {},
     rawRecords: [],
-    settings: { preserveRawGedcom: true, generationScaling: 'off', spacing: 'normal', rowSpacing: 'normal' },
+    settings: { preserveRawGedcom: true, generationScaling: 'off', spacing: 'normal', rowSpacing: 'normal', cards: defaultCardAppearance() },
     groups: [],
     ...partial,
   };

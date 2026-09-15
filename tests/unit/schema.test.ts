@@ -50,6 +50,18 @@ describe('migrateProject', () => {
     expect(p.rawRecords).toEqual([]);
     expect(p.settings.preserveRawGedcom).toBe(true);
   });
+
+  it('a tree saved before the settings existed keeps its look: one spacing for both axes, cards at their defaults', () => {
+    const p = normalizeProject({ schemaVersion: 2, id: 'a', name: 'n', persons: {}, unions: {}, settings: { spacing: 'wide' } });
+    expect(p.settings.spacing).toBe('wide');
+    expect(p.settings.rowSpacing).toBe('wide');
+    expect(p.settings.cards).toEqual({ sexTint: true, places: true, occupation: true, groupName: true });
+  });
+
+  it('keeps the card settings a file does state and replaces the ones it does not', () => {
+    const p = normalizeProject({ schemaVersion: 2, id: 'a', name: 'n', persons: {}, unions: {}, settings: { cards: { sexTint: false, places: 'yes' } } });
+    expect(p.settings.cards).toEqual({ sexTint: false, places: true, occupation: true, groupName: true });
+  });
 });
 
 describe('schema 1 → 2: branch tags become colour groups', () => {

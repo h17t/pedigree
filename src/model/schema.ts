@@ -4,8 +4,8 @@
  * Backing up the pre-migration payload is the persistence layer's job (it has the raw string).
  */
 import { RELATION_TYPES, SCHEMA_VERSION } from './types';
-import type { ColourGroup, EventDate, GenerationScaling, Position, Project, Spacing, Tag } from './types';
-import { createPerson, createUnion, emptyDeathDate, emptyEventDate, newId } from './types';
+import type { CardAppearance, ColourGroup, EventDate, GenerationScaling, Position, Project, Spacing, Tag } from './types';
+import { createPerson, createUnion, defaultCardAppearance, emptyDeathDate, emptyEventDate, newId } from './types';
 
 export interface MigrationResult {
   ok: true;
@@ -93,6 +93,15 @@ function scalingOf(v: unknown): GenerationScaling {
   return v === 'gentle' || v === 'strong' ? v : 'off';
 }
 
+/** Card appearance of a stored tree; anything missing or of the wrong type takes the default. */
+function cardsOf(v: unknown): CardAppearance {
+  const d = defaultCardAppearance();
+  if (!v || typeof v !== 'object') return d;
+  const raw = v as Record<string, unknown>;
+  const flag = (k: keyof CardAppearance) => (typeof raw[k] === 'boolean' ? raw[k] : d[k]);
+  return { sexTint: flag('sexTint'), places: flag('places'), occupation: flag('occupation'), groupName: flag('groupName') };
+}
+
 /** Keys that would change an object's prototype instead of adding an entry. */
 const UNSAFE_KEY = new Set(['__proto__', 'constructor', 'prototype']);
 
@@ -176,7 +185,7 @@ export function normalizeProject(data: Record<string, unknown>): Project {
     unions,
     childLinks,
     rawRecords: Array.isArray(p.rawRecords) ? p.rawRecords : [],
-    settings: { preserveRawGedcom: p.settings?.preserveRawGedcom ?? true, generationScaling: scalingOf(p.settings?.generationScaling), spacing: spacingOf(p.settings?.spacing), rowSpacing: spacingOf(p.settings?.rowSpacing ?? p.settings?.spacing) },
+    settings: { preserveRawGedcom: p.settings?.preserveRawGedcom ?? true, generationScaling: scalingOf(p.settings?.generationScaling), spacing: spacingOf(p.settings?.spacing), rowSpacing: spacingOf(p.settings?.rowSpacing ?? p.settings?.spacing), cards: cardsOf(p.settings?.cards) },
     groups: Array.isArray(p.groups) ? p.groups.filter((g) => g && typeof g.id === 'string' && typeof g.name === 'string').slice(0, 8) : [],
     createdAt: typeof p.createdAt === 'number' ? p.createdAt : Date.now(),
     modifiedAt: typeof p.modifiedAt === 'number' ? p.modifiedAt : Date.now(),

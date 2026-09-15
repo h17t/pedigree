@@ -364,3 +364,34 @@ test('balance generations shrinks the crowded generations, undoes as one step, s
   await expect(page.getByText(/Smallest text on paper/)).toBeVisible();
   await page.getByRole('button', { name: 'Close', exact: true }).click();
 });
+
+test('cards: colour by sex tints the card, the field toggles take lines out, both survive a reload', async ({ page }) => {
+  await openTree(page);
+  const layout = () => page.getByRole('button', { name: 'Layout' }).click();
+  // The card of a person whose sex is recorded as female.
+  const cardRect = page.locator('.person-card', { hasText: 'Anna' }).first().locator('rect').first();
+  await layout();
+  await expect(page.getByLabel('Colour by sex')).toBeChecked();
+  const tinted = await cardRect.evaluate((el) => el.getAttribute('fill'));
+  await page.getByLabel('Colour by sex').uncheck();
+  await expect(page.getByText('Colour by sex: off.')).toBeVisible();
+  await layout();
+  const plain = await cardRect.evaluate((el) => el.getAttribute('fill'));
+  expect(tinted).not.toBe(plain);
+
+  // A field toggle takes text off the card without changing its size.
+  const box = await cardRect.boundingBox();
+  await layout();
+  await page.getByLabel('Places beside the dates').uncheck();
+  await expect(page.getByText('Places beside the dates: off.')).toBeVisible();
+  await layout();
+  const after = await cardRect.boundingBox();
+  expect(Math.round(after!.height)).toBe(Math.round(box!.height));
+  await expect(page.locator('.person-card', { hasText: 'Anna' }).first()).not.toContainText(/, [A-ZÄÖÜ]/);
+
+  await page.reload();
+  await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
+  await layout();
+  await expect(page.getByLabel('Colour by sex')).not.toBeChecked();
+  await expect(page.getByLabel('Places beside the dates')).not.toBeChecked();
+});

@@ -32,7 +32,11 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   sets the room the arrangement leaves across (between cards of one generation) and down (between
   the generations), each compact, normal or wide and each chosen on its own, so a large family
   with many siblings can be drawn narrower without also being squashed flat; children always sit
-  centred below their parents.
+  centred below their parents. **Layout → Cards** says what every card shows: a whisper of colour
+  by sex (on by default, never used in black-and-white printing, and always alongside the square /
+  circle / diamond marker so the information never rests on colour alone), the places beside the
+  dates, the occupation, and the name of the colour group. A card keeps its size whatever it
+  shows, so nothing is arranged again.
 - **List** is everyone in the tree, alphabetical by surname, with search; choose a person to see
   their details.
 - Below a person's name sits the **Family** panel: father, mother, the parents' relationship, each

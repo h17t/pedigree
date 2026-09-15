@@ -83,11 +83,13 @@ export function treeContent(o: TreeSvgOptions): { markup: string; bounds: Box; t
   const bounds: Box = Number.isFinite(minX) ? { x: minX, y: minY, w: maxX - minX, h: maxY - minY } : { x: 0, y: 0, w: 1, h: 1 };
   const labels = { née: o.labels.née, living: o.labels.living, unknownDate: o.labels.unknownDate, warning: o.labels.warning, private: o.labels.private };
   let text = '';
+  const appearance = o.project.settings.cards;
   const cards = [...boxes.entries()].map(([id, b]) => {
     const person = o.project.persons[id]!;
-    const ct = cardText(person, o.level, o.locale, true, labels);
+    // The same text the card draws, so the font subset and the size warning cover what is printed.
+    const ct = cardText(person, o.level, o.locale, true, labels, appearance);
     text += ct.nameLines.join(' ') + ct.lines.join(' ') + ct.noteLines.join(' ');
-    return createElement(PersonCard, { key: id, person, x: b.x, y: b.y, level: o.level, locale: o.locale, selected: false, hasWarning: false, print: true, blackAndWhite: o.blackAndWhite, scale: scales.get(id) ?? 1, group: person.groupId ? (o.project.groups.find((g) => g.id === person.groupId) ?? null) : null, ariaLabel: personName(person), labels });
+    return createElement(PersonCard, { key: id, person, x: b.x, y: b.y, level: o.level, locale: o.locale, selected: false, hasWarning: false, print: true, blackAndWhite: o.blackAndWhite, scale: scales.get(id) ?? 1, group: person.groupId ? (o.project.groups.find((g) => g.id === person.groupId) ?? null) : null, cards: appearance, ariaLabel: personName(person), labels });
   });
   const markup = renderToStaticMarkup(
     createElement('g', null, o.lines && o.lines.length ? createElement('g', { fill: 'none', stroke: color.ink, strokeWidth: 2 }, ...o.lines.map((l, i) => createElement('path', { key: `cl${i}`, d: l.d }))) : null, createElement(Connectors, { unions, background: color.paper }), ...unions.map((u) => createElement(UnionNode, { key: u.unionId, cx: u.cx, cy: u.cy, unknownParents: u.unknownParents, label: o.labels.unknownParents })), ...cards),

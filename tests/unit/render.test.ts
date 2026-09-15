@@ -10,7 +10,7 @@ import { createPerson } from '@/model/types';
 import { build, born, died } from './fixtures';
 import sample from '@/fixtures/sample-family.json';
 import { migrateProject } from '@/model/schema';
-import { card } from '@/design/tokens';
+import { card, color, darkColor } from '@/design/tokens';
 
 const sampleProject = (() => {
   const m = migrateProject(sample);
@@ -65,6 +65,14 @@ describe('card text and geometry', () => {
     const t = cardText(p, 'standard', 'de');
     expect(t.lines).toEqual(['* 14.03.1923, Berlin', '† 02.01.2001', 'Lehrerin']);
   });
+  it('the card appearance can leave out the places and the occupation without changing the box', () => {
+    const full = cardText(p, 'standard', 'de');
+    const bare = cardText(p, 'standard', 'de', false, undefined, { sexTint: false, places: false, occupation: false, groupName: false });
+    expect(bare.lines).toEqual(['* 14.03.1923', '† 02.01.2001', '']);
+    // Same number of lines, so the card keeps its height and nothing has to be arranged again.
+    expect(bare.lines).toHaveLength(full.lines.length);
+  });
+
   it('full adds birth name and residence; print full clamps notes to four lines', () => {
     const t = cardText(p, 'full', 'en', false, { née: 'née', living: 'living', unknownDate: '' });
     // The birth name is part of the name line now; the fourth line is the nickname slot.
@@ -265,4 +273,31 @@ describe('focus filter', () => {
     expect(sizes).toEqual([1, 2]);
     expect(visiblePersons(b.project, null).size).toBe(2);
   });
+});
+
+describe('card tints', () => {
+  // WCAG relative luminance; the same formula the design plan's contrast table uses.
+  const luminance = (hex: string) => {
+    const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * v[0]! + 0.7152 * v[1]! + 0.0722 * v[2]!;
+  };
+  const contrast = (a: string, b: string) => {
+    const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m) as [number, number];
+    return (x + 0.05) / (y + 0.05);
+  };
+
+  for (const [name, pal] of [
+    ['light', color],
+    ['dark', darkColor],
+  ] as const) {
+    it(`${name}: text keeps its contrast on every tint, and each tint is visible against the paper`, () => {
+      for (const tint of [pal.tintMale, pal.tintFemale, pal.tintDiverse]) {
+        expect(contrast(pal.ink, tint)).toBeGreaterThanOrEqual(7);
+        expect(contrast(pal.slate, tint)).toBeGreaterThanOrEqual(4.5);
+        // A whisper: enough to see, never a highlight.
+        expect(contrast(pal.paper, tint)).toBeGreaterThan(1.05);
+        expect(contrast(pal.paper, tint)).toBeLessThan(1.4);
+      }
+    });
+  }
 });

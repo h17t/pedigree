@@ -607,6 +607,7 @@ export function Canvas(props: CanvasProps) {
                 sparse={sparseAt(scales?.get(id) ?? 1)}
                 scale={scales?.get(id) ?? 1}
                 group={groupOf(person.groupId)}
+                cards={project.settings.cards}
                 locale={locale}
                 selected={id === selectedId || multiSelected.has(id)}
                 provisional={provisional.has(id)}

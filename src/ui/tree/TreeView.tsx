@@ -10,7 +10,7 @@ import { CanvasErrorBoundary } from '@/render/CanvasErrorBoundary';
 import { layoutAll, layoutSubset, placeUnpositioned, scalingOf, spacingOf } from '@/render/layout';
 import { personScales } from '@/render/layout/scale';
 import { buildChart, ANCESTOR_GENERATIONS, DESCENDANT_DEPTH } from '@/render/charts';
-import type { GenerationScaling, Spacing, SpacingPair } from '@/model/types';
+import type { CardAppearance, GenerationScaling, Spacing, SpacingPair } from '@/model/types';
 import { clusterFrames } from '@/render/layout/clusters';
 import type { ClusterFrame } from '@/render/layout/clusters';
 import { announce } from '../status';
@@ -235,6 +235,13 @@ export function TreeView() {
     });
     announce(t('layout.spacingDone', { across: t(`layout.spacingValue.${spacing.columns}` as TKey), down: t(`layout.spacingValue.${spacing.rows}` as TKey) }));
     updateUi({ viewport: null });
+  };
+  const setCards = (key: keyof CardAppearance, on: boolean) => {
+    // The card keeps its box whatever it shows, so nothing has to be arranged again.
+    transact(t('layout.cards'), (d) => {
+      d.settings.cards = { ...d.settings.cards, [key]: on };
+    });
+    announce(t(on ? 'layout.cardsOn' : 'layout.cardsOff', { what: t(`layout.cardsValue.${key}` as TKey) }));
   };
   const setBalance = (mode: GenerationScaling) => {
     // Card sizes change, so the tree is arranged again in the same undo step.
@@ -479,6 +486,16 @@ export function TreeView() {
                 <p className="hint" id="spacing-hint">
                   {t('layout.spacingHint')}
                 </p>
+              </fieldset>
+              <fieldset className="form-section">
+                <legend>{t('layout.cards')}</legend>
+                {(['sexTint', 'places', 'occupation', 'groupName'] as (keyof CardAppearance)[]).map((key) => (
+                  <div className="radio-row" key={key}>
+                    <input id={`cards-${key}`} type="checkbox" checked={project.settings.cards[key]} onChange={(e) => setCards(key, e.target.checked)} />
+                    <label htmlFor={`cards-${key}`}>{t(`layout.cardsValue.${key}` as TKey)}</label>
+                  </div>
+                ))}
+                <p className="hint">{t('layout.cardsHint')}</p>
               </fieldset>
               <div className="field">
                 <label htmlFor="balance-select">{t('layout.balance')}</label>
