@@ -15,6 +15,7 @@
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "test": "vitest run",
+    "pretest": "node scripts/copy-cjk-woff.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "budget": "node scripts/check-budget.mjs",
