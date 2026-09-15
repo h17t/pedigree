@@ -176,7 +176,7 @@ export function normalizeProject(data: Record<string, unknown>): Project {
     unions,
     childLinks,
     rawRecords: Array.isArray(p.rawRecords) ? p.rawRecords : [],
-    settings: { preserveRawGedcom: p.settings?.preserveRawGedcom ?? true, generationScaling: scalingOf(p.settings?.generationScaling), spacing: spacingOf(p.settings?.spacing) },
+    settings: { preserveRawGedcom: p.settings?.preserveRawGedcom ?? true, generationScaling: scalingOf(p.settings?.generationScaling), spacing: spacingOf(p.settings?.spacing), rowSpacing: spacingOf(p.settings?.rowSpacing ?? p.settings?.spacing) },
     groups: Array.isArray(p.groups) ? p.groups.filter((g) => g && typeof g.id === 'string' && typeof g.name === 'string').slice(0, 8) : [],
     createdAt: typeof p.createdAt === 'number' ? p.createdAt : Date.now(),
     modifiedAt: typeof p.modifiedAt === 'number' ? p.modifiedAt : Date.now(),

@@ -10,7 +10,7 @@ import { CanvasErrorBoundary } from '@/render/CanvasErrorBoundary';
 import { layoutAll, layoutSubset, placeUnpositioned, scalingOf, spacingOf } from '@/render/layout';
 import { personScales } from '@/render/layout/scale';
 import { buildChart, ANCESTOR_GENERATIONS, DESCENDANT_DEPTH } from '@/render/charts';
-import type { GenerationScaling, Spacing } from '@/model/types';
+import type { GenerationScaling, Spacing, SpacingPair } from '@/model/types';
 import { clusterFrames } from '@/render/layout/clusters';
 import type { ClusterFrame } from '@/render/layout/clusters';
 import { announce } from '../status';
@@ -222,16 +222,18 @@ export function TreeView() {
       }
     });
   };
-  const setSpacing = (spacing: Spacing) => {
+  const setSpacing = (axis: keyof SpacingPair, value: Spacing) => {
+    const spacing: SpacingPair = { ...spacingOf(project), [axis]: value };
     const next = layoutAll(project, level, scaling, spacing);
     transact(t('layout.spacing'), (d) => {
-      d.settings.spacing = spacing;
+      d.settings.spacing = spacing.columns;
+      d.settings.rowSpacing = spacing.rows;
       for (const [id, pos] of next) {
         const p = d.persons[id];
         if (p) p.position = pos;
       }
     });
-    announce(t('layout.spacingDone', { mode: t(`layout.spacingValue.${spacing}` as TKey) }));
+    announce(t('layout.spacingDone', { across: t(`layout.spacingValue.${spacing.columns}` as TKey), down: t(`layout.spacingValue.${spacing.rows}` as TKey) }));
     updateUi({ viewport: null });
   };
   const setBalance = (mode: GenerationScaling) => {
@@ -458,19 +460,26 @@ export function TreeView() {
               </div>
               <p className="hint">{t('layout.autoHint')}</p>
               {placement.provisional.size > 0 && <p className="hint">{t('layout.unplacedHint')}</p>}
-              <div className="field">
-                <label htmlFor="spacing-select">{t('layout.spacing')}</label>
-                <select id="spacing-select" className="select select-inline" value={spacingOf(project)} onChange={(e) => setSpacing(e.target.value as Spacing)} aria-describedby="spacing-hint">
-                  {(['compact', 'normal', 'wide'] as Spacing[]).map((m) => (
-                    <option key={m} value={m}>
-                      {t(`layout.spacingValue.${m}` as TKey)}
-                    </option>
+              <fieldset className="form-section">
+                <legend>{t('layout.spacing')}</legend>
+                <div className="field-row">
+                  {(['columns', 'rows'] as (keyof SpacingPair)[]).map((axis) => (
+                    <div className="field" key={axis}>
+                      <label htmlFor={`spacing-${axis}`}>{t(axis === 'columns' ? 'layout.spacingAcross' : 'layout.spacingDown')}</label>
+                      <select id={`spacing-${axis}`} className="select select-inline" value={spacingOf(project)[axis]} onChange={(e) => setSpacing(axis, e.target.value as Spacing)} aria-describedby="spacing-hint">
+                        {(['compact', 'normal', 'wide'] as Spacing[]).map((m) => (
+                          <option key={m} value={m}>
+                            {t(`layout.spacingValue.${m}` as TKey)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   ))}
-                </select>
+                </div>
                 <p className="hint" id="spacing-hint">
                   {t('layout.spacingHint')}
                 </p>
-              </div>
+              </fieldset>
               <div className="field">
                 <label htmlFor="balance-select">{t('layout.balance')}</label>
                 <select id="balance-select" className="select select-inline" value={scaling} onChange={(e) => setBalance(e.target.value as GenerationScaling)} aria-describedby="balance-hint">

@@ -6,6 +6,7 @@ import { layoutAll, layoutSubset, placeUnpositioned } from '@/render/layout';
 import { connectedComponents } from '@/model/graph';
 import { card, layout } from '@/design/tokens';
 import { cardHeight } from '@/render/geometry';
+import type { Spacing } from '@/model/types';
 import { migrateProject } from '@/model/schema';
 import sample from '@/fixtures/sample-family.json';
 import perf from '@/fixtures/perf-500.json';
@@ -176,15 +177,34 @@ describe('generation compaction and determinism', () => {
     noOverlaps(r.positions, cardHeight('standard'), 'runs');
   });
 
+  it('spaces the two axes separately: width follows the columns, height follows the rows', () => {
+    const b = build();
+    const p = b.person('P', born('1900')), s = b.person('S');
+    const kids = [1, 2, 3].map((i) => b.person(`K${i}`, born(`193${i}`)));
+    b.family([p, s], kids);
+    const ids = Object.keys(b.project.persons);
+    const at = (columns: Spacing, rows: Spacing) => layoutComponent(b.project, ids, 'standard', undefined, 'off', { columns, rows });
+    const base = at('normal', 'normal');
+    const narrow = at('compact', 'normal');
+    const tall = at('normal', 'wide');
+    // Narrower columns change the width only.
+    expect(narrow.width).toBeLessThan(base.width);
+    expect(narrow.height).toBe(base.height);
+    // A larger gap between the generations changes the height only.
+    expect(tall.height).toBeGreaterThan(base.height);
+    expect(tall.width).toBe(base.width);
+  });
+
   it('draws large families narrower with compact spacing and keeps the runs centred', () => {
     const b = build();
     const p = b.person('P', born('1900')), s = b.person('S');
     const kids = [1, 2, 3, 4, 5, 6].map((i) => b.person(`K${i}`, born(`193${i}`)));
     b.family([p, s], kids);
     const ids = Object.keys(b.project.persons);
-    const compact = layoutComponent(b.project, ids, 'standard', undefined, 'off', 'compact');
-    const normal = layoutComponent(b.project, ids, 'standard', undefined, 'off', 'normal');
-    const wide = layoutComponent(b.project, ids, 'standard', undefined, 'off', 'wide');
+    const both = (s: Spacing) => layoutComponent(b.project, ids, 'standard', undefined, 'off', { columns: s, rows: s });
+    const compact = both('compact');
+    const normal = both('normal');
+    const wide = both('wide');
     expect(compact.width).toBeLessThan(normal.width);
     expect(normal.width).toBeLessThan(wide.width);
     expect(compact.height).toBeLessThan(normal.height);

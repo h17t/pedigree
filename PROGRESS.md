@@ -347,6 +347,11 @@ deployed to GitHub Pages, `PROGRESS.md` and `DECISIONS.md` updated, status repor
 - Deployment: the workflow on `main` runs typecheck, lint, unit tests, build, budget and the Playwright suite before publishing; a red check blocks a broken deployment. CI needs Node 22 (jsdom 30 → undici 8) and the preview server bound to 127.0.0.1, both fixed after the first runs.
 - The storage capacity is measured lazily the first time the Data view opens (a short probe write); until then the meter assumes 5 MB.
 
+Spacing across and down (2026-09-15): the arrangement's two gaps are chosen separately in
+Layout → Spacing — across for the room between cards of one generation, down for the room between
+the generations. Trees saved before the split keep their look: the one stored value is used for
+both axes until either is changed.
+
 ## Pending items that need the user
 
 - [x] Technical plan approved (repository name / base path, font subsetting approach)

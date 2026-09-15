@@ -16,7 +16,7 @@
  *
  * Works on one connected component. Cycle-safe (uses the cycle-broken adjacency).
  */
-import type { GenerationScaling, Position, Project, Spacing } from '@/model/types';
+import type { GenerationScaling, Position, Project, SpacingPair } from '@/model/types';
 import { card, spacingGaps } from '@/design/tokens';
 import { breakCycles, buildAdjacency } from '@/model/graph';
 import type { Adjacency } from '@/model/graph';
@@ -140,8 +140,9 @@ interface Subtree {
   contour: Map<number, { l: number; r: number }>;
 }
 
-export function layoutComponent(project: Project, membersIn: string[], level: DetailLevel, adjIn?: Adjacency, mode: GenerationScaling = 'off', spacing: Spacing = 'normal'): LayoutResult {
-  const gaps = spacingGaps[spacing];
+export function layoutComponent(project: Project, membersIn: string[], level: DetailLevel, adjIn?: Adjacency, mode: GenerationScaling = 'off', spacing: SpacingPair = { columns: 'normal', rows: 'normal' }): LayoutResult {
+  // The two axes are chosen separately: a tree can be narrow and tall, or wide and flat.
+  const gaps = { columnGap: spacingGaps[spacing.columns].columnGap, generationGap: spacingGaps[spacing.rows].generationGap };
   const COL = card.width + gaps.columnGap;
   /** Extra gap between unrelated blocks on a row, so families read as groups. */
   const BLOCK_GAP = gaps.columnGap;

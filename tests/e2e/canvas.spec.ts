@@ -263,44 +263,59 @@ test('layout panel: arrange the whole tree stores positions, families can be sho
   await expect(page.locator('.person-card rect[stroke-dasharray="4 3"]')).toHaveCount(48);
 });
 
-test('spacing makes the tree narrower or wider, undoes as one step and is stored with the tree', async ({ page }) => {
+test('spacing sets the two axes separately, undoes as one step and is stored with the tree', async ({ page }) => {
   await openTree(page);
-  // Width of the drawing measured in card widths, so the zoom level does not matter.
-  const widthInCards = async () => {
+  // The drawing measured in card widths / heights, so the zoom level does not matter.
+  const sizeInCards = async () => {
     await page.waitForTimeout(200);
     const cards = page.locator('.person-card');
     const n = await cards.count();
-    let min = Infinity, max = -Infinity, cardW = 0;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, cardW = 0, cardH = 0;
     for (let i = 0; i < n; i++) {
       const box = await cards.nth(i).locator('rect').first().boundingBox();
       if (!box) continue;
-      min = Math.min(min, box.x);
-      max = Math.max(max, box.x + box.width);
+      minX = Math.min(minX, box.x);
+      maxX = Math.max(maxX, box.x + box.width);
+      minY = Math.min(minY, box.y);
+      maxY = Math.max(maxY, box.y + box.height);
       cardW = Math.max(cardW, box.width);
+      cardH = Math.max(cardH, box.height);
     }
-    return (max - min) / cardW;
+    return { w: (maxX - minX) / cardW, h: (maxY - minY) / cardH };
   };
-  await page.getByRole('button', { name: 'Layout' }).click();
-  await expect(page.getByLabel('Spacing')).toHaveValue('normal');
-  await page.getByLabel('Spacing').selectOption('compact');
-  await expect(page.getByText(/Spacing: Compact\. The tree was arranged\./)).toBeVisible();
-  await page.getByRole('button', { name: 'Layout' }).click();
-  const compact = await widthInCards();
-  await page.getByRole('button', { name: 'Layout' }).click();
-  await page.getByLabel('Spacing').selectOption('wide');
-  await expect(page.getByText(/Spacing: Wide/)).toBeVisible();
-  await page.getByRole('button', { name: 'Layout' }).click();
-  const wide = await widthInCards();
-  expect(compact).toBeLessThan(wide * 0.9);
+  const layout = () => page.getByRole('button', { name: 'Layout' }).click();
+  await layout();
+  await expect(page.getByLabel('Across')).toHaveValue('normal');
+  await expect(page.getByLabel('Down')).toHaveValue('normal');
+  await page.getByLabel('Across').selectOption('compact');
+  await expect(page.getByText(/Spacing: Compact across, Normal down\. The tree was arranged\./)).toBeVisible();
+  await layout();
+  const compact = await sizeInCards();
+  await layout();
+  await page.getByLabel('Across').selectOption('wide');
+  await expect(page.getByText(/Spacing: Wide across/)).toBeVisible();
+  await layout();
+  const wide = await sizeInCards();
+  expect(compact.w).toBeLessThan(wide.w * 0.9);
+  // The height did not follow the width: that is the other control.
+  expect(Math.abs(compact.h - wide.h)).toBeLessThan(0.2);
+  await layout();
+  await page.getByLabel('Down').selectOption('wide');
+  await expect(page.getByText(/Wide across, Wide down/)).toBeVisible();
+  await layout();
+  const taller = await sizeInCards();
+  expect(taller.h).toBeGreaterThan(wide.h * 1.05);
   // One undo step per change.
   await page.getByRole('button', { name: 'Undo' }).click();
-  await page.getByRole('button', { name: 'Layout' }).click();
-  await expect(page.getByLabel('Spacing')).toHaveValue('compact');
-  await page.getByRole('button', { name: 'Layout' }).click();
+  await layout();
+  await expect(page.getByLabel('Down')).toHaveValue('normal');
+  await expect(page.getByLabel('Across')).toHaveValue('wide');
+  await layout();
   await page.reload();
   await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
-  await page.getByRole('button', { name: 'Layout' }).click();
-  await expect(page.getByLabel('Spacing')).toHaveValue('compact');
+  await layout();
+  await expect(page.getByLabel('Across')).toHaveValue('wide');
+  await expect(page.getByLabel('Down')).toHaveValue('normal');
 });
 
 test('balance generations shrinks the crowded generations, undoes as one step, survives a reload and prints', async ({ page }) => {

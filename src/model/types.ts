@@ -146,14 +146,23 @@ export interface ChildLink {
 export type GenerationScaling = 'off' | 'gentle' | 'strong';
 /** Gap between cards and between generations. */
 export type Spacing = 'compact' | 'normal' | 'wide';
+/** The two axes of the arrangement, chosen independently. */
+export interface SpacingPair {
+  /** Gap between cards of one generation (across). */
+  columns: Spacing;
+  /** Gap between one generation and the next (down). */
+  rows: Spacing;
+}
 
 export interface ProjectSettings {
   /** Whether unknown GEDCOM data is kept for round-trips (it costs storage). */
   preserveRawGedcom: boolean;
   /** Per-generation card scaling ("Balance generations"); off by default. */
   generationScaling: GenerationScaling;
-  /** Card and generation gaps of the automatic arrangement; normal by default. */
+  /** Gap between cards of one generation; normal by default. */
   spacing: Spacing;
+  /** Gap between the generations; follows `spacing` on trees saved before it existed. */
+  rowSpacing: Spacing;
 }
 
 export interface Project {
@@ -256,7 +265,7 @@ export function createProject(name: string, partial: Partial<Project> = {}): Pro
     unions: {},
     childLinks: {},
     rawRecords: [],
-    settings: { preserveRawGedcom: true, generationScaling: 'off', spacing: 'normal' },
+    settings: { preserveRawGedcom: true, generationScaling: 'off', spacing: 'normal', rowSpacing: 'normal' },
     groups: [],
     ...partial,
   };

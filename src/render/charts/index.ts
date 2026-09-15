@@ -17,6 +17,7 @@ import { breakCycles, buildAdjacency, childrenOf, parentsOf } from '@/model/grap
 import type { DetailLevel } from '../geometry';
 import { cardHeight } from '../geometry';
 import { layoutComponent } from '../layout/generational';
+import { spacingOf } from '../layout';
 
 export type ChartSpec = { kind: 'ancestors'; personId: string; generations: number } | { kind: 'descendants'; personId: string; depth: number };
 
@@ -52,7 +53,7 @@ function pedigree(project: Project, personId: string, generations: number, level
   if (!project.persons[personId]) return { positions, visible: new Set(), lines, useUnions: false, width: 0, height: 0 };
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
   const h = cardHeight(level);
-  const rowStep = h + spacingGaps[project.settings.spacing ?? 'normal'].generationGap / 2;
+  const rowStep = h + spacingGaps[spacingOf(project).rows].generationGap / 2;
   const colStep = card.width + H_GAP;
   let nextRow = 0;
   const rowOf = new Map<string, number>();
@@ -154,7 +155,7 @@ function descendants(project: Project, personId: string, depth: number, level: D
     unions,
     childLinks: Object.fromEntries(Object.entries(project.childLinks).filter(([, l]) => members.has(l.childId) && project.unions[l.unionId]?.partnerIds.some((p) => members.has(p)))),
   };
-  const r = layoutComponent(sub, [...members], level, undefined, 'off', project.settings.spacing ?? 'normal');
+  const r = layoutComponent(sub, [...members], level, undefined, 'off', spacingOf(project));
   for (const [id, p] of r.positions) positions.set(id, p);
   return { positions, visible: new Set(members), lines: [], useUnions: true, width: r.width, height: r.height };
 }

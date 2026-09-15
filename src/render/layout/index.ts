@@ -5,7 +5,7 @@
  *  - `placeUnpositioned`: effective positions for display, placing `position: null` people
  *    into free space without touching anyone else (replaces the stage b provisional layout).
  */
-import type { GenerationScaling, Position, Project, Spacing } from '@/model/types';
+import type { GenerationScaling, Position, Project, Spacing, SpacingPair } from '@/model/types';
 import { card, layout } from '@/design/tokens';
 import { personScales } from './scale';
 import { breakCycles, buildAdjacency, connectedComponents } from '@/model/graph';
@@ -24,12 +24,14 @@ export function scalingOf(project: Project): GenerationScaling {
   return project.settings.generationScaling ?? 'off';
 }
 
-/** The tree's spacing setting (older stored trees may lack the field). */
-export function spacingOf(project: Project): Spacing {
-  return project.settings.spacing ?? 'normal';
+/** The tree's spacing across and down (older stored trees may lack either field). */
+export function spacingOf(project: Project): SpacingPair {
+  const columns: Spacing = project.settings.spacing ?? 'normal';
+  // A tree saved before the two axes could be chosen separately keeps its look: one setting for both.
+  return { columns, rows: project.settings.rowSpacing ?? columns };
 }
 
-export function layoutAll(project: Project, level: DetailLevel, mode: GenerationScaling = scalingOf(project), spacing: Spacing = spacingOf(project)): Map<string, Position> {
+export function layoutAll(project: Project, level: DetailLevel, mode: GenerationScaling = scalingOf(project), spacing: SpacingPair = spacingOf(project)): Map<string, Position> {
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
   const comps = connectedComponents(project);
   const results = comps.map((ids) => layoutComponent(project, ids, level, adj, mode, spacing));
