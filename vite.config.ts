@@ -42,9 +42,19 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // The .woff copies are what the PDF export embeds (a PDF cannot read WOFF2); they are
-        // precached so saving a PDF works offline like everything else.
+        // The .woff copies are what the PDF export embeds (a PDF cannot read WOFF2). The Latin
+        // and Cyrillic ones are small and precached, so saving a PDF works offline like everything
+        // else. The East Asian ones are 18 MB in total — far too much to install up front — so
+        // they are fetched when a PDF of such a tree is saved and kept by the rule below.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,woff,webmanifest,txt}'],
+        globIgnores: ['**/fonts/cjk/*.woff'],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }: { url: URL }) => url.pathname.includes('/fonts/cjk/') && url.pathname.endsWith('.woff'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'pedigree-pdf-fonts', expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 180 } },
+          },
+        ],
         navigateFallback: `${base}index.html`,
         cleanupOutdatedCaches: true,
         clientsClaim: false,

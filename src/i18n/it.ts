@@ -676,7 +676,7 @@ export const it: Dictionary = {
     printHint: 'Nella finestra di stampa scegli lo stesso formato carta, {orientation}, e «Dimensione reale» o «100 %» invece di «Adatta alla pagina». Alcuni browser ignorano il formato carta scelto qui; l’anteprima sopra mostra comunque le proporzioni corrette.',
     savePdf: 'Salva un PDF',
     savePdfHint: 'Una pagina per foglio ({count}), disegnata con linee e testo invece che come immagine: resta nitida a ogni dimensione e i nomi si possono cercare e copiare.',
-    pdfCjk: 'Un PDF non può portare con sé i caratteri dell’Asia orientale che questo albero richiede: sono molto più grandi dell’albero stesso. Stampi invece e scelga «Salva come PDF», che usa i caratteri già presenti sul dispositivo.',
+    pdfFonts: 'Non è stato possibile scaricare i caratteri in cui è scritto questo albero: il PDF avrebbe dei vuoti al posto dei nomi. Si colleghi una volta e riprovi; dopo restano su questo dispositivo.',
     saveSvg: 'Salva un file SVG',
     saveSvgHint: 'Il file consigliato per le tipografie e i grandi formati. I caratteri sono incorporati, quindi si vede uguale ovunque.',
     svgLarge: 'Il file SVG è grande ({size} di caratteri est-asiatici incorporati). Se è troppo grande da inviare o aprire, salva invece un’immagine PNG.',

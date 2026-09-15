@@ -676,7 +676,7 @@ export const pl: Dictionary = {
     printHint: 'W oknie drukowania wybierz ten sam rozmiar papieru, {orientation}, oraz „Rozmiar rzeczywisty” lub „100 %” zamiast „Dopasuj do strony”. Niektóre przeglądarki ignorują wybrany tu rozmiar papieru; podgląd powyżej i tak pokazuje właściwe proporcje.',
     savePdf: 'Zapisz PDF',
     savePdfHint: 'Jedna strona na arkusz ({count}), rysowana liniami i tekstem, a nie jako obraz: pozostaje ostra w każdym rozmiarze, a nazwiska można wyszukiwać i kopiować.',
-    pdfCjk: 'PDF nie może zabrać ze sobą czcionek wschodnioazjatyckich, których potrzebuje to drzewo — są znacznie większe niż samo drzewo. Wydrukuj i wybierz „Zapisz jako PDF”; wtedy użyte zostaną czcionki Twojego urządzenia.',
+    pdfFonts: 'Nie udało się pobrać czcionek, w których zapisane jest to drzewo, więc w PDF-ie byłyby luki w miejscu nazwisk. Połącz się raz i spróbuj ponownie; potem zostaną na tym urządzeniu.',
     saveSvg: 'Zapisz plik SVG',
     saveSvgHint: 'Zalecany plik dla drukarni i dużych formatów. Czcionki są osadzone, więc wygląda tak samo wszędzie.',
     svgLarge: 'Plik SVG jest duży ({size} osadzonych czcionek wschodnioazjatyckich). Jeśli jest za duży do wysłania lub otwarcia, zapisz zamiast tego obraz PNG.',

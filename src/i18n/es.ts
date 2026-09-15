@@ -676,7 +676,7 @@ export const es: Dictionary = {
     printHint: 'En el cuadro de impresión elige el mismo tamaño de papel, {orientation}, y «Tamaño real» o «100 %» en lugar de «Ajustar a la página». Algunos navegadores ignoran el tamaño de papel elegido aquí; la vista previa de arriba muestra las proporciones correctas en cualquier caso.',
     savePdf: 'Guardar un PDF',
     savePdfHint: 'Una página por hoja ({count}), dibujada con líneas y texto en lugar de como imagen: se mantiene nítida a cualquier tamaño y los nombres se pueden buscar y copiar.',
-    pdfCjk: 'Un PDF no puede llevar las tipografías de Asia oriental que necesita este árbol: son mucho más grandes que el árbol. Imprima y elija «Guardar como PDF», que usa las tipografías de su dispositivo.',
+    pdfFonts: 'No se pudieron obtener las tipografías en las que está escrito este árbol, así que el PDF tendría huecos donde deberían ir los nombres. Conéctese una vez y vuelva a intentarlo; después quedan guardadas en este dispositivo.',
     saveSvg: 'Guardar un archivo SVG',
     saveSvgHint: 'El archivo recomendado para imprentas y tamaños grandes. Las fuentes van incrustadas, así que se ve igual en todas partes.',
     svgLarge: 'El archivo SVG es grande ({size} de fuentes asiáticas incrustadas). Si es demasiado grande para enviarlo o abrirlo, guarda mejor una imagen PNG.',

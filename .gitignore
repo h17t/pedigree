@@ -9,3 +9,7 @@ blob-report
 coverage
 .DS_Store
 *.tsbuildinfo
+
+# Copied from the fontsource packages before a build (scripts/copy-cjk-woff.mjs); 18 MB of
+# duplicates that do not belong in the repository.
+public/fonts/cjk/*.woff

@@ -676,7 +676,7 @@ export const tr: Dictionary = {
     printHint: 'Yazdırma iletişim kutusunda aynı kâğıt boyutunu, {orientation} yönünü ve „Sayfaya sığdır“ yerine „Gerçek boyut“ ya da „%100“ seçin. Bazı tarayıcılar burada seçilen kâğıt boyutunu yok sayar; yukarıdaki ön izleme her durumda doğru oranları gösterir.',
     savePdf: 'PDF kaydet',
     savePdfHint: 'Her yaprak için bir sayfa ({count}); resim olarak değil, çizgi ve metin olarak çizilir: her boyutta net kalır, adlar aranabilir ve kopyalanabilir.',
-    pdfCjk: 'Bir PDF, bu ağacın gerektirdiği Doğu Asya yazı tiplerini taşıyamaz — ağacın kendisinden çok daha büyükler. Bunun yerine yazdırın ve “PDF olarak kaydet” seçin; cihazınızdaki yazı tipleri kullanılır.',
+    pdfFonts: 'Bu ağacın yazıldığı yazı tipleri alınamadı; PDF’te adların olması gereken yerde boşluklar olurdu. Bir kez bağlanıp yeniden deneyin; sonrasında bu cihazda kalırlar.',
     saveSvg: 'SVG dosyası kaydet',
     saveSvgHint: 'Matbaalar ve büyük boyutlar için önerilen dosya. Yazı tipleri gömülüdür, bu yüzden her yerde aynı görünür.',
     svgLarge: 'SVG dosyası büyük ({size} gömülü Doğu Asya yazı tipi). Göndermek ya da açmak için çok büyükse bunun yerine bir PNG görseli kaydedin.',

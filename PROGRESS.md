@@ -358,12 +358,15 @@ prints in colour and is left out in black and white; a unit test checks the cont
 slate on every tint in both palettes.
 
 PDF export (2026-09-15): "Save a PDF" in the print dialog writes one page per sheet, vector, with
-the fonts embedded and the text searchable. The pieces are `src/print/pdf/`: `woff.ts` (WOFF back
+the fonts embedded and the text searchable, in every script the app supports — the East Asian
+fonts travel as the same small chunks the screen uses, so only the ones a tree's characters need
+are embedded. The pieces are `src/print/pdf/`: `woff.ts` (WOFF back
 to TrueType), `sfnt.ts` (the cmap / hmtx / head tables a PDF asks for), `writer.ts` (objects,
 Flate-compressed streams, Type0 fonts, tiling patterns, the cross-reference table) and `svg.ts`
 (the SVG subset the sheets use, as PDF operators). The code is a lazy chunk of about 19 KB, so the
-initial payload is unchanged, and the .woff copies of the font chunks are precached so a PDF can
-be saved offline.
+initial payload is unchanged. The Latin and Cyrillic .woff copies are precached so a PDF can be
+saved offline; the East Asian ones (18 MB) are copied in by `prebuild` rather than committed, are
+fetched when first needed and kept by a runtime caching rule.
 
 Chosen tint colours (2026-09-15): the colour behind a card is picked by the user, one colour per
 sex, and derived for the palette in force by `src/design/tint.ts`. The derivation keeps the hue,

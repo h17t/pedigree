@@ -18,7 +18,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "budget": "node scripts/check-budget.mjs",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build && npm run budget"
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build && npm run budget",
+    "prebuild": "node scripts/copy-cjk-woff.mjs",
+    "predev": "node scripts/copy-cjk-woff.mjs"
   },
   "dependencies": {
     "immer": "^10.2.0",

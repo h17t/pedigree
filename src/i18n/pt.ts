@@ -676,7 +676,7 @@ export const pt: Dictionary = {
     printHint: 'Na caixa de impressão escolha o mesmo tamanho de papel, {orientation}, e «Tamanho real» ou «100 %» em vez de «Ajustar à página». Alguns navegadores ignoram o tamanho de papel escolhido aqui; a pré-visualização acima mostra as proporções corretas em qualquer caso.',
     savePdf: 'Guardar um PDF',
     savePdfHint: 'Uma página por folha ({count}), desenhada em linhas e texto e não como imagem: mantém-se nítida em qualquer tamanho e os nomes podem ser pesquisados e copiados.',
-    pdfCjk: 'Um PDF não pode levar as fontes do Leste Asiático de que esta árvore precisa — são muito maiores do que a própria árvore. Imprima e escolha «Guardar como PDF», que usa as fontes do seu dispositivo.',
+    pdfFonts: 'Não foi possível obter as fontes em que esta árvore está escrita, pelo que o PDF teria falhas onde deviam estar os nomes. Ligue-se uma vez e tente de novo; depois ficam guardadas neste dispositivo.',
     saveSvg: 'Guardar um ficheiro SVG',
     saveSvgHint: 'O ficheiro recomendado para gráficas e tamanhos grandes. As fontes vão incorporadas, por isso fica igual em todo o lado.',
     svgLarge: 'O ficheiro SVG é grande ({size} de fontes do Leste Asiático incorporadas). Se for demasiado grande para enviar ou abrir, guarde antes uma imagem PNG.',

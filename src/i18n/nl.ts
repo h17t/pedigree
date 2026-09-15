@@ -676,7 +676,7 @@ export const nl: Dictionary = {
     printHint: 'Kies in het afdrukvenster hetzelfde papierformaat, {orientation}, en „Ware grootte” of „100 %” in plaats van „Aan pagina aanpassen”. Sommige browsers negeren het hier gekozen papierformaat; het voorbeeld hierboven toont hoe dan ook de juiste verhoudingen.',
     savePdf: 'Pdf opslaan',
     savePdfHint: 'Eén pagina per blad ({count}), getekend als lijnen en tekst in plaats van als afbeelding: op elk formaat scherp, en de namen zijn te doorzoeken en te kopiëren.',
-    pdfCjk: 'Een pdf kan de Oost-Aziatische lettertypen die deze boom nodig heeft niet meenemen — ze zijn veel groter dan de boom zelf. Druk in plaats daarvan af en kies “Opslaan als pdf”; dat gebruikt de lettertypen van uw apparaat.',
+    pdfFonts: 'De lettertypen waarin deze boom geschreven is, konden niet worden opgehaald; de pdf zou gaten hebben waar de namen horen. Maak één keer verbinding en probeer het opnieuw; daarna blijven ze op dit apparaat.',
     saveSvg: 'Een SVG-bestand opslaan',
     saveSvgHint: 'Het aanbevolen bestand voor drukkerijen en grote formaten. De lettertypen zijn ingesloten, dus het ziet er overal hetzelfde uit.',
     svgLarge: 'Het SVG-bestand is groot ({size} aan ingesloten Oost-Aziatische lettertypen). Als het te groot is om te versturen of te openen, sla dan een PNG-afbeelding op.',

@@ -682,7 +682,7 @@ export const en = {
     printHint: 'In the print dialog choose the same paper size, {orientation}, and "Actual size" or "100 %" rather than "Fit to page". Some browsers ignore the paper size chosen here; the preview above shows the correct proportions either way.',
     savePdf: 'Save a PDF',
     savePdfHint: 'One page per sheet ({count}), drawn as lines and text rather than as a picture: it stays sharp at any size and the names can be searched and copied.',
-    pdfCjk: 'A PDF cannot carry the East Asian fonts this tree needs — they are far larger than the tree itself. Print instead and choose “Save as PDF”, which uses the fonts your device already has.',
+    pdfFonts: 'The fonts this tree is written in could not be fetched, so the PDF would have gaps where the names should be. Connect once and try again; after that they are kept on this device.',
     saveSvg: 'Save an SVG file',
     saveSvgHint: 'The recommended file for print shops and for large sizes. The fonts are embedded, so it looks the same everywhere.',
     svgLarge: 'The SVG file is large ({size} of embedded East Asian fonts). If it is too big to send or open, save a PNG image instead.',

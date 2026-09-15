@@ -676,7 +676,7 @@ export const fr: Dictionary = {
     printHint: 'Dans la boîte de dialogue d’impression, choisissez le même format de papier, {orientation}, et « Taille réelle » ou « 100 % » plutôt que « Ajuster à la page ». Certains navigateurs ignorent le format choisi ici ; l’aperçu ci-dessus montre les bonnes proportions dans tous les cas.',
     savePdf: 'Enregistrer un PDF',
     savePdfHint: 'Une page par feuille ({count}), tracée en traits et en texte plutôt qu’en image : nette à toute taille, et les noms peuvent être cherchés et copiés.',
-    pdfCjk: 'Un PDF ne peut pas emporter les polices d’Asie orientale dont cet arbre a besoin : elles sont bien plus lourdes que l’arbre. Imprimez plutôt et choisissez « Enregistrer au format PDF », qui utilise les polices de votre appareil.',
+    pdfFonts: 'Les polices dans lesquelles cet arbre est écrit n’ont pas pu être récupérées ; le PDF aurait des trous à la place des noms. Connectez-vous une fois et réessayez ; ensuite elles restent sur cet appareil.',
     saveSvg: 'Enregistrer un fichier SVG',
     saveSvgHint: 'Le fichier recommandé pour les imprimeurs et les grands formats. Les polices sont incorporées, il s’affiche donc partout de la même façon.',
     svgLarge: 'Le fichier SVG est volumineux ({size} de polices est-asiatiques incorporées). S’il est trop gros pour être envoyé ou ouvert, enregistrez plutôt une image PNG.',

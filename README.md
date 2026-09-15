@@ -84,9 +84,10 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   and legend, a to-scale preview, and buttons to print, to save a **PDF** (one page per sheet,
   drawn as lines and text with the fonts inside it, so it stays sharp at any size and the names
   can be searched and copied), an SVG file (fonts embedded) or a PNG image. All four come from
-  the same drawing, so the preview, the paper and the files agree. A tree written in Japanese,
-  Chinese or Korean is the one exception to the PDF: those fonts are larger than the tree itself,
-  so the dialog points at the browser's own "Save as PDF" instead, which has them already.
+  the same drawing, so the preview, the paper and the files agree. Japanese, Chinese and Korean
+  are included: only the font chunks the tree's characters fall into are embedded, so the file
+  stays a few hundred kilobytes rather than the megabytes a whole East Asian font would cost.
+  Those chunks are fetched the first time such a PDF is saved and kept afterwards.
   See "Printing large trees" below.
 - **Data → Settings** holds the language (English, German, French, Spanish, Italian, Portuguese,
   Dutch, Polish, Russian, Turkish, Japanese, Chinese and Korean, each complete; the browser

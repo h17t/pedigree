@@ -95,3 +95,26 @@ test('saves a PDF with one page per sheet, real text and the fonts inside it', a
   expect(text).toContain('/ToUnicode');
   expect(bytes.length).toBeGreaterThan(20_000);
 });
+
+test('a PDF of a tree written in Japanese carries the East Asian fonts too', async ({ page }) => {
+  await openSample(page);
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
+  await page.getByLabel('Language').selectOption('ja');
+  await page.getByRole('button', { name: '系図', exact: true }).click();
+  await page.getByRole('button', { name: '配置' }).click();
+  await page.getByRole('button', { name: '家系図全体を整列' }).click();
+  await page.getByRole('button', { name: '印刷と書き出し' }).click();
+  const dialog = page.getByRole('dialog').first();
+  // The title, the legend and the date are Japanese, so the sheet needs those fonts.
+  const download = page.waitForEvent('download');
+  await dialog.getByRole('button', { name: 'PDF を保存' }).click();
+  const d = await download;
+  const bytes = (await import('node:fs')).readFileSync(await d.path());
+  const text = bytes.toString('latin1');
+  expect(text.startsWith('%PDF-1.7')).toBe(true);
+  // Chunks of the East Asian family, not the whole font, sit beside the Latin one.
+  const fonts = [...text.matchAll(/\/FontName \/(\w+)/g)].map((m) => m[1]);
+  expect(fonts.some((n) => n.startsWith('notosans'))).toBe(true);
+  expect(fonts.length).toBeLessThan(40);
+  expect(text).toContain('/Encoding /Identity-H');
+});

@@ -678,7 +678,7 @@ export const de: Dictionary = {
     printHint: 'Wählen Sie im Druckdialog dieselbe Papiergröße, {orientation} und „Tatsächliche Größe“ oder „100 %“ statt „An Seite anpassen“. Manche Browser ignorieren die hier gewählte Papiergröße; die Vorschau oben zeigt in jedem Fall die richtigen Proportionen.',
     savePdf: 'PDF speichern',
     savePdfHint: 'Eine Seite je Blatt ({count}), als Linien und Text gezeichnet statt als Bild: in jeder Größe scharf, und die Namen lassen sich suchen und kopieren.',
-    pdfCjk: 'Ein PDF kann die ostasiatischen Schriften dieses Baums nicht mitnehmen — sie sind weit größer als der Baum selbst. Drucken Sie stattdessen und wählen Sie „Als PDF sichern“; dabei werden die Schriften Ihres Geräts verwendet.',
+    pdfFonts: 'Die Schriften, in denen dieser Baum geschrieben ist, konnten nicht geladen werden; im PDF wären dort Lücken, wo die Namen stehen. Stellen Sie einmal eine Verbindung her und versuchen Sie es erneut; danach bleiben sie auf diesem Gerät.',
     saveSvg: 'SVG-Datei speichern',
     saveSvgHint: 'Die empfohlene Datei für Copyshops und große Formate. Die Schriften sind eingebettet, deshalb sieht sie überall gleich aus.',
     svgLarge: 'Die SVG-Datei ist groß ({size} eingebettete ostasiatische Schriften). Wenn sie zum Versenden oder Öffnen zu groß ist, speichern Sie stattdessen ein PNG-Bild.',

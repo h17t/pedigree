@@ -5,7 +5,7 @@ import { readFont } from '@/print/pdf/sfnt';
 import { multiply, parseTransform, pathOps, sheetToPdf } from '@/print/pdf/svg';
 import { buildPdf, MM_TO_PT } from '@/print/pdf/writer';
 import type { EmbeddedFont } from '@/print/pdf/writer';
-import { exportPdf, CjkNotSupported } from '@/print/pdf';
+import { exportPdf, FontsUnavailable } from '@/print/pdf';
 import { treeContent, svgDocument } from '@/print/svgDocument';
 import { migrateProject } from '@/model/schema';
 import sample from '@/fixtures/sample-family.json';
@@ -123,10 +123,15 @@ describe('svg → pdf operators', () => {
 });
 
 describe('the finished file', () => {
-  const buildSheet = (blackAndWhite = false) => {
+  const buildSheet = (blackAndWhite = false, onlyPerson?: string) => {
     const r = migrateProject(sample);
     if (!r.ok) throw new Error('the sample fixture does not load');
-    const project = r.project;
+    let project = r.project;
+    if (onlyPerson !== undefined) {
+      // One person, named in the script under test, so the drawing really contains those letters.
+      const [id, person] = Object.entries(project.persons)[0]!;
+      project = { ...project, persons: { [id]: { ...person, givenNames: onlyPerson, surname: '', birthName: '', nickname: '', occupation: '', residence: '' } }, unions: {}, childLinks: {} };
+    }
     const positions = layoutAll(project, 'standard');
     const visible = new Set(Object.keys(project.persons));
     const content = treeContent({
@@ -187,9 +192,23 @@ describe('the finished file', () => {
     expect(drawing).toContain(' re');
   });
 
-  it('says so rather than writing a file it cannot make, when the tree is East Asian', async () => {
-    const { svg } = buildSheet();
-    await expect(exportPdf({ sheets: [{ svg, widthMm: 297, heightMm: 210 }], text: '田中 花子', weights: [400], base: '', title: 'x', creator: 'Pedigree' }, load, parse)).rejects.toBeInstanceOf(CjkNotSupported);
+  it('embeds the East Asian chunks a Japanese tree needs, and only those', async () => {
+    // Kana settles the family; Han alone would follow the language's preferred one.
+    const japanese = '田中 はなこ';
+    const { svg } = buildSheet(false, japanese);
+    const bytes = await exportPdf({ sheets: [{ svg, widthMm: 297, heightMm: 210 }], text: japanese, weights: [400, 700], base: '', title: 'x', creator: 'Pedigree' }, load, parse);
+    const all = new TextDecoder('latin1').decode(bytes);
+    const embedded = [...all.matchAll(/\/FontName \/(\w+)/g)].map((m) => m[1]!);
+    expect(embedded.some((name) => name.startsWith('notosansjp'))).toBe(true);
+    // Four characters fall into very few chunks; the whole font is 550 of them.
+    expect(embedded.length).toBeLessThan(14);
+    expect(all).toContain('/FontFile2');
+  });
+
+  it('says which file is missing rather than writing a PDF with gaps where the names should be', async () => {
+    const { svg, text } = buildSheet();
+    const refuse = (file: string) => (file.includes('cjk') ? Promise.reject(new Error('offline')) : load(file));
+    await expect(exportPdf({ sheets: [{ svg, widthMm: 297, heightMm: 210 }], text: `${text}田中`, weights: [400], base: '', title: 'x', creator: 'Pedigree' }, refuse, parse)).rejects.toBeInstanceOf(FontsUnavailable);
   });
 
   it('lays the cross-reference table out so every object can be found', async () => {
