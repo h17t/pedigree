@@ -81,3 +81,22 @@ test('the appearance setting overrides the device and is remembered', async ({ p
   await expect(page.getByLabel('Appearance')).toHaveValue('dark');
   await axe(page, 'data, explicit dark');
 });
+
+test('one chosen tint colour serves both palettes: pale on paper, deep on a dark screen', async ({ page }) => {
+  await openSample(page);
+  await page.getByRole('button', { name: 'Tree', exact: true }).click();
+  const cardRect = page.locator('.person-card', { hasText: 'Anna' }).first().locator('rect').first();
+  const luminance = (hex: string) => {
+    const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * v[0]! + 0.7152 * v[1]! + 0.0722 * v[2]!;
+  };
+  const light = await cardRect.evaluate((el) => el.getAttribute('fill'));
+  expect(luminance(light!)).toBeGreaterThan(0.7);
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
+  await page.getByLabel('Appearance').selectOption('dark');
+  await page.getByRole('button', { name: 'Tree', exact: true }).click();
+  const dark = await cardRect.evaluate((el) => el.getAttribute('fill'));
+  expect(luminance(dark!)).toBeLessThan(0.1);
+  // The stored choice did not change; only the palette it is drawn in did.
+  expect(dark).not.toBe(light);
+});

@@ -35,7 +35,9 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   centred below their parents. **Layout → Cards** says what every card shows: a whisper of colour
   by sex (on by default, never used in black-and-white printing, and always alongside the square /
   circle / diamond marker so the information never rests on colour alone), the places beside the
-  dates, the occupation, and the name of the colour group. A card keeps its size whatever it
+  dates, the occupation, and the name of the colour group. The three colours can be chosen freely;
+  whatever is picked is toned down for the card, so the text keeps its contrast and one choice
+  serves both themes — pale on paper, deep on a dark screen. A card keeps its size whatever it
   shows, so nothing is arranged again.
 - **List** is everyone in the tree, alphabetical by surname, with search; choose a person to see
   their details.

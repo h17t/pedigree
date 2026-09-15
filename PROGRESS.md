@@ -365,6 +365,12 @@ Flate-compressed streams, Type0 fonts, tiling patterns, the cross-reference tabl
 initial payload is unchanged, and the .woff copies of the font chunks are precached so a PDF can
 be saved offline.
 
+Chosen tint colours (2026-09-15): the colour behind a card is picked by the user, one colour per
+sex, and derived for the palette in force by `src/design/tint.ts`. The derivation keeps the hue,
+clamps the saturation and moves the lightness into a band, stepping it until the tint is far
+enough from the paper to be seen; `tests/unit/tint.test.ts` sweeps every hue to hold the contrast
+bounds. The fixed tint tokens are gone, so there is one source of truth again.
+
 ## Pending items that need the user
 
 - [x] Technical plan approved (repository name / base path, font subsetting approach)

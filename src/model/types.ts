@@ -4,6 +4,7 @@
  */
 
 import { joinName } from './nameOrder';
+import { DEFAULT_TINTS } from '@/design/tint';
 
 export const SCHEMA_VERSION = 2;
 
@@ -158,6 +159,11 @@ export interface SpacingPair {
 export interface CardAppearance {
   /** A whisper of colour behind the card, by sex (never in black and white). */
   sexTint: boolean;
+  /**
+   * The colours chosen for that tint, as picked: proper colours, toned down for the card by
+   * `tintFor` so that the text stays readable whatever is chosen. Sex "unknown" keeps the paper.
+   */
+  tints: { male: string; female: string; diverse: string };
   /** Show the place beside a birth or death date. */
   places: boolean;
   /** Show the occupation line. */
@@ -166,7 +172,7 @@ export interface CardAppearance {
   groupName: boolean;
 }
 
-export const defaultCardAppearance = (): CardAppearance => ({ sexTint: true, places: true, occupation: true, groupName: true });
+export const defaultCardAppearance = (): CardAppearance => ({ sexTint: true, tints: { ...DEFAULT_TINTS }, places: true, occupation: true, groupName: true });
 
 export interface ProjectSettings {
   /** Whether unknown GEDCOM data is kept for round-trips (it costs storage). */

@@ -395,3 +395,32 @@ test('cards: colour by sex tints the card, the field toggles take lines out, bot
   await expect(page.getByLabel('Colour by sex')).not.toBeChecked();
   await expect(page.getByLabel('Places beside the dates')).not.toBeChecked();
 });
+
+test('the tint colours can be chosen, are toned down to stay readable, and can be reset', async ({ page }) => {
+  await openTree(page);
+  const layout = () => page.getByRole('button', { name: 'Layout' }).click();
+  const cardRect = page.locator('.person-card', { hasText: 'Anna' }).first().locator('rect').first();
+  await layout();
+  const before = await cardRect.evaluate((el) => el.getAttribute('fill'));
+  // A colour is picked for women; the card takes a toned-down version of it, not the pick itself.
+  await page.getByLabel('female', { exact: true }).fill('#00A000');
+  await page.getByLabel('female', { exact: true }).blur();
+  await expect(page.getByText('Colour for female chosen.')).toBeVisible();
+  await layout();
+  const green = await cardRect.evaluate((el) => el.getAttribute('fill'));
+  expect(green).not.toBe(before);
+  expect(green).not.toBe('#00A000');
+  // Toned down means light: every channel is near the top of its range.
+  const channels = [1, 3, 5].map((i) => parseInt(green!.slice(i, i + 2), 16));
+  expect(Math.min(...channels)).toBeGreaterThan(180);
+  expect(channels[1]).toBeGreaterThan(channels[0]);
+
+  await page.reload();
+  await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
+  await layout();
+  await expect(cardRect).toHaveAttribute('fill', green!);
+  await page.getByRole('button', { name: 'Reset the colours' }).click();
+  await expect(page.getByText('Colours back to the suggested ones.')).toBeVisible();
+  await layout();
+  await expect(cardRect).toHaveAttribute('fill', before!);
+});

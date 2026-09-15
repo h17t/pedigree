@@ -4,6 +4,7 @@
  * Backing up the pre-migration payload is the persistence layer's job (it has the raw string).
  */
 import { RELATION_TYPES, SCHEMA_VERSION } from './types';
+import { isHexColour } from '@/design/tint';
 import type { CardAppearance, ColourGroup, EventDate, GenerationScaling, Position, Project, Spacing, Tag } from './types';
 import { createPerson, createUnion, defaultCardAppearance, emptyDeathDate, emptyEventDate, newId } from './types';
 
@@ -98,8 +99,10 @@ function cardsOf(v: unknown): CardAppearance {
   const d = defaultCardAppearance();
   if (!v || typeof v !== 'object') return d;
   const raw = v as Record<string, unknown>;
-  const flag = (k: keyof CardAppearance) => (typeof raw[k] === 'boolean' ? raw[k] : d[k]);
-  return { sexTint: flag('sexTint'), places: flag('places'), occupation: flag('occupation'), groupName: flag('groupName') };
+  const flag = (k: 'sexTint' | 'places' | 'occupation' | 'groupName') => (typeof raw[k] === 'boolean' ? raw[k] : d[k]);
+  const picked = raw.tints && typeof raw.tints === 'object' ? (raw.tints as Record<string, unknown>) : {};
+  const colour = (k: keyof CardAppearance['tints']) => (isHexColour(picked[k]) ? picked[k] : d.tints[k]);
+  return { sexTint: flag('sexTint'), tints: { male: colour('male'), female: colour('female'), diverse: colour('diverse') }, places: flag('places'), occupation: flag('occupation'), groupName: flag('groupName') };
 }
 
 /** Keys that would change an object's prototype instead of adding an entry. */

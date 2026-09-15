@@ -11,6 +11,11 @@ import { layoutAll, layoutSubset, placeUnpositioned, scalingOf, spacingOf } from
 import { personScales } from '@/render/layout/scale';
 import { buildChart, ANCESTOR_GENERATIONS, DESCENDANT_DEPTH } from '@/render/charts';
 import type { CardAppearance, GenerationScaling, Spacing, SpacingPair } from '@/model/types';
+import { DEFAULT_TINTS, tintFor } from '@/design/tint';
+import { useIsDark } from '../hooks';
+
+/** The card settings that are simply on or off. */
+type CardFlag = 'sexTint' | 'places' | 'occupation' | 'groupName';
 import { clusterFrames } from '@/render/layout/clusters';
 import type { ClusterFrame } from '@/render/layout/clusters';
 import { announce } from '../status';
@@ -52,6 +57,7 @@ export function TreeView() {
   const editor = useEditor((s) => s.state);
   const go = useRouter((s) => s.go);
   const isDesktop = useIsDesktop();
+  const dark = useIsDark();
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [query, setQuery] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -236,12 +242,18 @@ export function TreeView() {
     announce(t('layout.spacingDone', { across: t(`layout.spacingValue.${spacing.columns}` as TKey), down: t(`layout.spacingValue.${spacing.rows}` as TKey) }));
     updateUi({ viewport: null });
   };
-  const setCards = (key: keyof CardAppearance, on: boolean) => {
+  const setCards = (key: CardFlag, on: boolean) => {
     // The card keeps its box whatever it shows, so nothing has to be arranged again.
     transact(t('layout.cards'), (d) => {
       d.settings.cards = { ...d.settings.cards, [key]: on };
     });
     announce(t(on ? 'layout.cardsOn' : 'layout.cardsOff', { what: t(`layout.cardsValue.${key}` as TKey) }));
+  };
+  const resetTints = () => {
+    transact(t('layout.cards'), (d) => {
+      d.settings.cards = { ...d.settings.cards, tints: { ...DEFAULT_TINTS } };
+    });
+    announce(t('layout.tintResetDone'));
   };
   const setBalance = (mode: GenerationScaling) => {
     // Card sizes change, so the tree is arranged again in the same undo step.
@@ -489,10 +501,25 @@ export function TreeView() {
               </fieldset>
               <fieldset className="form-section">
                 <legend>{t('layout.cards')}</legend>
-                {(['sexTint', 'places', 'occupation', 'groupName'] as (keyof CardAppearance)[]).map((key) => (
-                  <div className="radio-row" key={key}>
-                    <input id={`cards-${key}`} type="checkbox" checked={project.settings.cards[key]} onChange={(e) => setCards(key, e.target.checked)} />
-                    <label htmlFor={`cards-${key}`}>{t(`layout.cardsValue.${key}` as TKey)}</label>
+                {(['sexTint', 'places', 'occupation', 'groupName'] as CardFlag[]).map((key) => (
+                  <div key={key}>
+                    <div className="radio-row">
+                      <input id={`cards-${key}`} type="checkbox" checked={project.settings.cards[key]} onChange={(e) => setCards(key, e.target.checked)} />
+                      <label htmlFor={`cards-${key}`}>{t(`layout.cardsValue.${key}` as TKey)}</label>
+                    </div>
+                    {key === 'sexTint' && project.settings.cards.sexTint && (
+                      <div className="tint-row">
+                        {(['male', 'female', 'diverse'] as (keyof CardAppearance['tints'])[]).map((sex) => (
+                          <TintPicker key={sex} sex={sex} value={project.settings.cards.tints[sex]} dark={dark} />
+                        ))}
+                        <button type="button" className="btn" onClick={resetTints}>
+                          {t('layout.tintReset')}
+                        </button>
+                      </div>
+                    )}
+                    {key === 'sexTint' && project.settings.cards.sexTint && (
+                      <p className="hint">{t('layout.tintHint')}</p>
+                    )}
                   </div>
                 ))}
                 <p className="hint">{t('layout.cardsHint')}</p>
@@ -752,5 +779,37 @@ export function TreeView() {
         </aside>
       )}
     </div>
+  );
+}
+
+/**
+ * One colour for the tint by sex. The picked colour is kept as picked; the swatch beside it shows
+ * what a card will actually look like, since the card tones it down to stay readable.
+ */
+function TintPicker({ sex, value, dark }: { sex: 'male' | 'female' | 'diverse'; value: string; dark: boolean }) {
+  const { t } = useT();
+  const [draft, setDraft] = useState(value);
+  const [stored, setStored] = useState(value);
+  // Changed elsewhere (undo, a reset): take it over.
+  if (stored !== value) {
+    setStored(value);
+    setDraft(value);
+  }
+  const commit = () => {
+    if (draft === value) return;
+    transact(t('layout.cards'), (d) => {
+      d.settings.cards = { ...d.settings.cards, tints: { ...d.settings.cards.tints, [sex]: draft } };
+    });
+    announce(t('layout.tintDone', { sex: t(`person.sexValue.${sex}` as TKey) }));
+  };
+  return (
+    <span className="tint-pick">
+      <label htmlFor={`tint-${sex}`}>{t(`person.sexValue.${sex}` as TKey)}</label>
+      <span className="tint-controls">
+        <input id={`tint-${sex}`} type="color" value={draft} onChange={(e) => setDraft(e.target.value)} onBlur={commit} />
+        {/* What a card will look like: the pick, toned down to keep the text readable. */}
+        <span className="tint-swatch" style={{ background: tintFor(draft, dark) }} aria-hidden="true" />
+      </span>
+    </span>
   );
 }

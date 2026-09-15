@@ -5,8 +5,9 @@ import { tile, sheetCount, MAX_SHEETS } from '@/print/tiling';
 import { pngSize, PNG_MAX_EDGE } from '@/print/png';
 import { chunksFor, fontFaceCss, fontFaceCssWithSize, toBase64 } from '@/print/fonts';
 import { treeContent } from '@/print/svgDocument';
-import { color } from '@/design/tokens';
+import { DEFAULT_TINTS, tintFor } from '@/design/tint';
 import { build } from './fixtures';
+import { defaultCardAppearance } from '@/model/types';
 
 describe('paper', () => {
   it('knows ISO sizes, orientation and margins', () => {
@@ -104,7 +105,7 @@ describe('cards in the print output', () => {
   const sheet = (blackAndWhite: boolean, sexTint = true) => {
     const b = build();
     b.person('P', { sex: 'female' });
-    const project = { ...b.project, settings: { ...b.project.settings, cards: { sexTint, places: true, occupation: true, groupName: true } } };
+    const project = { ...b.project, settings: { ...b.project.settings, cards: { ...defaultCardAppearance(), sexTint } } };
     const positions = new Map(Object.keys(project.persons).map((id) => [id, { x: 0, y: 0 }]));
     return treeContent({
       project,
@@ -120,8 +121,10 @@ describe('cards in the print output', () => {
   };
 
   it('prints the sex tint in colour and leaves it out in black and white', () => {
-    expect(sheet(false)).toContain(color.tintFemale);
-    expect(sheet(true)).not.toContain(color.tintFemale);
-    expect(sheet(false, false)).not.toContain(color.tintFemale);
+    // Paper is always the light palette, whatever the screen is set to.
+    const female = tintFor(DEFAULT_TINTS.female, false);
+    expect(sheet(false)).toContain(female);
+    expect(sheet(true)).not.toContain(female);
+    expect(sheet(false, false)).not.toContain(female);
   });
 });

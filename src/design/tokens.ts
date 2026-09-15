@@ -25,11 +25,6 @@ export const color = {
   danger: '#A3212B',
   dangerBg: '#FBE9EA',
   lineBg: '#E2F0EC',
-  // A whisper of colour behind a card, by sex. Ink keeps 13:1 on each, slate 6:1; the square /
-  // circle / diamond marker carries the same information for anyone who cannot see the tint.
-  tintMale: '#E8F1FA',
-  tintFemale: '#FBEDF1',
-  tintDiverse: '#F1EDFA',
 } as const;
 export type Palette = { [K in keyof typeof color]: string };
 
@@ -53,9 +48,6 @@ export const darkColor: Palette = {
   danger: '#FF8C96',
   dangerBg: '#3F1F24',
   lineBg: '#1C3A33',
-  tintMale: '#233549',
-  tintFemale: '#3D2A33',
-  tintDiverse: '#2E2A45',
 };
 
 /** The same roles as CSS custom properties, for everything drawn on screen. */
@@ -74,9 +66,6 @@ export const cssColor: Palette = {
   danger: 'var(--danger)',
   dangerBg: 'var(--danger-bg)',
   lineBg: 'var(--line-bg)',
-  tintMale: 'var(--tint-male)',
-  tintFemale: 'var(--tint-female)',
-  tintDiverse: 'var(--tint-diverse)',
 };
 
 export type Theme = 'system' | 'light' | 'dark';

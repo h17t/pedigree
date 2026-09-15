@@ -10,6 +10,7 @@ import { UnionNode } from './UnionNode';
 import { Connectors } from './Connectors';
 import { Defs } from './Defs';
 import { cardBox } from './geometry';
+import { useIsDark } from '@/ui/hooks';
 import type { Box, DetailLevel } from './geometry';
 import { routeUnions } from './connectors';
 import { clampZoom, snap, toWorld, zoomAt } from './viewport';
@@ -144,6 +145,8 @@ export function Canvas(props: CanvasProps) {
     locked,
     selectMode,
   } = props;
+  // A card's tint is derived from the picked colour per palette, so the canvas has to know which.
+  const dark = useIsDark();
   const [guides, setGuides] = useState<{ x: number[]; y: number[] }>({
     x: [],
     y: [],
@@ -608,6 +611,7 @@ export function Canvas(props: CanvasProps) {
                 scale={scales?.get(id) ?? 1}
                 group={groupOf(person.groupId)}
                 cards={project.settings.cards}
+                dark={dark}
                 locale={locale}
                 selected={id === selectedId || multiSelected.has(id)}
                 provisional={provisional.has(id)}

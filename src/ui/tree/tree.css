@@ -56,3 +56,11 @@
 .check { display: flex; align-items: center; gap: var(--sp-2); min-height: 32px; }
 .search-results-list { max-height: 40vh; overflow: auto; }
 .relation-result { font-size: var(--fs-md); line-height: var(--lh-md); }
+
+/* The colours of the tint by sex: the pick, and beside it the tint a card will carry. */
+.tint-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: flex-end; padding: 0 0 var(--sp-2); }
+.tint-pick { display: grid; gap: 2px; }
+.tint-pick > label { font-size: var(--fs-sm); line-height: var(--lh-sm); font-weight: 500; }
+.tint-controls { display: flex; align-items: center; gap: var(--sp-2); }
+.tint-pick input[type='color'] { width: 56px; height: 44px; padding: 2px; border: 1px solid var(--rule); border-radius: var(--r-control); background: var(--paper); cursor: pointer; }
+.tint-swatch { width: 28px; height: 28px; border: 1px solid var(--rule); border-radius: var(--r-card); }

@@ -2,7 +2,8 @@ import { memo, useMemo } from 'react';
 import type { KeyboardEvent, PointerEvent } from 'react';
 import { card, tagColor, tagPattern } from '@/design/tokens';
 import { usePalette } from './palette';
-import type { Palette, TagColor } from '@/design/tokens';
+import type { TagColor } from '@/design/tokens';
+import { tintFor } from '@/design/tint';
 import type { CardAppearance, Person } from '@/model/types';
 import { defaultCardAppearance } from '@/model/types';
 
@@ -32,6 +33,8 @@ export interface PersonCardProps {
   group?: { name: string; color: TagColor } | null;
   /** What the card shows and how it is coloured; the tree's setting. */
   cards?: CardAppearance;
+  /** Derive the tint for the dark palette; paper output is always light. */
+  dark?: boolean;
   /** Accessible name for the card ("Name, years"). */
   ariaLabel: string;
   labels: { née: string; living: string; unknownDate: string; warning: string; private: string };
@@ -47,7 +50,7 @@ export interface PersonCardProps {
  * Deceased: † plus a slate border. Sex: square/circle/diamond marker. Branch tag: stripe +
  * label. Rendered identically on screen and in print (only the detail level differs).
  */
-export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, scale = 1, group = null, cards = DEFAULT_CARDS, ariaLabel, labels, textVersion = 0, onPointerDown, onSelect, onOpen }: PersonCardProps) {
+export const PersonCard = memo(function PersonCard({ person, x, y, level, locale, selected, provisional = false, hasWarning, print = false, blackAndWhite = false, sparse = false, scale = 1, group = null, cards = DEFAULT_CARDS, dark = false, ariaLabel, labels, textVersion = 0, onPointerDown, onSelect, onOpen }: PersonCardProps) {
   const color = usePalette();
   const h = cardHeight(level, print);
   const w = card.width;
@@ -56,7 +59,8 @@ export const PersonCard = memo(function PersonCard({ person, x, y, level, locale
   const text = useMemo(() => cardText(person, textLevel, locale, print, labels, cards), [person, textLevel, locale, print, labels, cards, textVersion]);
   const border = text.deceased ? color.slate : color.ink;
   // Black and white has no colour to spend: the marker alone says which sex was recorded.
-  const fill = cards.sexTint && !blackAndWhite ? (tintOf(person.sex, color) ?? color.paper) : color.paper;
+  const picked = cards.sexTint && !blackAndWhite && person.sex !== 'unknown' ? cards.tints[person.sex] : null;
+  const fill = picked ? tintFor(picked, dark) : color.paper;
   const stripe = group ? (blackAndWhite ? `url(#pat-${tagPattern[group.color]})` : tagColor[group.color]) : null;
   const left = card.padding.left + card.stripeWidth;
   const nameTop = card.padding.top + card.name.line - 5;
@@ -134,20 +138,6 @@ export const PersonCard = memo(function PersonCard({ person, x, y, level, locale
     </g>
   );
 });
-
-/** The card's background when "colour by sex" is on; unknown keeps the paper. */
-function tintOf(sex: Person['sex'], color: Palette): string | null {
-  switch (sex) {
-    case 'male':
-      return color.tintMale;
-    case 'female':
-      return color.tintFemale;
-    case 'diverse':
-      return color.tintDiverse;
-    default:
-      return null;
-  }
-}
 
 /** Pedigree-chart convention: square = male, circle = female, diamond = diverse, none = unknown. */
 export function SexMarker({ sex, x, y, size = card.marker }: { sex: Person['sex']; x: number; y: number; size?: number }) {

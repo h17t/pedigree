@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { migrateProject, migrations, normalizeProject } from '@/model/schema';
 import { validateProject } from '@/model/validation';
-import { SCHEMA_VERSION, createProject, createPerson } from '@/model/types';
+import { SCHEMA_VERSION, createProject, createPerson, defaultCardAppearance } from '@/model/types';
+import { DEFAULT_TINTS } from '@/design/tint';
 
 describe('migrateProject', () => {
   it('accepts the current version unchanged', () => {
@@ -55,12 +56,12 @@ describe('migrateProject', () => {
     const p = normalizeProject({ schemaVersion: 2, id: 'a', name: 'n', persons: {}, unions: {}, settings: { spacing: 'wide' } });
     expect(p.settings.spacing).toBe('wide');
     expect(p.settings.rowSpacing).toBe('wide');
-    expect(p.settings.cards).toEqual({ sexTint: true, places: true, occupation: true, groupName: true });
+    expect(p.settings.cards).toEqual(defaultCardAppearance());
   });
 
   it('keeps the card settings a file does state and replaces the ones it does not', () => {
-    const p = normalizeProject({ schemaVersion: 2, id: 'a', name: 'n', persons: {}, unions: {}, settings: { cards: { sexTint: false, places: 'yes' } } });
-    expect(p.settings.cards).toEqual({ sexTint: false, places: true, occupation: true, groupName: true });
+    const p = normalizeProject({ schemaVersion: 2, id: 'a', name: 'n', persons: {}, unions: {}, settings: { cards: { sexTint: false, places: 'yes', tints: { male: '#123456', female: 'not a colour' } } } });
+    expect(p.settings.cards).toEqual({ ...defaultCardAppearance(), sexTint: false, tints: { ...DEFAULT_TINTS, male: '#123456' } });
   });
 });
 
