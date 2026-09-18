@@ -15,7 +15,7 @@ import { DEFAULT_TINTS, tintFor } from '@/design/tint';
 import { useIsDark } from '../hooks';
 
 /** The card settings that are simply on or off. */
-type CardFlag = 'sexTint' | 'places' | 'occupation' | 'groupName';
+type CardFlag = 'sexTint' | 'sexMarker' | 'places' | 'occupation' | 'groupName';
 import { clusterFrames } from '@/render/layout/clusters';
 import type { ClusterFrame } from '@/render/layout/clusters';
 import { announce } from '../status';
@@ -501,7 +501,7 @@ export function TreeView() {
               </fieldset>
               <fieldset className="form-section">
                 <legend>{t('layout.cards')}</legend>
-                {(['sexTint', 'places', 'occupation', 'groupName'] as CardFlag[]).map((key) => (
+                {(['sexTint', 'sexMarker', 'places', 'occupation', 'groupName'] as CardFlag[]).map((key) => (
                   <div key={key}>
                     <div className="radio-row">
                       <input id={`cards-${key}`} type="checkbox" checked={project.settings.cards[key]} onChange={(e) => setCards(key, e.target.checked)} />

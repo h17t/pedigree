@@ -157,8 +157,10 @@ export interface SpacingPair {
 
 /** What a card shows and how it is coloured; the same on screen, on paper and in the exports. */
 export interface CardAppearance {
-  /** A whisper of colour behind the card, by sex (never in black and white). */
+  /** A whisper of colour behind the card, by sex (never in black and white); off by default. */
   sexTint: boolean;
+  /** The pedigree-chart marker in the card's corner: square, circle or diamond by sex. */
+  sexMarker: boolean;
   /**
    * The colours chosen for that tint, as picked: proper colours, toned down for the card by
    * `tintFor` so that the text stays readable whatever is chosen. Sex "unknown" keeps the paper.
@@ -172,7 +174,7 @@ export interface CardAppearance {
   groupName: boolean;
 }
 
-export const defaultCardAppearance = (): CardAppearance => ({ sexTint: true, tints: { ...DEFAULT_TINTS }, places: true, occupation: true, groupName: true });
+export const defaultCardAppearance = (): CardAppearance => ({ sexTint: false, sexMarker: true, tints: { ...DEFAULT_TINTS }, places: true, occupation: true, groupName: true });
 
 export interface ProjectSettings {
   /** Whether unknown GEDCOM data is kept for round-trips (it costs storage). */

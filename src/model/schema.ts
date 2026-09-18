@@ -99,10 +99,10 @@ function cardsOf(v: unknown): CardAppearance {
   const d = defaultCardAppearance();
   if (!v || typeof v !== 'object') return d;
   const raw = v as Record<string, unknown>;
-  const flag = (k: 'sexTint' | 'places' | 'occupation' | 'groupName') => (typeof raw[k] === 'boolean' ? raw[k] : d[k]);
+  const flag = (k: 'sexTint' | 'sexMarker' | 'places' | 'occupation' | 'groupName') => (typeof raw[k] === 'boolean' ? raw[k] : d[k]);
   const picked = raw.tints && typeof raw.tints === 'object' ? (raw.tints as Record<string, unknown>) : {};
   const colour = (k: keyof CardAppearance['tints']) => (isHexColour(picked[k]) ? picked[k] : d.tints[k]);
-  return { sexTint: flag('sexTint'), tints: { male: colour('male'), female: colour('female'), diverse: colour('diverse') }, places: flag('places'), occupation: flag('occupation'), groupName: flag('groupName') };
+  return { sexTint: flag('sexTint'), sexMarker: flag('sexMarker'), tints: { male: colour('male'), female: colour('female'), diverse: colour('diverse') }, places: flag('places'), occupation: flag('occupation'), groupName: flag('groupName') };
 }
 
 /** Keys that would change an object's prototype instead of adding an entry. */

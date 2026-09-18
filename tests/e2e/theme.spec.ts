@@ -85,6 +85,9 @@ test('the appearance setting overrides the device and is remembered', async ({ p
 test('one chosen tint colour serves both palettes: pale on paper, deep on a dark screen', async ({ page }) => {
   await openSample(page);
   await page.getByRole('button', { name: 'Tree', exact: true }).click();
+  await page.getByRole('button', { name: 'Layout' }).click();
+  await page.getByLabel('Colour by sex').check();
+  await page.getByRole('button', { name: 'Layout' }).click();
   const cardRect = page.locator('.person-card', { hasText: 'Anna' }).first().locator('rect').first();
   const luminance = (hex: string) => {
     const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));

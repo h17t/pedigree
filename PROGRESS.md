@@ -352,8 +352,10 @@ Layout → Spacing — across for the room between cards of one generation, down
 the generations. Trees saved before the split keep their look: the one stored value is used for
 both axes until either is changed.
 
-Card appearance (2026-09-15): Layout → Cards holds the tint by sex and the three field toggles
-(places, occupation, group name). The tint is drawn from palette tokens, so it follows the theme,
+Card appearance (2026-09-15, revised 2026-09-18): Layout → Cards holds the tint by sex (off by
+default), the marker for sex (on by default, its own switch) and the three field toggles (places,
+occupation, group name). Every one of them belongs to the tree, not to a person: for colour that
+marks out individuals there are the colour groups. The tint is drawn from palette tokens, so it follows the theme,
 prints in colour and is left out in black and white; a unit test checks the contrast of ink and
 slate on every tint in both palettes.
 

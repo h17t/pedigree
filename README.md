@@ -32,12 +32,15 @@ Plans: `docs/TECHNICAL_PLAN.md`, `docs/DESIGN_PLAN.md`. Screenshots per stage: `
   sets the room the arrangement leaves across (between cards of one generation) and down (between
   the generations), each compact, normal or wide and each chosen on its own, so a large family
   with many siblings can be drawn narrower without also being squashed flat; children always sit
-  centred below their parents. **Layout → Cards** says what every card shows: a whisper of colour
-  by sex (on by default, never used in black-and-white printing, and always alongside the square /
-  circle / diamond marker so the information never rests on colour alone), the places beside the
-  dates, the occupation, and the name of the colour group. The three colours can be chosen freely;
+  centred below their parents. **Layout → Cards** says what every card shows, for the whole
+  tree at once: a whisper of colour by sex (off by default, never used in black-and-white
+  printing), the square / circle / diamond marker for sex, the places beside the dates, the
+  occupation, and the name of the colour group. The three tint colours can be chosen freely;
   whatever is picked is toned down for the card, so the text keeps its contrast and one choice
-  serves both themes — pale on paper, deep on a dark screen. A card keeps its size whatever it
+  serves both themes — pale on paper, deep on a dark screen. Colour and marker are separate
+  choices, but turning the marker off while the colour is on leaves colour as the only sign of
+  sex on a card, which not every reader can see; the panel says so. For colour that belongs to
+  one person rather than to every card, use the **colour groups** instead. A card keeps its size whatever it
   shows, so nothing is arranged again.
 - **List** is everyone in the tree, alphabetical by surname, with search; choose a person to see
   their details.

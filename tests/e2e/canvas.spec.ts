@@ -371,13 +371,20 @@ test('cards: colour by sex tints the card, the field toggles take lines out, bot
   // The card of a person whose sex is recorded as female.
   const cardRect = page.locator('.person-card', { hasText: 'Anna' }).first().locator('rect').first();
   await layout();
-  await expect(page.getByLabel('Colour by sex')).toBeChecked();
-  const tinted = await cardRect.evaluate((el) => el.getAttribute('fill'));
-  await page.getByLabel('Colour by sex').uncheck();
-  await expect(page.getByText('Colour by sex: off.')).toBeVisible();
-  await layout();
+  await expect(page.getByLabel('Colour by sex')).not.toBeChecked();
   const plain = await cardRect.evaluate((el) => el.getAttribute('fill'));
+  await page.getByLabel('Colour by sex').check();
+  await expect(page.getByText('Colour by sex: on.')).toBeVisible();
+  await layout();
+  const tinted = await cardRect.evaluate((el) => el.getAttribute('fill'));
   expect(tinted).not.toBe(plain);
+  // The marker is its own choice, and starts on.
+  const card = page.locator('.person-card', { hasText: 'Anna' }).first();
+  await expect(card.locator('circle')).toHaveCount(1);
+  await layout();
+  await page.getByLabel('Marker for sex (square, circle, diamond)').uncheck();
+  await layout();
+  await expect(card.locator('circle')).toHaveCount(0);
 
   // A field toggle takes text off the card without changing its size.
   const box = await cardRect.boundingBox();
@@ -392,7 +399,8 @@ test('cards: colour by sex tints the card, the field toggles take lines out, bot
   await page.reload();
   await expect(page.getByRole('group', { name: /Family tree canvas/ })).toBeVisible();
   await layout();
-  await expect(page.getByLabel('Colour by sex')).not.toBeChecked();
+  await expect(page.getByLabel('Colour by sex')).toBeChecked();
+  await expect(page.getByLabel('Marker for sex (square, circle, diamond)')).not.toBeChecked();
   await expect(page.getByLabel('Places beside the dates')).not.toBeChecked();
 });
 
@@ -401,6 +409,9 @@ test('the tint colours can be chosen, are toned down to stay readable, and can b
   const layout = () => page.getByRole('button', { name: 'Layout' }).click();
   const cardRect = page.locator('.person-card', { hasText: 'Anna' }).first().locator('rect').first();
   await layout();
+  // The colours only exist while the tint is on; the panel stays open for the pickers.
+  await page.getByLabel('Colour by sex').check();
+  await expect(page.getByText('Colour by sex: on.')).toBeVisible();
   const before = await cardRect.evaluate((el) => el.getAttribute('fill'));
   // A colour is picked for women; the card takes a toned-down version of it, not the pick itself.
   await page.getByLabel('female', { exact: true }).fill('#00A000');

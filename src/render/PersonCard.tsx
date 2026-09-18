@@ -97,7 +97,7 @@ export const PersonCard = memo(function PersonCard({ person, x, y, level, locale
           {group.name}
         </text>
       )}
-      <SexMarker sex={person.sex} x={w - card.padding.right - card.marker} y={card.padding.top} />
+      {cards.sexMarker && <SexMarker sex={person.sex} x={w - card.padding.right - card.marker} y={card.padding.top} />}
       {person.isPrivate && (
         <g aria-label={labels.private} role="img" transform={`translate(${left} ${h - card.padding.bottom - 9})`}>
           <rect x={0} y={4} width={9} height={6} rx={1} fill={color.slate} />

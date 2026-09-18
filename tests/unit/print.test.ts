@@ -120,6 +120,28 @@ describe('cards in the print output', () => {
     }).markup;
   };
 
+  it('leaves the marker off the card when it is turned off', () => {
+    const b = build();
+    b.person('P', { sex: 'female' });
+    const withMarker = { ...b.project, settings: { ...b.project.settings, cards: { ...defaultCardAppearance(), sexMarker: true } } };
+    const without = { ...b.project, settings: { ...b.project.settings, cards: { ...defaultCardAppearance(), sexMarker: false } } };
+    const draw = (project: typeof withMarker) =>
+      treeContent({
+        project,
+        positions: new Map(Object.keys(project.persons).map((id) => [id, { x: 0, y: 0 }])),
+        visible: new Set(Object.keys(project.persons)),
+        level: 'standard',
+        locale: 'en',
+        labels: { née: 'née', living: 'living', unknownDate: '', warning: 'warning', private: 'private', unknownParents: 'unknown' },
+        header: null,
+        legend: null,
+        blackAndWhite: false,
+      }).markup;
+    // Female is the circle; nothing else on a plain card draws one.
+    expect(draw(withMarker)).toContain('<circle');
+    expect(draw(without)).not.toContain('<circle');
+  });
+
   it('prints the sex tint in colour and leaves it out in black and white', () => {
     // Paper is always the light palette, whatever the screen is set to.
     const female = tintFor(DEFAULT_TINTS.female, false);
