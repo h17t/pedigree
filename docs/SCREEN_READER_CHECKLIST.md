@@ -33,6 +33,10 @@ in German.
 | 20 | Help | Open Help | Heading "Help"; the quick start is an ordered list of eight items; "Print this quick start" is a button | | | |
 | 21 | Update notice | (When a new version is deployed) | The notice reads "A new version of Pedigree is ready" with "Reload now" and "Later" buttons; nothing reloads on its own | | | |
 | 22 | Multi-tab | Open the same tree in a second tab | Banner "Read-only: another tab is editing" is read; the "Take over editing here" button works | | | |
+| 23 | Layout | Open Layout, move through "Spacing" | A group "Spacing" holding two selects, "Across" and "Down"; each reads its own label and value, and the hint below is read as their description | | | |
+| 24 | Layout | In "Cards", toggle "Colour by sex" | The checkbox reads its label and state; turning it on reveals three colour controls, each reading "male" / "female" / "diverse", and the status announces "… : on" / "… : off" | | | |
+| 25 | Layout | Move to the colour controls | Each is a colour picker with its own label; the swatch beside it is decorative and silent; "Reset the colours" is a button and announces "Colours back to the suggested ones." | | | |
+| 26 | Print | Activate "Save a PDF" | The status announces the file name; with no connection and an East Asian tree, the alert explains that the fonts could not be fetched rather than saving a file | | | |
 
 ## Result
 

@@ -293,8 +293,12 @@ Reviewing the first draft of this plan against the two warnings in the brief:
   19 px sentence-case labels, which is also what the 70+ audience reads faster.
 - **Button text.** No trailing arrows or chevrons in button labels; a menu button shows `▾` as a
   separate, decorative glyph that the accessible name does not include.
-- **Sex.** The first draft tinted cards by sex. Replaced by the pedigree-chart square/circle
-  marker, which is a genealogical convention and survives black-and-white printing.
+- **Sex.** The first draft tinted cards by sex, and that was replaced by the pedigree-chart
+  square/circle marker, which is a genealogical convention and survives black-and-white printing.
+  The tint came back later (2026-09-15) as an addition rather than a replacement: the marker still
+  carries the information, so the colour is decoration that a reader can ignore, and it is left out
+  of black-and-white printing. Its colours are the user's to choose and are toned into a band that
+  keeps the text readable whatever is picked — see DECISIONS.md #190, #195 and #196.
 - **Selection bar on phone.** Initially a floating action button. Replaced with a full-width
   labelled bar, because a single round icon button breaks the "no icon-only controls" rule and is
   hard to explain to someone across the table.
