@@ -5,7 +5,7 @@ import { cardHeight } from '@/render/geometry';
 import { build, born } from './fixtures';
 import { buildFamilySheet, familySheetHtml } from '@/report/familySheet';
 import { t } from '@/i18n';
-import type { Person } from '@/model/types';
+import type { Person, Spacing } from '@/model/types';
 
 function ancestorChart(gens: number) {
   const b = build();
@@ -160,5 +160,27 @@ describe('ancestor chart with a repeated ancestor', () => {
       const end = Number(/H(-?\d+(?:\.\d+)?)$/.exec(l.d)![1]);
       expect(xs.has(end), l.d).toBe(true);
     }
+  });
+});
+
+describe('spacing in the ancestor chart', () => {
+  /** The chart's vertical step: a pedigree stacks the people of a generation downwards. */
+  const verticalStep = (columns: Spacing, rows: Spacing) => {
+    const b = build();
+    const self = b.person('Self', born('1990'));
+    const father = b.person('Father', born('1960'));
+    const mother = b.person('Mother', born('1962'));
+    b.family([father, mother], [self]);
+    const project = { ...b.project, settings: { ...b.project.settings, spacing: columns, rowSpacing: rows } };
+    const r = buildChart(project, { kind: 'ancestors', personId: self.id, generations: 4 }, 'standard');
+    const ys = [...r.positions.values()].map((p) => p.y).sort((a, b2) => a - b2);
+    return ys[ys.length - 1]! - ys[0]!;
+  };
+
+  it('follows the across setting, which is the one that spaces the people of a generation', () => {
+    expect(verticalStep('compact', 'normal')).toBeLessThan(verticalStep('normal', 'normal'));
+    expect(verticalStep('normal', 'normal')).toBeLessThan(verticalStep('wide', 'normal'));
+    // The step from one generation to the next is fixed in this chart, so "down" governs nothing.
+    expect(verticalStep('normal', 'compact')).toBe(verticalStep('normal', 'wide'));
   });
 });

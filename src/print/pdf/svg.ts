@@ -312,10 +312,14 @@ export function sheetToPdf(o: SheetOptions): SheetResult {
     } else if (fill) emit(`${f(fill[0])} ${f(fill[1])} ${f(fill[2])} rg\n`);
     if (stroke) emit(`${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n`);
     if (stroke) emit(`${f(state.strokeWidth)} w\n`);
-    if (stroke && state.dash) emit(`[${state.dash.split(/[\s,]+/).filter(Boolean).join(' ')}] 0 d\n`);
-    else if (stroke) emit('[] 0 d\n');
-    if (state.linecap) emit(`${state.linecap === 'round' ? 1 : state.linecap === 'square' ? 2 : 0} J\n`);
-    if (state.linejoin) emit(`${state.linejoin === 'round' ? 1 : state.linejoin === 'bevel' ? 2 : 0} j\n`);
+    // PDF keeps these until something changes them, and only an element with a transform gets a
+    // q/Q of its own, so each stroke states all of them: otherwise the round cap of the legend's
+    // divorce mark would carry on into the lines and crop marks drawn after it.
+    if (stroke) {
+      emit(state.dash ? `[${state.dash.split(/[\s,]+/).filter(Boolean).join(' ')}] 0 d\n` : '[] 0 d\n');
+      emit(`${state.linecap === 'round' ? 1 : state.linecap === 'square' ? 2 : 0} J\n`);
+      emit(`${state.linejoin === 'round' ? 1 : state.linejoin === 'bevel' ? 2 : 0} j\n`);
+    }
     return { fill: !!fill || !!fillPattern, stroke: !!stroke };
   };
   const paintOp = (p: { fill: boolean; stroke: boolean }) => (p.fill && p.stroke ? 'B' : p.stroke ? 'S' : p.fill ? 'f' : 'n');

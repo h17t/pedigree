@@ -67,8 +67,17 @@ async function deflate(bytes: Uint8Array): Promise<Uint8Array> {
   return out;
 }
 
-/** Text of a PDF string: escape the three characters that would end it early. */
-export const pdfString = (s: string) => `(${s.replace(/[\\()]/g, (c) => `\\${c}`)})`;
+/**
+ * Text of a PDF string. Plain ASCII is written literally, with the three characters escaped that
+ * would otherwise end it early; anything else goes as UTF-16 big-endian with a byte order mark, in
+ * hex, which is the only way a PDF string can hold a name written in Japanese or Russian.
+ */
+export function pdfString(s: string): string {
+  if (/^[\x20-\x7e]*$/.test(s)) return `(${s.replace(/[\\()]/g, (c) => `\\${c}`)})`;
+  let hex = 'FEFF';
+  for (let i = 0; i < s.length; i++) hex += s.charCodeAt(i).toString(16).toUpperCase().padStart(4, '0');
+  return `<${hex}>`;
+}
 
 /** Collects numbered objects and lays them out with a cross-reference table. */
 class Objects {

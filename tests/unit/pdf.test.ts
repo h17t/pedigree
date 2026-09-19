@@ -211,6 +211,15 @@ describe('the finished file', () => {
     await expect(exportPdf({ sheets: [{ svg, widthMm: 297, heightMm: 210 }], text: `${text}田中`, weights: [400], base: '', title: 'x', creator: 'Pedigree' }, refuse, parse)).rejects.toBeInstanceOf(FontsUnavailable);
   });
 
+  it('keeps a name written in another script readable in the metadata of the file', async () => {
+    const bytes = await buildPdf([{ widthPt: 100, heightPt: 100, content: '', fonts: [], patterns: [] }], [], { title: '田中家', creator: 'Pedigree' });
+    const text = new TextDecoder('latin1').decode(bytes);
+    // UTF-16 big-endian with a byte order mark, in hex: the only form a PDF string has for this.
+    expect(text).toContain('/Title <FEFF75304E2D5BB6>');
+    // Plain ASCII stays legible in the file.
+    expect(text).toContain('/Creator (Pedigree)');
+  });
+
   it('lays the cross-reference table out so every object can be found', async () => {
     const bytes = await buildPdf([{ widthPt: 100, heightPt: 100, content: '', fonts: [], patterns: [] }], [], { title: 'T', creator: 'Pedigree' });
     const text = new TextDecoder('latin1').decode(bytes);
@@ -254,5 +263,21 @@ describe('arcs', () => {
     const [mx, my] = bezier(points, 0.5);
     expect(mx!).toBeGreaterThan(0);
     expect(my!).toBeGreaterThan(0);
+  });
+});
+
+describe('graphics state', () => {
+  it('states the cap and join on every stroke, so one element cannot change the next', () => {
+    const r = sheetToPdf({
+      svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M0 0 L9 9" stroke="#000000" stroke-linecap="round"/><path d="M0 9 L9 0" stroke="#000000"/></svg>',
+      widthPt: 100,
+      heightPt: 100,
+      chooseFont: () => null,
+      fonts: new Map<string, EmbeddedFont>(),
+      parse,
+    });
+    // The round cap of the first path, then the default put back for the second.
+    const caps = [...r.content.matchAll(/^(\d) J$/gm)].map((m) => m[1]);
+    expect(caps).toEqual(['1', '0']);
   });
 });

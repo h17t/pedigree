@@ -53,7 +53,11 @@ function pedigree(project: Project, personId: string, generations: number, level
   if (!project.persons[personId]) return { positions, visible: new Set(), lines, useUnions: false, width: 0, height: 0 };
   const adj = buildAdjacency(project, breakCycles(project).ignoredLinks);
   const h = cardHeight(level);
-  const rowStep = h + spacingGaps[spacingOf(project).rows].generationGap / 2;
+  // A pedigree turns the tree on its side: generations run left to right, and what stacks
+  // downwards is the people of one generation. So the vertical step follows the "across" setting,
+  // which is the one that says how much room the cards of a generation get; the step from one
+  // generation to the next is fixed here, so the "down" setting has nothing to govern.
+  const rowStep = h + spacingGaps[spacingOf(project).columns].generationGap / 2;
   const colStep = card.width + H_GAP;
   let nextRow = 0;
   const rowOf = new Map<string, number>();

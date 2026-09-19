@@ -116,6 +116,14 @@ export function PrintDialog() {
   const smallestPt = (effectiveMode === 'tile' ? smallestTextAt(tileScale / 100) : (fit?.smallestTextPt ?? 0)) * cardScale;
   const dateText = withDate ? new Intl.DateTimeFormat(intlTag[locale], { dateStyle: 'long' }).format(new Date()) : '';
 
+  /**
+   * Every character the sheets can contain, which decides the font chunks the SVG embeds and the
+   * PDF carries. The sheet caption belongs in it: on a tiled sheet it is drawn like any other
+   * text, and in Japanese, Chinese or Korean it is the only place those characters may appear.
+   */
+  const sampleText = () =>
+    (drawing?.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join('') + (sheetTotal > 1 ? t('print.sheetLabel', { index: sheetTotal, count: sheetTotal }) : '');
+
   const overlayFor = (sheetIndex: number, total: number) => {
     const parts: string[] = [];
     if (headerPx) parts.push(`<g transform="translate(${marginPx} ${marginPx})">${headerMarkup({ title, subtitle: total > 1 ? `${subtitle ? subtitle + ' · ' : ''}${t('print.sheetLabel', { index: sheetIndex, count: total })}` : subtitle, date: dateText }, areaPx.w)}</g>`);
@@ -170,7 +178,7 @@ export function PrintDialog() {
   const onSvg = async () => {
     setBusy(true);
     try {
-      const fonts = await fontsFor((drawing?.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join(''), CARD_FONT_WEIGHTS, BASE_PATH);
+      const fonts = await fontsFor(sampleText(), CARD_FONT_WEIGHTS, BASE_PATH);
       const svg = effectiveMode === 'tile' ? await wholeDrawingSvg() : buildSheet(1, fonts.css);
       download(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), `${fileBase()}.svg`);
       // East Asian fonts can make the file very large; say so and point to PNG.
@@ -189,10 +197,9 @@ export function PrintDialog() {
       // embedded by the PDF writer, so the sheets are built without the CSS copies.
       const { exportPdf, FontsUnavailable } = await import('@/print/pdf');
       const sheets = Array.from({ length: sheetTotal }, (_, i) => ({ svg: buildSheet(i + 1, ''), widthMm: sheet.width, heightMm: sheet.height }));
-      const text = (drawing.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join('');
       try {
         const bytes = await exportPdf(
-          { sheets, text, weights: CARD_FONT_WEIGHTS, base: BASE_PATH, title: title || (project?.name ?? 'Pedigree'), creator: 'Pedigree' },
+          { sheets, text: sampleText(), weights: CARD_FONT_WEIGHTS, base: BASE_PATH, title: title || (project?.name ?? 'Pedigree'), creator: 'Pedigree' },
           async (file) => {
             const res = await fetch(`${BASE_PATH}${file}`);
             if (!res.ok) throw new Error(`${res.status}`);
@@ -217,7 +224,7 @@ export function PrintDialog() {
     if (!png.allowed) return;
     setBusy(true);
     try {
-      const fonts = await fontsFor((drawing?.text ?? '') + title + subtitle + dateText + legendLines.map((l) => l.text).join(''), CARD_FONT_WEIGHTS, BASE_PATH);
+      const fonts = await fontsFor(sampleText(), CARD_FONT_WEIGHTS, BASE_PATH);
       const blob = await svgToPngBlob(buildSheet(Math.min(previewSheet, sheetTotal), fonts.css), png.width, png.height);
       download(blob, `${fileBase()}.png`);
     } catch {
